@@ -1,10 +1,16 @@
-cmake_minimum_required(VERSION 3.10)  # Minimum required version of CMake
+# Specify the minimum version for CMake
+cmake_minimum_required(VERSION 3.10)
 
-project(HelloWorld)  # Name of your project
+# Project's name
+project(MyProject)
 
-# Set C++11 as the standard for the project
+# Set C++11 as the standard
 set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)  # Turn on this to use only C++11 standard without compiler extensions
+set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-add_executable(HelloWorld main.cpp)  # Add executable
+# Add executable
+add_executable(main main.cpp Date.cpp Market.cpp Pricer.cpp)
+
+# Optionally, you can set the output directory for binaries
+set_target_properties(main PROPERTIES
+                      RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
