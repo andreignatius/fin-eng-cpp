@@ -8,5 +8,8 @@ cd build
 cmake ..
 make
 
+# Go to exe folder
+cd bin
+
 # Running the executable
-./HelloWorld
+./main
