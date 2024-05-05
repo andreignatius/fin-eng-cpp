@@ -16,12 +16,27 @@ Date::Date(int y, int m, int d) {
   timePoint = std::chrono::system_clock::from_time_t(tt);
 }
 
+void Date::addMonths(int months) {
+    auto days = std::chrono::system_clock::to_time_t(timePoint);
+    std::tm* date_tm = std::localtime(&days);
+
+    date_tm->tm_mon += months; // Add months
+
+    // Normalize the tm structure
+    mktime(date_tm);
+
+    // Convert back to time_point
+    timePoint = std::chrono::system_clock::from_time_t(mktime(date_tm));
+}
+
 long Date::differenceInDays(const Date& other) const {
   // auto duration = timePoint - other.timePoint;
   // return std::chrono::duration_cast<std::chrono::days>(duration).count();
   auto duration = timePoint - other.timePoint;
   return std::chrono::duration_cast<std::chrono::hours>(duration).count() / 24;
 }
+
+void addMonths(int months);
 
 bool Date::operator>=(const Date& rhs) const {
   return timePoint >= rhs.timePoint;

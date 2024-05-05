@@ -1,5 +1,7 @@
 #include "Market.h"
 #include <algorithm>
+#include <fstream>
+#include <sstream>
 
 using namespace std;
 
@@ -113,6 +115,45 @@ void Market::addBondPrice(const std::string& bondName, double price) {
 
 void Market::addStockPrice(const std::string& stockName, double price) {
   stockPrices[stockName] = price;
+}
+
+void Market::updateMarketFromVolFile(const std::string& filePath) {
+    std::ifstream file(filePath);
+    if (!file.is_open()) {
+        std::cerr << "Failed to open file: " << filePath << std::endl;
+        return;
+    }
+
+    std::string line;
+    VolCurve volCurve("VolCurve1"); // You can dynamically name it based on some criteria if needed
+
+    while (getline(file, line)) {
+        std::istringstream iss(line);
+        std::string tenor;
+        double vol;
+        char colon;
+        char percent;
+
+        if (!(iss >> tenor >> colon >> vol >> percent)) {
+            std::cerr << "Failed to parse line: " << line << std::endl;
+            continue; // Skip malformed lines
+        }
+
+        tenor.pop_back(); // Remove last character ('M' or 'Y')
+        int numMonths = std::stoi(tenor);
+        if (line.back() == 'Y') {
+            numMonths *= 12; // Convert years to months if necessary
+        }
+
+        Date tenorDate = asOf;
+        tenorDate.addMonths(numMonths); // Method to add months to Date
+
+        volCurve.addVol(tenorDate, vol / 100.0); // Convert percentage to decimal and add to vol curve
+    }
+
+    addVolCurve("VolCurve1", volCurve); // Adding the vol curve to the market
+
+    file.close();
 }
 
 std::ostream& operator<<(std::ostream& os, const Market& mkt)
