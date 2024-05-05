@@ -45,6 +45,7 @@ public:
   void addCurve(const std::string& curveName, const RateCurve& curve);//implement this
   void addVolCurve(const std::string& curveName, const VolCurve& curve);//implement this
   void addBondPrice(const std::string& bondName, double price);//implement this
+  void addStockPrice(const std::string& bondName, double price);//implement this
   void addVolCurve(const std::string& stockName, double price);//implement this
   
   inline RateCurve getCurve(const string& name) { return curves[name]; };
