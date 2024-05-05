@@ -1,6 +1,8 @@
 #include <fstream>
 #include <ctime>
 #include <chrono>
+#include <unistd.h>
+#include <iostream>
 
 #include "Market.h"
 #include "Pricer.h"
@@ -34,6 +36,14 @@ int main()
   /*
   load data from file and update market object with data
   */
+  char cwd[1024];
+  if (getcwd(cwd, sizeof(cwd)) != nullptr) {
+    std::cout << "Current working dir: " << cwd << std::endl;
+  } else {
+    perror("getcwd() error");
+  }
+  mkt.updateMarketFromVolFile("../../vol.txt"); // Update market data from file
+  mkt.Print(); // Check loaded data
 
   //task 2, create a portfolio of bond, swap, european option, american option
   //for each time, at least should have long / short, different tenor or expiry, different underlying
