@@ -49,8 +49,23 @@ int main()
   //for each time, at least should have long / short, different tenor or expiry, different underlying
   //totally no less than 16 trades
   vector<Trade*> myPortfolio;
-  Trade* bond = new Bond(Date(2024, 1, 1), Date(2034, 1, 1), 10000000, 103.5);
-  myPortfolio.push_back(bond);
+
+  // Adding Bonds
+  myPortfolio.push_back(new Bond(Date(2024, 1, 1), Date(2034, 1, 1), 10000000, 103.5)); // Long position
+  myPortfolio.push_back(new Bond(Date(2024, 1, 1), Date(2029, 1, 1), 5000000, 105.0));  // Short position
+
+  // Adding Swaps
+  myPortfolio.push_back(new Swap(Date(2024, 1, 1), Date(2029, 1, 1), 2000000, 0.01, 1, true, mkt)); // Fixed-for-floating, annual
+  myPortfolio.push_back(new Swap(Date(2024, 1, 1), Date(2029, 1, 1), 2000000, 0.02, 2, false, mkt)); // Floating-for-fixed, semi-annual
+
+  // Adding European Options
+  myPortfolio.push_back(new EuropeanOption(Call, 100, Date(2025, 12, 31))); // Call option
+  myPortfolio.push_back(new EuropeanOption(Put, 100, Date(2025, 12, 31)));  // Put option
+
+  // Adding American Options
+  myPortfolio.push_back(new AmericanOption(Call, 100, Date(2025, 12, 31))); // Call option
+  myPortfolio.push_back(new AmericanOption(Put, 100, Date(2025, 12, 31)));  // Put option
+
 
 
   //task 3, creat a pricer and price the portfolio, output the pricing result of each deal.
