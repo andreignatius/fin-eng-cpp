@@ -13,7 +13,7 @@ double Swap::Payoff(double marketPrice) const {
         // Optionally use a fallback rate here
         std::cerr << "InterestRateCurve not found in market data. - using default rate 0." << std::endl;
     }
-    if (is_fixed_for_floating) {
+    if (isFixedForFloating) {
         payoff = annuity * (tradeRate - currentRate); // Fixed-for-floating swap payoff calculation
     } else {
         payoff = annuity * (currentRate - tradeRate); // Floating-for-fixed swap payoff calculation
