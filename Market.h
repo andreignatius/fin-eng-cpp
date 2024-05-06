@@ -58,10 +58,10 @@ class Market {
 
     void updateMarketFromVolFile(const std::string &filePath); // Add this method
     void updateMarketFromStockFile(const std::string& filePath);  // Method to load stock prices from a file
+    void updateMarketFromCurveFile(const std::string& filePath, const std::string& curveName);
     double getSpotPrice(const std::string &assetName) const;
     double getVolatility(const std::string &assetName) const;
-    double
-    getRiskFreeRate() const; // Assuming a single risk-free rate for simplicity
+    double getRiskFreeRate() const; // Assuming a single risk-free rate for simplicity
 
     // inline RateCurve getCurve(const string& name) { return curves[name]; };
     inline const RateCurve &getCurve(const string &name) const {

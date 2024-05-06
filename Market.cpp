@@ -203,6 +203,37 @@ void Market::updateMarketFromStockFile(const std::string& filePath) {
     file.close();
 }
 
+void Market::updateMarketFromCurveFile(const std::string& filePath, const std::string& curveName) {
+    std::ifstream file(filePath);
+    if (!file.is_open()) {
+        std::cerr << "Failed to open file: " << filePath << std::endl;
+        return;
+    }
+
+    RateCurve rateCurve(curveName);
+    std::string line;
+    while (getline(file, line)) {
+        std::istringstream iss(line);
+        std::string tenorStr;
+        double rate;
+        char delimiter;
+        if (iss >> tenorStr >> delimiter >> rate && delimiter == ':') {
+            rate /= 100.0;  // Convert percentage to decimal
+            // Remove last character ('M' or 'Y') and calculate months
+            int numMonths = std::stoi(tenorStr.substr(0, tenorStr.size() - 1));
+            if (tenorStr.back() == 'Y') {
+                numMonths *= 12;
+            }
+            Date tenorDate = this->asOf;  // Use the market's current date
+            tenorDate.addMonths(numMonths);
+            rateCurve.addRate(tenorDate, rate);
+        }
+    }
+    this->addCurve(curveName, rateCurve);  // Use the existing method to add the curve to the market
+    file.close();
+}
+
+
 double Market::getSpotPrice(const std::string &assetName) const {
     auto it = stockPrices.find(assetName);
     if (it != stockPrices.end()) {
