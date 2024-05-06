@@ -174,19 +174,53 @@ void Market::updateMarketFromVolFile(const std::string &filePath) {
     file.close();
 }
 
-double Market::getSpotPrice(const std::string &assetName) const {
-    if (stockPrices.find(assetName) != stockPrices.end()) {
-        return stockPrices.at(assetName);
+void Market::updateMarketFromStockFile(const std::string& filePath) {
+    std::ifstream file(filePath);
+    if (!file.is_open()) {
+        std::cerr << "Failed to open stock price file: " << filePath << std::endl;
+        return;
     }
-    throw std::runtime_error("Asset not found");
+
+    std::string line;
+    while (getline(file, line)) {
+        std::istringstream iss(line);
+        std::string assetName;
+        double price;
+        char colon;
+
+        if (!(iss >> assetName >> colon >> price)) {
+            std::cerr << "Failed to parse line: " << line << std::endl;
+            continue;  // Skip malformed lines
+        }
+
+        // Remove the colon from the asset name if it's present
+        if (assetName.back() == ':') {
+            assetName.pop_back();
+        }
+
+        addStockPrice(assetName, price);
+    }
+    file.close();
+}
+
+double Market::getSpotPrice(const std::string &assetName) const {
+    auto it = stockPrices.find(assetName);
+    if (it != stockPrices.end()) {
+        return it->second;
+    }
+    std::cerr << "Asset not found: " << assetName << ", returning default price 0." << std::endl;
+    return 0;  // Return a default price or handle as needed
 }
 
 double Market::getVolatility(const std::string &assetName) const {
-    if (vols.find(assetName) != vols.end()) {
-        return vols.at(assetName).getLatestVol();
+    auto it = vols.find(assetName);
+    if (it != vols.end()) {
+        return it->second.getLatestVol();
     }
-    throw std::runtime_error("Volatility data not found for asset");
+    std::cerr << "Volatility data not found for asset: " << assetName << ", returning default vol 0." << std::endl;
+    return 0;  // Return a default value or handle as needed
 }
+
 
 double Market::getRiskFreeRate() const {
     // Assuming risk-free rate is a single value for simplicity; implement

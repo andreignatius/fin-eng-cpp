@@ -56,8 +56,8 @@ class Market {
                      double price); // implement this
     void setRiskFreeRate(double rate);
 
-    void
-    updateMarketFromVolFile(const std::string &filePath); // Add this method
+    void updateMarketFromVolFile(const std::string &filePath); // Add this method
+    void updateMarketFromStockFile(const std::string& filePath);  // Method to load stock prices from a file
     double getSpotPrice(const std::string &assetName) const;
     double getVolatility(const std::string &assetName) const;
     double

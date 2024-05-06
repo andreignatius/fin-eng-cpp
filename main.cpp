@@ -44,6 +44,7 @@ int main() {
     }
     mkt.updateMarketFromVolFile(
         "../../vol.txt"); // Update market data from file
+    mkt.updateMarketFromStockFile("../../stockPrice.txt");  // Load stock prices
     mkt.Print();          // Check loaded data
 
     // task 2, create a portfolio of bond, swap, european option, american
