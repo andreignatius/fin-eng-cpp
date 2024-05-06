@@ -50,7 +50,8 @@ public:
 
   void updateMarketFromVolFile(const std::string& filePath);  // Add this method
   
-  inline RateCurve getCurve(const string& name) { return curves[name]; };
+  // inline RateCurve getCurve(const string& name) { return curves[name]; };
+  inline const RateCurve& getCurve(const string& name) const { return curves.at(name); };
   inline VolCurve getVolCurve(const string& name) { return vols[name]; };
 
 private:
