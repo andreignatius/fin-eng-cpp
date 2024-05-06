@@ -13,7 +13,7 @@ double Swap::Payoff(double marketPrice) const {
         // Optionally use a fallback rate here
         std::cerr << "InterestRateCurve not found in market data. - using default rate 0." << std::endl;
     }
-    if (is_fixed_for_floating_) {
+    if (is_fixed_for_floating) {
         payoff = annuity * (tradeRate - currentRate); // Fixed-for-floating swap payoff calculation
     } else {
         payoff = annuity * (currentRate - tradeRate); // Floating-for-fixed swap payoff calculation
@@ -40,13 +40,13 @@ double Swap::getAnnuity() const {
         double yearsSinceStart = static_cast<double>(paymentDate.differenceInDays(startDate)) / 365.25; // Convert days to years
         double rate = 0.0;
         try {
-            rate = market_.getCurve("InterestRateCurve").getRate(paymentDate);
+            rate = market.getCurve("InterestRateCurve").getRate(paymentDate);
         } catch (const std::out_of_range& e) {
             // Handle error appropriately, e.g., use a fallback rate
             std::cerr << "Failed to find rate for date: " << paymentDate << ". Using default rate 0." << std::endl;
         }
         double discountFactor = exp(-rate * yearsSinceStart);
-        totalAnnuity += notional_ * discountFactor;
+        totalAnnuity += notional * discountFactor;
     }
     return totalAnnuity;
 }
