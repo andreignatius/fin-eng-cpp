@@ -46,6 +46,7 @@ double Swap::getAnnuity() const {
         double yearsSinceStart = static_cast<double>(paymentDate.differenceInDays(startDate)) / 365.25; // Convert days to years
         double rate = 0.0;
         try {
+            // TODO : get rate method needs to be refactored
             rate = market.getCurve("InterestRateCurve").getRate(paymentDate);
         } catch (const std::out_of_range& e) {
             // Handle error appropriately, e.g., use a fallback rate

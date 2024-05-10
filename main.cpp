@@ -49,6 +49,7 @@ int main() {
     mkt.updateMarketFromCurveFile("../../curve.txt", "USD-SOFR");
     mkt.Print();          // Check loaded data
 
+    // TODO : create more bonds / swaps/ european option / american options
     // task 2, create a portfolio of bond, swap, european option, american
     // option for each time, at least should have long / short, different tenor
     // or expiry, different underlying totally no less than 16 trades
@@ -80,7 +81,7 @@ int main() {
     myPortfolio.push_back(
         new AmericanOption(Put, 100, Date(2025, 12, 31))); // Put option
 
-    // task 3, creat a pricer and price the portfolio, output the pricing result
+    // task 3, create a pricer and price the portfolio, output the pricing result
     // of each deal.
     Pricer *treePricer = new CRRBinomialTreePricer(10);
     std::vector<double> pricingResults;
@@ -96,9 +97,10 @@ int main() {
     //  a) compare CRR binomial tree result for an european option vs Black
     //  model b) compare CRR binomial tree result for an american option vs
     //  european option
-    
+
     // task 4, analyzing pricing result
     // a) compare CRR binomial tree result for a European option vs Black-Scholes model
+    // results should converge over time
     for (auto trade : myPortfolio) {
         EuropeanOption *euroOption = dynamic_cast<EuropeanOption *>(trade);
         if (euroOption) {
@@ -111,6 +113,7 @@ int main() {
     }
 
     // b) compare CRR binomial tree result for an American option vs European option
+    // compare between US call / put vs EU call / put
     for (auto trade : myPortfolio) {
         AmericanOption *amerOption = dynamic_cast<AmericanOption *>(trade);
         if (amerOption) {

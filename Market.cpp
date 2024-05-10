@@ -233,7 +233,7 @@ void Market::updateMarketFromCurveFile(const std::string& filePath, const std::s
     file.close();
 }
 
-
+// TODO : get spot price, get vol and get rate implementation needs to be refactored
 double Market::getSpotPrice(const std::string &assetName) const {
     auto it = stockPrices.find(assetName);
     if (it != stockPrices.end()) {
