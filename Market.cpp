@@ -13,7 +13,7 @@ void RateCurve::display() const {
     cout << endl;
 }
 
-void RateCurve::addRate(Date tenor, double rate) {
+void RateCurve::addRate(const Date& tenor, double rate) {
     // consider to check if tenor already exist
     // Search for the tenor in the existing list of tenors
     auto it = std::find_if(
@@ -96,10 +96,10 @@ void VolCurve::display() const {
 void Market::Print() const {
     cout << "market asof: " << asOf << endl;
 
-    for (auto curve : curves) {
+    for (auto &curve : curves) {
         curve.second.display();
     }
-    for (auto vol : vols) {
+    for (auto &vol : vols) {
         vol.second.display();
     }
 

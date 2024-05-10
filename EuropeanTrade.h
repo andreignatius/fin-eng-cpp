@@ -15,7 +15,7 @@ public:
     virtual const Date& GetExpiry() const { return expiryDate; }
     virtual double ValueAtNode(double S, double t, double continuation) const { return continuation; }
 
-private:
+protected:
     OptionType optType;
     double strike;
     Date expiryDate;
@@ -27,12 +27,12 @@ public:
         assert(_k1 < _k2); 
       };
     virtual double Payoff(double S) const { return PAYOFF::CallSpread(strike1, strike2, S); };
-    virtual const Date& GetExpiry() const { return expiryDate; };
+    // virtual const Date& GetExpiry() const { return expiryDate; };
 
 private:
     double strike1;
     double strike2;
-    Date expiryDate;
+    // Date expiryDate;
 };
 
 #endif

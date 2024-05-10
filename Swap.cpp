@@ -21,6 +21,12 @@ double Swap::Payoff(double marketPrice) const {
     return payoff;
 }
 
+// discounting cash flow
+// compute the par rate
+// compare par rate w swap rate differences
+// Dv01 / PV of swap
+// NPV (swap) = PV (fixed leg) + PV(float leg)
+// annuity = DV01
 double Swap::getAnnuity() const {
     double totalAnnuity = 0.0;
     Date paymentDate = startDate;

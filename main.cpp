@@ -10,6 +10,7 @@
 #include "Market.h"
 #include "Pricer.h"
 #include "Swap.h"
+#include "BlackScholesPricer.h"
 
 using namespace std;
 
@@ -95,6 +96,37 @@ int main() {
     //  a) compare CRR binomial tree result for an european option vs Black
     //  model b) compare CRR binomial tree result for an american option vs
     //  european option
+    
+    // task 4, analyzing pricing result
+    // a) compare CRR binomial tree result for a European option vs Black-Scholes model
+    for (auto trade : myPortfolio) {
+        EuropeanOption *euroOption = dynamic_cast<EuropeanOption *>(trade);
+        if (euroOption) {
+            double bsPrice = BlackScholesPricer::Price(mkt, *euroOption);
+            double crrPrice = treePricer->Price(mkt, euroOption);
+            std::cout << "Comparing European Option: " << std::endl;
+            std::cout << "Black-Scholes Price: " << bsPrice << std::endl;
+            std::cout << "CRR Binomial Tree Price: " << crrPrice << std::endl;
+        }
+    }
+
+    // b) compare CRR binomial tree result for an American option vs European option
+    for (auto trade : myPortfolio) {
+        AmericanOption *amerOption = dynamic_cast<AmericanOption *>(trade);
+        if (amerOption) {
+            for (auto trade2 : myPortfolio) {
+                EuropeanOption *euroOption = dynamic_cast<EuropeanOption *>(trade2);
+                if (euroOption && euroOption->getStrike() == amerOption->getStrike() &&
+                    euroOption->GetExpiry() == amerOption->GetExpiry() && euroOption->getOptionType() == amerOption->getOptionType()) {
+                    double amerPrice = treePricer->Price(mkt, amerOption);
+                    double euroPrice = treePricer->Price(mkt, euroOption);
+                    std::cout << "Comparing American Option with European Option: " << std::endl;
+                    std::cout << "American Option Price: " << amerPrice << std::endl;
+                    std::cout << "European Option Price: " << euroPrice << std::endl;
+                }
+            }
+        }
+    }
 
     // final
     cout << "Project build successfully!" << endl;
