@@ -1,0 +1,33 @@
+Security Type,Tenor,Volatility
+Bond,1M,5.1%
+Bond,3M,5.2%
+Bond,6M,5.3%
+Bond,9M,5.4%
+Bond,1Y,5.5%
+Bond,2Y,5.7%
+Bond,5Y,6.0%
+Bond,10Y,6.2%
+Swap,1M,0.6%
+Swap,3M,0.8%
+Swap,6M,1.1%
+Swap,9M,1.3%
+Swap,1Y,1.6%
+Swap,2Y,1.9%
+Swap,5Y,2.3%
+Swap,10Y,2.7%
+European Option,1M,20.0%
+European Option,3M,22.0%
+European Option,6M,24.0%
+European Option,9M,25.0%
+European Option,1Y,26.0%
+European Option,2Y,27.5%
+European Option,5Y,29.0%
+European Option,10Y,30.5%
+American Option,1M,21.0%
+American Option,3M,23.0%
+American Option,6M,25.0%
+American Option,9M,26.0%
+American Option,1Y,27.0%
+American Option,2Y,28.5%
+American Option,5Y,30.0%
+American Option,10Y,31.5%
