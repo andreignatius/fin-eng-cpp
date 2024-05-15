@@ -47,6 +47,7 @@ std::vector<std::string> CSVReader::parseRow(const std::string &row,
     return result;
 }
 
+/*
 int main() {
     CSVReader myCSVReader = CSVReader("sofrdummycurve.csv");
     std::unordered_map<std::string, std::vector<std::string>> myMap =
@@ -70,3 +71,4 @@ int main() {
 
     return 0;
 }
+*/
