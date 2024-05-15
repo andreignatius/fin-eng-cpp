@@ -43,8 +43,7 @@ int main() {
     } else {
         perror("getcwd() error");
     }
-    mkt.updateMarketFromVolFile(
-        "../../vol.txt"); // Update market data from file
+    mkt.updateMarketFromVolFile("../../vol.txt", "vol"); // Update market data from file
     mkt.updateMarketFromStockFile("../../stockPrice.txt");  // Load stock prices
     mkt.updateMarketFromCurveFile("../../curve.txt", "USD-SOFR");
     mkt.Print();          // Check loaded data
