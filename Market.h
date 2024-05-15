@@ -1,18 +1,25 @@
 #ifndef MARKET_H
 #define MARKET_H
 
+#include "CSVReader.h"
 #include "Date.h"
 #include <iostream>
 #include <unordered_map>
 #include <vector>
+#include <algorithm>
+#include <fstream>
+#include <sstream>
+#include "TenorMap.h"
+#include <cmath>
 
 using namespace std;
 
 class RateCurve {
   public:
+    Date startDate;
     RateCurve() {};
-    RateCurve(const string &_name) : name(_name) {};
-    void addRate(Date tenor, double rate);
+    RateCurve(const string &_name, const Date& _startDate) : name(_name), startDate(_startDate) {};
+    void addRate(const Date& tenor, double rate);
     double getRate(
         Date tenor) const; // implement this function using linear interpolation
     void display() const;
@@ -25,8 +32,9 @@ class RateCurve {
 
 class VolCurve { // atm vol curve without smile
   public:
+    Date startDate;
     VolCurve() {}
-    VolCurve(const string &_name) : name(_name) {};
+    VolCurve(const string &_name, const Date& _startDate) : name(_name), startDate(_startDate) {};
     void addVol(Date tenor, double rate); // implement this
     double getVol(
         Date tenor) const; // implement this function using linear interpolation
@@ -54,11 +62,13 @@ class Market {
                        double price); // implement this
     void addVolCurve(const std::string &stockName,
                      double price); // implement this
+    
     void setRiskFreeRate(double rate);
 
-    void updateMarketFromVolFile(const std::string &filePath); // Add this method
+    void updateMarketFromVolFile(const std::string &filePath, const std::string& curveName); // Add this method
     void updateMarketFromStockFile(const std::string& filePath);  // Method to load stock prices from a file
     void updateMarketFromCurveFile(const std::string& filePath, const std::string& curveName);
+    
     double getSpotPrice(const std::string &assetName) const;
     double getVolatility(const std::string &assetName) const;
     double getRiskFreeRate() const; // Assuming a single risk-free rate for simplicity
