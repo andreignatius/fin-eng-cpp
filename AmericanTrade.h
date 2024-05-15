@@ -19,6 +19,8 @@ public:
   { 
     return expiryDate;
   }
+  double getStrike() const { return strike; }
+  OptionType getOptionType() const { return optType; }
   virtual double ValueAtNode(double S, double t, double continuation) const 
   { 
     return std::max(Payoff(S), continuation); 

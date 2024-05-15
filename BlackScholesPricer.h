@@ -8,6 +8,7 @@
 class BlackScholesPricer {
 public:
     static double Price(const Market& market, const EuropeanOption& option);
+    static double normcdf(double value);
 };
 
 #endif
