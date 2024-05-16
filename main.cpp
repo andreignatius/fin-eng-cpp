@@ -34,17 +34,17 @@ int main() {
     } else {
         perror("getcwd() error");
     }
-    mkt.updateMarketFromVolFile("../../vol_bond.csv", "BondTrade"); // Update market data from file
-    mkt.updateMarketFromVolFile("../../vol_swap.csv", "SwapTrade"); // Update market data from file
-    mkt.updateMarketFromVolFile("../../vol_amer.csv", "AmericanOption"); // Update market data from file
-    mkt.updateMarketFromVolFile("../../vol_euro.csv", "EuropeanOption"); // Update market data from file
+    mkt.updateMarketFromVolFile("../../data/vol_bond.csv", "BondTrade"); // Update market data from file
+    mkt.updateMarketFromVolFile("../../data/vol_swap.csv", "SwapTrade"); // Update market data from file
+    mkt.updateMarketFromVolFile("../../data/vol_amer.csv", "AmericanOption"); // Update market data from file
+    mkt.updateMarketFromVolFile("../../data/vol_euro.csv", "EuropeanOption"); // Update market data from file
     // mkt.updateMarketFromVolFile("../../voldummycurve.csv", "vol");
     
-    // mkt.updateMarketFromVolFile("../../vol.txt", "vol");
+    // mkt.updateMarketFromVolFile("../../data/vol.txt", "vol");
 
-    mkt.updateMarketFromStockFile("../../stockPrice.csv");  // Load stock prices
-    // mkt.updateMarketFromCurveFile("../../curve.txt", "USD-SOFR");
-    mkt.updateMarketFromCurveFile("../../sofrdummycurve.csv", "USD-SOFR");
+    mkt.updateMarketFromStockFile("../../data/stockPrice.csv");  // Load stock prices
+    // mkt.updateMarketFromCurveFile("../../data/curve.txt", "USD-SOFR");
+    mkt.updateMarketFromCurveFile("../../data/sofrdummycurve.csv", "USD-SOFR");
     mkt.Print();          // Check loaded data
 
     // TODO : create more bonds / swaps/ european option / american options
