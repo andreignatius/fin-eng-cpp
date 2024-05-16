@@ -14,15 +14,6 @@
 
 using namespace std;
 
-// void readFromFile(const string &fileName, string &outPut) {
-//     string lineText;
-//     ifstream MyReadFile(fileName);
-//     while (getline(MyReadFile, lineText)) {
-//         outPut.append(lineText);
-//     }
-//     MyReadFile.close();
-// }
-
 int main() {
     // task 1, create an market data object, and update the market data from
     // from txt file
