@@ -35,9 +35,8 @@ class VolCurve { // atm vol curve without smile
     Date startDate;
     VolCurve() {}
     VolCurve(const string &_name, const Date& _startDate) : name(_name), startDate(_startDate) {};
-    void addVol(Date tenor, double rate); // implement this
-    double getVol(
-        Date tenor) const; // implement this function using linear interpolation
+    void addVol(Date tenor, double volInDecimal); // implement this
+    double getVol(Date tenor) const; // implement using linear interpolation
     double getLatestVol() const; // Method to get the latest volatility
     void display() const;        // implement this
 
@@ -65,7 +64,7 @@ class Market {
     
     void setRiskFreeRate(double rate);
 
-    void updateMarketFromVolFile(const std::string &filePath, const std::string& curveName); // Add this method
+    void updateMarketFromVolFile(const std::string &filePath, const std::string& volName); // Add this method
     void updateMarketFromStockFile(const std::string& filePath);  // Method to load stock prices from a file
     void updateMarketFromCurveFile(const std::string& filePath, const std::string& curveName);
     
@@ -75,13 +74,13 @@ class Market {
 
     // inline RateCurve getCurve(const string& name) { return curves[name]; };
     inline const RateCurve &getCurve(const string &name) const {
-        return curves.at(name);
+        return rateCurves.at(name);
     };
-    inline VolCurve getVolCurve(const string &name) { return vols[name]; };
+    inline VolCurve getVolCurve(const string &name) { return volCurves[name]; };
 
   private:
-    unordered_map<string, VolCurve> vols;
-    unordered_map<string, RateCurve> curves;
+    unordered_map<string, VolCurve> volCurves;
+    unordered_map<string, RateCurve> rateCurves;
     unordered_map<string, double> bondPrices;
     unordered_map<string, double> stockPrices;
     double riskFreeRate = 0.0;

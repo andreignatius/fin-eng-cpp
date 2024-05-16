@@ -62,7 +62,7 @@ double RateCurve::getRate(Date tenor) const {
     return 0;
 }
 
-void VolCurve::addVol(Date tenor, double vol) {
+void VolCurve::addVol(Date tenor, double volInDecimal) {
     // consider to check if tenor already exist
     // Search for the tenor in the existing list of tenors
     auto it = std::find_if(
@@ -74,13 +74,13 @@ void VolCurve::addVol(Date tenor, double vol) {
     if (it != tenors.end()) {
         // Tenor already exists, replace the rate
         auto index = std::distance(tenors.begin(), it);
-        vols[index] = vol;
-        std::cout << "Updated existing tenor " << tenor << " with new rate " << vol<< std::endl;
+        vols[index] = volInDecimal;
+        std::cout << "Updated existing tenor " << tenor << " with new rate " << volInDecimal<< std::endl;
     } else {
         // Tenor does not exist, add new tenor and rate
         tenors.push_back(tenor);
-        vols.push_back(vol);
-        std::cout << "Added new tenor " << tenor << " with rate " << vol << std::endl;
+        vols.push_back(volInDecimal);
+        std::cout << "Added new tenor " << tenor << " with rate " << volInDecimal << std::endl;
     }
 }
 
@@ -130,14 +130,16 @@ void Market::Print() const {
     std::cout<<"============= PRINT MARKET ============="<<std::endl;
     std::cout << "market asof: " << asOf << std::endl;
 
-    for (auto &curve : curves) {
+    // LR: should we have similar methods for displaying them?
+    for (auto &curve : rateCurves) {
         curve.second.display();
     }
-    for (auto &vol : vols) {
+    for (auto &vol : volCurves) {
         vol.second.display();
     }
 
     // Add display for bond price and stock price
+    //TODO LR: bond output is not shown when running
     std::cout << "Bond Prices:" << std::endl;
     for (const auto &bond : bondPrices) {
         std::cout << "Bond: " << bond.first << " Price: " << bond.second << std::endl;
@@ -151,11 +153,11 @@ void Market::Print() const {
 }
 
 void Market::addCurve(const std::string &curveName, const RateCurve &curve) {
-    curves.emplace(curveName, curve);
+    rateCurves.emplace(curveName, curve);
 }
 
 void Market::addVolCurve(const std::string &curveName, const VolCurve &curve) {
-    vols[curveName] = curve;
+    volCurves[curveName] = curve;
 }
 
 void Market::setRiskFreeRate(double rate) { riskFreeRate = rate; }
@@ -169,6 +171,9 @@ void Market::addStockPrice(const std::string &stockName, double price) {
 }
 
 // JOS : assumes input csv contains 2 columns : tenor | vol
+// LR: realized vol and stock has different implementation style. standardize?
+// for vol: addvol() line by line then addCurve(); 
+// for stock: addStocks() as a chunk. 
 void Market::updateMarketFromVolFile(const std::string &filePath, const std::string& volName) {
         VolCurve volCurve(volName,this->asOf); // You can dynamically name it based on some
                                     // criteria if needed
@@ -180,11 +185,11 @@ void Market::updateMarketFromVolFile(const std::string &filePath, const std::str
             
             // further processing after parsing the csv file
             for(int i = 0; i<volMap["tenor"].size();i++){
-                double rateToDecimal = std::stod(volMap["vol"][i].substr(0, volMap["vol"][i].size() - 1))/100;
+                double volInDecimal = std::stod(volMap["vol"][i].substr(0, volMap["vol"][i].size() - 1))/100;
                 double mappedTenorMonths = tenorMap[volMap["tenor"][i]];
-                Date tenorDate = this->asOf;  // Use the market's current date
-                tenorDate.addMonths(mappedTenorMonths); // our Date class uses TM which takes integer for year and month, so we work with months
-                volCurve.addVol(tenorDate, rateToDecimal);
+                Date tenor = this->asOf;  // Use the market's current date
+                tenor.addMonths(mappedTenorMonths); // our Date class uses TM which takes integer for year and month, so we work with months
+                volCurve.addVol(tenor, volInDecimal);
             }
         } else {
 
@@ -199,27 +204,27 @@ void Market::updateMarketFromVolFile(const std::string &filePath, const std::str
 
             while (getline(file, line)) {
                 std::istringstream iss(line);
-                std::string tenor;
+                std::string tenor_str;
                 double vol;
                 char colon;
                 char percent;
 
-                if (!(iss >> tenor >> colon >> vol >> percent)) {
+                if (!(iss >> tenor_str >> colon >> vol >> percent)) {
                     std::cerr << "Failed to parse line: " << line << std::endl;
                     continue; // Skip malformed lines
                 }
 
-                tenor.pop_back(); // Remove last character ('M' or 'Y')
-                int numMonths = std::stoi(tenor);
+                tenor_str.pop_back(); // Remove last character ('M' or 'Y')
+                int numMonths = std::stoi(tenor_str);
                 if (line.back() == 'Y') {
                     numMonths *= 12; // Convert years to months if necessary
                 }
 
-                Date tenorDate = asOf;
-                tenorDate.addMonths(numMonths); // Method to add months to Date
+                Date tenor = asOf;
+                tenor.addMonths(numMonths); // Method to add months to Date
 
                 volCurve.addVol(
-                    tenorDate,
+                    tenor,
                     vol / 100.0); // Convert percentage to decimal and add to vol curve
             }
                 file.close();
@@ -287,9 +292,9 @@ void Market::updateMarketFromCurveFile(const std::string& filePath, const std::s
         for(int i = 0; i<curveMap["tenor"].size();i++){
             double rateToDecimal = std::stod(curveMap["rate"][i].substr(0, curveMap["rate"][i].size() - 1))/100;
             double mappedTenorMonths = tenorMap[curveMap["tenor"][i]];
-            Date tenorDate = this->asOf;  // Use the market's current date
-            tenorDate.addMonths(mappedTenorMonths); // our Date class uses TM which takes integer for year and month, so we work with months
-            rateCurve.addRate(tenorDate, rateToDecimal);
+            Date tenor = this->asOf;  // Use the market's current date
+            tenor.addMonths(mappedTenorMonths); // our Date class uses TM which takes integer for year and month, so we work with months
+            rateCurve.addRate(tenor, rateToDecimal);
         }
 
     } else {
@@ -312,9 +317,9 @@ void Market::updateMarketFromCurveFile(const std::string& filePath, const std::s
                 if (tenorStr.back() == 'Y') {
                     numMonths *= 12;
                 }
-                Date tenorDate = this->asOf;  // Use the market's current date
-                tenorDate.addMonths(numMonths);
-                rateCurve.addRate(tenorDate, rate);
+                Date tenor = this->asOf;  // Use the market's current date
+                tenor.addMonths(numMonths);
+                rateCurve.addRate(tenor, rate);
             }
     }
         file.close();
@@ -334,8 +339,8 @@ double Market::getSpotPrice(const std::string &assetName) const {
 }
 
 double Market::getVolatility(const std::string &assetName) const {
-    auto it = vols.find(assetName);
-    if (it != vols.end()) {
+    auto it = volCurves.find(assetName);
+    if (it != volCurves.end()) {
         return it->second.getLatestVol();
     }
     std::cerr << "Volatility data not found for asset: " << assetName << ", returning default vol 0." << std::endl;
