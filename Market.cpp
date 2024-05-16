@@ -252,19 +252,24 @@ void Market::updateMarketFromStockFile(const std::string& filePath) {
         
         std::string line;
         while (getline(file, line)) {
-            std::istringstream iss(line);
-            std::string assetName;
-            double price;
-            char colon;
+            // Remove spaces around the line if needed
+            line.erase(std::remove_if(line.begin(), line.end(), ::isspace), line.end());
 
-            if (!(iss >> assetName >> colon >> price)) {
-                std::cerr << "Failed to parse line: " << line << std::endl;
-                continue;  // Skip malformed lines
+            size_t colonPos = line.find(':');
+            if (colonPos == std::string::npos) {
+                std::cerr << "Malformed line (no colon found): " << line << std::endl;
+                continue; // Skip malformed lines
             }
 
-            // Remove the colon from the asset name if it's present
-            if (assetName.back() == ':') {
-                assetName.pop_back();
+            std::string assetName = line.substr(0, colonPos);
+            std::string priceStr = line.substr(colonPos + 1);
+
+            double price;
+            try {
+                price = std::stod(priceStr);
+            } catch (const std::exception& e) {
+                std::cerr << "Failed to convert price to double: " << priceStr << " in line: " << line << std::endl;
+                continue; // Skip lines with conversion errors
             }
 
             addStockPrice(assetName, price);
