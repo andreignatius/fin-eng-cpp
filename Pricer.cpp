@@ -3,13 +3,17 @@
 
 double Pricer::Price(const Market &mkt, Trade *trade) {
     double pv;
-    if (trade->getType() == "TreeProduct") {
+    std::cout<< "mkt: " << mkt << " trade!!!: " << trade->getType() << std::endl;
+    if (trade->getType() == "AmericanOption" || trade->getType() == "EuropeanOption") {
+        std::cout << "tree product" << " " << trade << std::endl;
         TreeProduct *treePtr = dynamic_cast<TreeProduct *>(trade);
         if (treePtr) { // check if cast is sucessful
             pv = PriceTree(mkt, *treePtr);
         }
     } else {
         double price; // get from market data
+        price = mkt.getSpotPrice(trade->getType());
+        std::cout << "not tree product, where spot price : " << price << " for type : " << trade->getType() << endl;
         pv = trade->Payoff(price);
     }
     return pv;
@@ -24,7 +28,7 @@ double BinomialTreePricer::PriceTree(const Market &mkt,
     get these data for the deal from market object
     */
     double stockPrice = 0;
-    if (trade.getType() == "TreeProduct") {
+    if (trade.getType() == "TreeProduct" || trade.getType() == "AmericanOption" || trade.getType() == "EuropeanOption") {
       std::cout << "underlying111: " << trade.getUnderlying() << std::endl;
       stockPrice = mkt.getSpotPrice(trade.getUnderlying());
     } else {
@@ -32,6 +36,8 @@ double BinomialTreePricer::PriceTree(const Market &mkt,
     }
     double vol = mkt.getVolatility(trade.getType());
     double rate = mkt.getRiskFreeRate();
+
+    std::cout << "000get vol: " << vol << " get rate: " << rate << std::endl;
 
     ModelSetup(stockPrice, vol, rate, dt);
 

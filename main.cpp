@@ -96,7 +96,7 @@ int main() {
         double pv = treePricer->Price(mkt, trade);
         pricingResults.push_back(pv);
         std::cout << "trade: " << trade->getType() << " " << trade->getUnderlying() << std::endl;
-        std::cout << "Priced trade with PV: " << pv << std::endl;
+        std::cout << "***Priced trade with PV***: " << pv << std::endl;
         // log pv details out in a file
         //  Optionally write to a file or store results
     }
