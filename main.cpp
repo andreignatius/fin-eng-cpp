@@ -3,6 +3,7 @@
 #include <fstream>
 #include <iostream>
 #include <unistd.h>
+#include <filesystem>
 
 #include "AmericanTrade.h"
 #include "Bond.h"
@@ -17,6 +18,7 @@ using namespace std;
 int main() {
     // task 1, create an market data object, and update the market data from
     // from txt file
+    std::filesystem::path DATA_PATH = std::filesystem::current_path() / "../../data";
     std::time_t t = std::time(0);
     auto now_ = std::localtime(&t);
     Date valueDate;
@@ -34,17 +36,18 @@ int main() {
     } else {
         perror("getcwd() error");
     }
-    mkt.updateMarketFromVolFile("../../data/vol_bond.csv", "BondTrade"); // Update market data from file
-    mkt.updateMarketFromVolFile("../../data/vol_swap.csv", "SwapTrade"); // Update market data from file
-    mkt.updateMarketFromVolFile("../../data/vol_amer.csv", "AmericanOption"); // Update market data from file
-    mkt.updateMarketFromVolFile("../../data/vol_euro.csv", "EuropeanOption"); // Update market data from file
+    std::cout << DATA_PATH / "vol_bond.csv111" << std::endl;
+    mkt.updateMarketFromVolFile(DATA_PATH / "vol_bond.csv", "BondTrade"); // Update market data from file
+    mkt.updateMarketFromVolFile(DATA_PATH / "vol_swap.csv", "SwapTrade"); // Update market data from file
+    mkt.updateMarketFromVolFile(DATA_PATH / "vol_amer.csv", "AmericanOption"); // Update market data from file
+    mkt.updateMarketFromVolFile(DATA_PATH / "vol_euro.csv", "EuropeanOption"); // Update market data from file
     // mkt.updateMarketFromVolFile("../../voldummycurve.csv", "vol");
     
     // mkt.updateMarketFromVolFile("../../data/vol.txt", "vol");
 
-    mkt.updateMarketFromStockFile("../../data/stockPrice.csv");  // Load stock prices
+    mkt.updateMarketFromStockFile(DATA_PATH / "stockPrice.csv");  // Load stock prices
     // mkt.updateMarketFromCurveFile("../../data/curve.txt", "USD-SOFR");
-    mkt.updateMarketFromCurveFile("../../data/sofrdummycurve.csv", "USD-SOFR");
+    mkt.updateMarketFromCurveFile(DATA_PATH / "sofrdummycurve.csv", "USD-SOFR");
     mkt.Print();          // Check loaded data
 
     // TODO : create more bonds / swaps/ european option / american options
