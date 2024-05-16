@@ -7,7 +7,7 @@ double Swap::Payoff(double marketPrice) const {
     double currentRate = 0.0;
     double payoff = 0.0;
     try {
-        double currentRate = market.getCurve("InterestRateCurve").getRate(startDate);
+        double currentRate = market.getCurve("USD-SOFR").getRate(startDate);
     } catch (const std::out_of_range& e) {
         // throw std::runtime_error("InterestRateCurve not found in market data.");
         // Optionally use a fallback rate here
@@ -47,7 +47,7 @@ double Swap::getAnnuity() const {
         double rate = 0.0;
         try {
             // TODO : get rate method needs to be refactored
-            rate = market.getCurve("InterestRateCurve").getRate(paymentDate);
+            rate = market.getCurve("USD-SOFR").getRate(paymentDate);
         } catch (const std::out_of_range& e) {
             // Handle error appropriately, e.g., use a fallback rate
             std::cerr << "Failed to find rate for date: " << paymentDate << ". Using default rate 0." << std::endl;
