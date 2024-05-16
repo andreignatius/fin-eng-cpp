@@ -22,7 +22,9 @@ double Pricer::Price(const Market &mkt, Trade *trade) {
 double BinomialTreePricer::PriceTree(const Market &mkt,
                                      const TreeProduct &trade) {
     // model setup
-    double T = trade.GetExpiry() - mkt.asOf;
+    // double T = trade.GetExpiry() - mkt.asOf;
+    double T = trade.GetExpiry().differenceInDays(mkt.asOf) / 365.25;
+    std::cout << "!T: " << T << " GetExpiry: " << trade.GetExpiry() << " mkt.asOf: " << mkt.asOf << std::endl;
     double dt = T / nTimeSteps;
     /*
     get these data for the deal from market object
@@ -37,7 +39,7 @@ double BinomialTreePricer::PriceTree(const Market &mkt,
     double vol = mkt.getVolatility(trade.getType());
     double rate = mkt.getRiskFreeRate();
 
-    std::cout << "000get vol: " << vol << " get rate: " << rate << std::endl;
+    std::cout << "000get stockPrice: " << stockPrice << " get vol: " << vol << " get rate: " << rate << " get dt: " << dt << std::endl;
 
     ModelSetup(stockPrice, vol, rate, dt);
 

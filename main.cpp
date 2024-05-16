@@ -51,7 +51,7 @@ int main() {
     
     // mkt.updateMarketFromVolFile("../../vol.txt", "vol");
 
-    mkt.updateMarketFromStockFile("../../stockPrice.txt");  // Load stock prices
+    mkt.updateMarketFromStockFile("../../stockPrice.csv");  // Load stock prices
     // mkt.updateMarketFromCurveFile("../../curve.txt", "USD-SOFR");
     mkt.updateMarketFromCurveFile("../../sofrdummycurve.csv", "USD-SOFR");
     mkt.Print();          // Check loaded data
@@ -78,15 +78,15 @@ int main() {
 
     // Adding European Options
     myPortfolio.push_back(
-        new EuropeanOption(Call, 100, Date(2025, 12, 31), "AAPL")); // Call option
+        new EuropeanOption(Call, 700, Date(2025, 12, 31), "AAPL")); // Call option
     myPortfolio.push_back(
-        new EuropeanOption(Put, 100, Date(2025, 12, 31), "AAPL")); // Put option
+        new EuropeanOption(Put, 700, Date(2025, 12, 31), "AAPL")); // Put option
 
     // Adding American Options
     myPortfolio.push_back(
-        new AmericanOption(Call, 100, Date(2025, 12, 31), "AAPL")); // Call option
+        new AmericanOption(Call, 700, Date(2025, 12, 31), "AAPL")); // Call option
     myPortfolio.push_back(
-        new AmericanOption(Put, 100, Date(2025, 12, 31), "AAPL")); // Put option
+        new AmericanOption(Put, 700, Date(2025, 12, 31), "AAPL")); // Put option
 
     // task 3, create a pricer and price the portfolio, output the pricing result
     // of each deal.
