@@ -96,7 +96,7 @@ int main() {
         double pv = treePricer->Price(mkt, trade);
         pricingResults.push_back(pv);
         std::cout << "trade: " << trade->getType() << " " << trade->getUnderlying() << std::endl;
-        std::cout << "***Priced trade with PV***: " << pv << std::endl;
+        std::cout << "*****Priced trade with PV*****: " << pv << std::endl;
         // log pv details out in a file
         //  Optionally write to a file or store results
     }
@@ -134,8 +134,8 @@ int main() {
                     double amerPrice = treePricer->Price(mkt, amerOption);
                     double euroPrice = treePricer->Price(mkt, euroOption);
                     std::cout << "Comparing American Option with European Option: " << std::endl;
-                    std::cout << "American Option Price: " << amerPrice << std::endl;
-                    std::cout << "European Option Price: " << euroPrice << std::endl;
+                    std::cout << "*****American Option Price*****: " << amerPrice << std::endl;
+                    std::cout << "*****European Option Price*****: " << euroPrice << std::endl;
                 }
             }
         }
