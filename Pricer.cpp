@@ -23,7 +23,13 @@ double BinomialTreePricer::PriceTree(const Market &mkt,
     /*
     get these data for the deal from market object
     */
-    double stockPrice = mkt.getSpotPrice(trade.getType());
+    double stockPrice = 0;
+    if (trade.getType() == "TreeProduct") {
+      std::cout << "underlying111: " << trade.getUnderlying() << std::endl;
+      stockPrice = mkt.getSpotPrice(trade.getUnderlying());
+    } else {
+      stockPrice = mkt.getSpotPrice(trade.getType());
+    }
     double vol = mkt.getVolatility(trade.getType());
     double rate = mkt.getRiskFreeRate();
 

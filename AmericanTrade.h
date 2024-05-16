@@ -11,6 +11,16 @@ class AmericanOption : public TreeProduct {
 public:
   AmericanOption(OptionType _optType, double _strike, const Date& _expiry): 
   optType(_optType), strike(_strike), expiryDate(_expiry) {}
+
+  // AmericanOption(OptionType _optType, double _strike, const Date& _expiry, string _underlying): 
+  // optType(_optType), strike(_strike), expiryDate(_expiry), underlying(_underlying) {}
+
+  AmericanOption(OptionType optType, double strike, const Date& expiry, const string& underlying)
+    : TreeProduct("AmericanOption", expiry, underlying), 
+      optType(optType), 
+      strike(strike),
+      expiryDate(expiry) {}
+
   virtual double Payoff(double S) const 
   { 
     return PAYOFF::VanillaOption(optType, strike, S); 
@@ -29,7 +39,8 @@ public:
 private:
   OptionType optType;
   double strike;
-  Date expiryDate;  
+  Date expiryDate;
+  string underlying;
 };
 
 class AmerCallSpread : public TreeProduct {

@@ -6,7 +6,7 @@ double BlackScholesPricer::normcdf(double value) {
 }
 
 double BlackScholesPricer::Price(const Market& market, const EuropeanOption& option) {
-    double S = market.getSpotPrice(option.getType());
+    double S = market.getSpotPrice(option.getUnderlying());
     double K = option.getStrike();
     double T = (option.GetExpiry() - market.asOf) / 365.25;
     double r = market.getRiskFreeRate();

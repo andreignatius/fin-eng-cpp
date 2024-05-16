@@ -11,6 +11,17 @@ class EuropeanOption : public TreeProduct {
 public:
     EuropeanOption(){};
     EuropeanOption(OptionType _optType, double _strike, const Date& _expiry) :optType(_optType), strike(_strike), expiryDate(_expiry) {};
+  //   EuropeanOption(OptionType _optType, double _strike, const Date& _expiry, string _underlying): 
+  // optType(_optType), strike(_strike), expiryDate(_expiry), underlying(_underlying) {}
+    
+    // Constructor with initialization for all attributes
+    EuropeanOption(OptionType optType, double strike, const Date& expiry, const string& underlying)
+        : TreeProduct("EuropeanOption", expiry, underlying),  // Assuming TreeProduct constructor is correctly set up to take these parameters
+          optType(optType), 
+          strike(strike), 
+          expiryDate(expiry),
+          underlying(underlying) {}
+
     virtual double Payoff(double S) const { return PAYOFF::VanillaOption(optType, strike, S); }
     virtual const Date& GetExpiry() const { return expiryDate; }
     double getStrike() const { return strike; }
@@ -21,6 +32,7 @@ protected:
     OptionType optType;
     double strike;
     Date expiryDate;
+    string underlying;
 };
 
 class EuroCallSpread : public EuropeanOption {
