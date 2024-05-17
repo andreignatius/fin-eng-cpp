@@ -45,6 +45,8 @@ int main() {
     
     // mkt.updateMarketFromVolFile("../../data/vol.txt", "vol");
 
+    mkt.updateMarketFromBondFile(DATA_PATH / "bondPrice.txt");  // Load bond prices
+
     mkt.updateMarketFromStockFile(DATA_PATH / "stockPrice.csv");  // Load stock prices
     // mkt.updateMarketFromCurveFile("../../data/curve.txt", "USD-SOFR");
     mkt.updateMarketFromCurveFile(DATA_PATH / "sofrdummycurve.csv", "USD-SOFR");
