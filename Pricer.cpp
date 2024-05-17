@@ -3,17 +3,23 @@
 
 double Pricer::Price(const Market &mkt, Trade *trade) {
     double pv;
-    std::cout<< "mkt: " << mkt << " trade!!!: " << trade->getType() << std::endl;
+    // std::cout<< "mkt: " << mkt << " trade!!!: " << trade->getType() << std::endl;
     if (trade->getType() == "AmericanOption" || trade->getType() == "EuropeanOption") {
-        std::cout << "tree product" << " " << trade << std::endl;
+        // std::cout << "tree product" << " " << trade << std::endl;
         TreeProduct *treePtr = dynamic_cast<TreeProduct *>(trade);
         if (treePtr) { // check if cast is sucessful
             pv = PriceTree(mkt, *treePtr);
         }
     } else {
         double price; // get from market data
-        price = mkt.getSpotPrice(trade->getType());
-        std::cout << "not tree product, where spot price : " << price << " for type : " << trade->getType() << endl;
+        if (trade->getType() == "BondTrade") {
+            // std::cout << "check bond name : " << trade->getUnderlying() << std::endl;
+            price = mkt.getBondPrice(trade->getUnderlying());
+        } else {
+            price = mkt.getSpotPrice(trade->getUnderlying());
+        }
+        
+        // std::cout << "not tree product, where spot price : " << price << " for underlying : " << trade->getUnderlying() << endl;
         pv = trade->Payoff(price);
     }
     return pv;
@@ -31,7 +37,7 @@ double BinomialTreePricer::PriceTree(const Market &mkt,
     */
     double stockPrice = 0;
     if (trade.getType() == "TreeProduct" || trade.getType() == "AmericanOption" || trade.getType() == "EuropeanOption") {
-      std::cout << "underlying111: " << trade.getUnderlying() << std::endl;
+      // std::cout << "underlying111: " << trade.getUnderlying() << std::endl;
       stockPrice = mkt.getSpotPrice(trade.getUnderlying());
     } else {
       stockPrice = mkt.getSpotPrice(trade.getType());
@@ -39,7 +45,7 @@ double BinomialTreePricer::PriceTree(const Market &mkt,
     double vol = mkt.getVolatility(trade.getType());
     double rate = mkt.getRiskFreeRate();
 
-    std::cout << "000get stockPrice: " << stockPrice << " get vol: " << vol << " get rate: " << rate << " get dt: " << dt << std::endl;
+    // std::cout << "000get stockPrice: " << stockPrice << " get vol: " << vol << " get rate: " << rate << " get dt: " << dt << std::endl;
 
     ModelSetup(stockPrice, vol, rate, dt);
 

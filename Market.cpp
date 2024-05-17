@@ -246,6 +246,41 @@ void Market::updateMarketFromVolFile(const std::string &filePath,
     this->addVolCurve(volName, volCurve); // Adding the vol curve to the market
 }
 
+void Market::updateMarketFromBondFile(const std::string &filePath) {
+    std::ifstream file(filePath);
+    if (!file.is_open()) {
+        std::cerr << "Failed to open bond price file: " << filePath << std::endl;
+        return;
+    }
+
+    std::string line;
+    while (getline(file, line)) {
+        // Trimming spaces around the line if needed
+        line.erase(std::remove_if(line.begin(), line.end(), ::isspace), line.end());
+
+        size_t colonPos = line.find(':');
+        if (colonPos == std::string::npos) {
+            std::cerr << "Malformed line (no colon found): " << line << std::endl;
+            continue; // Skip malformed lines
+        }
+
+        std::string bondName = line.substr(0, colonPos);
+        std::string priceStr = line.substr(colonPos + 1);
+
+        double price;
+        try {
+            price = std::stod(priceStr);
+        } catch (const std::exception &e) {
+            std::cerr << "Failed to convert price to double: " << priceStr << " in line: " << line << std::endl;
+            continue; // Skip lines with conversion errors
+        }
+        std::cout<< "adding bond: " << bondName << " where price is : " << price << std::endl;
+        addBondPrice(bondName, price);
+    }
+    file.close();
+}
+
+
 // JOS : assumes input csv contains 2 columns : stock | price
 void Market::updateMarketFromStockFile(const std::string &filePath) {
 
@@ -365,6 +400,16 @@ double Market::getSpotPrice(const std::string &assetName) const {
         return it->second;
     }
     std::cerr << "Asset not found: " << assetName
+              << ", returning default price 0." << std::endl;
+    return 0; // Return a default price or handle as needed
+}
+
+double Market::getBondPrice(const std::string &assetName) const {
+    auto it = bondPrices.find(assetName);
+    if (it != bondPrices.end()) {
+        return it->second;
+    }
+    std::cerr << "Bond asset not found: " << assetName
               << ", returning default price 0." << std::endl;
     return 0; // Return a default price or handle as needed
 }
