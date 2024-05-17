@@ -44,8 +44,8 @@ int main() {
         perror("getcwd() error");
     }
     mkt.updateMarketFromVolFile("../../vol_bond.csv", "BondTrade"); // Update market data from file
-    mkt.updateMarketFromVolFile("../../vol_swap.csv", "SwapTrade"); // Update market data from file
-    mkt.updateMarketFromVolFile("../../vol_amer.csv", "TreeProduct"); // Update market data from file
+    // mkt.updateMarketFromVolFile("../../vol_swap.csv", "SwapTrade"); // Update market data from file
+    // mkt.updateMarketFromVolFile("../../vol_amer.csv", "TreeProduct"); // Update market data from file
     
     // mkt.updateMarketFromVolFile("../../vol_euro.csv", "euro"); // Update market data from file
     // mkt.updateMarketFromVolFile("../../voldummycurve.csv", "vol");
@@ -73,7 +73,7 @@ int main() {
     //                                102.0)); // Short position
 
     // Adding Swaps
-    myPortfolio.push_back(new Swap(Date(2024, 1, 1), Date(2029, 1, 1), 2000000,
+    myPortfolio.push_back(new Swap(Date(2024, 5, 17), Date(2029, 1, 1), 2000000,
                                    0.01, 1, true,
                                    mkt)); // Fixed-for-floating, annual
     myPortfolio.push_back(new Swap(Date(2024, 1, 1), Date(2029, 1, 1), 2000000,

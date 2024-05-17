@@ -20,8 +20,7 @@ class RateCurve {
     RateCurve() {};
     RateCurve(const string &_name, const Date& _startDate) : name(_name), startDate(_startDate) {};
     void addRate(const Date& tenor, double rate);
-    double getRate(
-        Date tenor) const; // implement this function using linear interpolation
+    double getRate(Date tenor) const; // implement this function using linear interpolation
     void display() const;
 
   private:

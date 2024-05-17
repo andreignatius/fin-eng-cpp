@@ -48,15 +48,15 @@ double RateCurve::getRate(Date tenor) const {
         for (size_t i = 1; i < tenors.size(); ++i) {
             if (tenors[i] >= tenor) {
                 // Perform interpolation
-                double lowerDiff = (tenors[i-1].differenceInDays(this->startDate))/ 365.; //hardcode 365 days
-                double upperDiff = (tenors[i].differenceInDays(this->startDate))/ 365.; // hardcode 365 days
-                double lowerDf = exp(-1 * rates[i-1] * lowerDiff);
-                double upperDf = exp(-1 * rates[i] * upperDiff);
-                double dfDiff = lowerDf + upperDf;
-                double tenorStep = tenors[i].differenceInDays(tenors[i - 1]);
-                double tenorDiff = tenor.differenceInDays(tenors[i - 1]);
-                double interpDf = dfDiff * (tenorDiff/ tenorStep);
-                return log(interpDf)/(-1 * tenor.differenceInDays(this->startDate) /365.);
+                double lowerDay = (tenors[i-1].differenceInDays(this->startDate))/ 365.; //hardcode 365 days
+                double upperDay = (tenors[i].differenceInDays(this->startDate))/ 365.; // hardcode 365 days
+                double Day = tenor.differenceInDays(this->startDate) /365.;
+
+                double lowerDf = exp(-rates[i-1] * lowerDay);
+                double upperDf = exp(-rates[i] * upperDay);
+
+                double interpDf=lowerDf + (upperDf-lowerDf)*(Day-lowerDay)/(upperDay-lowerDay);
+                return -log(interpDf)/(Day);
             }
         }
     }
@@ -340,6 +340,7 @@ void Market::updateMarketFromCurveFile(const std::string& filePath, const std::s
             } 
         file.close();
     }
+    // rateCurve.display();
     this->addCurve(curveName, rateCurve);  // Use the existing method to add the curve to the market
 }
 

@@ -51,7 +51,7 @@ double Swap::getAnnuity() const {
         double rate = 0.0;
         try {
             rate = market.getCurve("USD-SOFR").getRate(paymentDate);
-            std::cout<<"rate obtained= "<<rate<<std::endl;
+            std::cout<<"swap payment date: "<<paymentDate<<", rate obtained= "<<rate<<std::endl;
         } catch (const std::out_of_range& e) {
             // Handle error appropriately, e.g., use a fallback rate
             std::cerr << "Failed to find rate for date: " << paymentDate << ". Using default rate 0." << std::endl;
