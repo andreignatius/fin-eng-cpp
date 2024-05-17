@@ -6,11 +6,16 @@ double BlackScholesPricer::normcdf(double value) {
 }
 
 double BlackScholesPricer::Price(const Market& market, const EuropeanOption& option) {
-    double S = market.getSpotPrice(option.getType());
+    std::cout << "option getUnderlying: " << option.getUnderlying() << std::endl;
+    double S = market.getSpotPrice(option.getUnderlying());
     double K = option.getStrike();
-    double T = (option.GetExpiry() - market.asOf) / 365.25;
+    // double T = (option.GetExpiry() - market.asOf) / 365.25;
+    std::cout << "diff in days: " << option.GetExpiry().differenceInDays(market.asOf) << std::endl;
+    double T = option.GetExpiry().differenceInDays(market.asOf) / 365.25;
     double r = market.getRiskFreeRate();
     double sigma = market.getVolatility(option.getType());
+    std::cout << "expiry: " << option.GetExpiry() << " market.asOf: " << market.asOf << std::endl;
+    std::cout << "S: " << S << " K: " << K << " T: " << T << " r: " << r << std::endl;
 
     double d1 = (std::log(S / K) + (r + 0.5 * sigma * sigma) * T) / (sigma * std::sqrt(T));
     double d2 = d1 - sigma * std::sqrt(T);

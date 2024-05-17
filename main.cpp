@@ -3,6 +3,7 @@
 #include <fstream>
 #include <iostream>
 #include <unistd.h>
+#include <filesystem>
 
 #include "AmericanTrade.h"
 #include "Bond.h"
@@ -14,18 +15,10 @@
 
 using namespace std;
 
-void readFromFile(const string &fileName, string &outPut) {
-    string lineText;
-    ifstream MyReadFile(fileName);
-    while (getline(MyReadFile, lineText)) {
-        outPut.append(lineText);
-    }
-    MyReadFile.close();
-}
-
 int main() {
     // task 1, create an market data object, and update the market data from
     // from txt file
+    std::filesystem::path DATA_PATH = std::filesystem::current_path() / "../../data";
     std::time_t t = std::time(0);
     auto now_ = std::localtime(&t);
     Date valueDate;
@@ -43,17 +36,18 @@ int main() {
     } else {
         perror("getcwd() error");
     }
-    mkt.updateMarketFromVolFile("../../vol_bond.csv", "BondTrade"); // Update market data from file
-    mkt.updateMarketFromVolFile("../../vol_swap.csv", "SwapTrade"); // Update market data from file
-    mkt.updateMarketFromVolFile("../../vol_amer.csv", "TreeProduct"); // Update market data from file
-    
-    // mkt.updateMarketFromVolFile("../../vol_euro.csv", "euro"); // Update market data from file
+    std::cout << DATA_PATH / "vol_bond.csv111" << std::endl;
+    mkt.updateMarketFromVolFile(DATA_PATH / "vol_bond.csv", "BondTrade"); // Update market data from file
+    mkt.updateMarketFromVolFile(DATA_PATH / "vol_swap.csv", "SwapTrade"); // Update market data from file
+    mkt.updateMarketFromVolFile(DATA_PATH / "vol_amer.csv", "AmericanOption"); // Update market data from file
+    mkt.updateMarketFromVolFile(DATA_PATH / "vol_euro.csv", "EuropeanOption"); // Update market data from file
     // mkt.updateMarketFromVolFile("../../voldummycurve.csv", "vol");
     
-    // mkt.updateMarketFromVolFile("../../vol.txt", "vol");
+    // mkt.updateMarketFromVolFile("../../data/vol.txt", "vol");
 
-    mkt.updateMarketFromStockFile("../../stockPrice.txt");  // Load stock prices
-    mkt.updateMarketFromCurveFile("../../curve.txt", "USD-SOFR");
+    mkt.updateMarketFromStockFile(DATA_PATH / "stockPrice.csv");  // Load stock prices
+    // mkt.updateMarketFromCurveFile("../../data/curve.txt", "USD-SOFR");
+    mkt.updateMarketFromCurveFile(DATA_PATH / "sofrdummycurve.csv", "USD-SOFR");
     mkt.Print();          // Check loaded data
 
     // TODO : create more bonds / swaps/ european option / american options
@@ -78,15 +72,15 @@ int main() {
 
     // Adding European Options
     myPortfolio.push_back(
-        new EuropeanOption(Call, 100, Date(2025, 12, 31))); // Call option
+        new EuropeanOption(Call, 700, Date(2025, 12, 31), "AAPL")); // Call option
     myPortfolio.push_back(
-        new EuropeanOption(Put, 100, Date(2025, 12, 31))); // Put option
+        new EuropeanOption(Put, 700, Date(2025, 12, 31), "AAPL")); // Put option
 
     // Adding American Options
     myPortfolio.push_back(
-        new AmericanOption(Call, 100, Date(2025, 12, 31))); // Call option
+        new AmericanOption(Call, 700, Date(2025, 12, 31), "AAPL")); // Call option
     myPortfolio.push_back(
-        new AmericanOption(Put, 100, Date(2025, 12, 31))); // Put option
+        new AmericanOption(Put, 700, Date(2025, 12, 31), "AAPL")); // Put option
 
     // task 3, create a pricer and price the portfolio, output the pricing result
     // of each deal.
@@ -95,10 +89,13 @@ int main() {
     for (auto trade : myPortfolio) {
         double pv = treePricer->Price(mkt, trade);
         pricingResults.push_back(pv);
-        std::cout << "Priced trade with PV: " << pv << std::endl;
+        std::cout << "trade: " << trade->getType() << " " << trade->getUnderlying() << std::endl;
+        std::cout << "*****Priced trade with PV*****: " << pv << std::endl;
         // log pv details out in a file
         //  Optionally write to a file or store results
     }
+
+    std::cout << "========end of Part 3============" << std::endl;
 
     // task 4, analyzing pricing result
     //  a) compare CRR binomial tree result for an european option vs Black
@@ -131,8 +128,8 @@ int main() {
                     double amerPrice = treePricer->Price(mkt, amerOption);
                     double euroPrice = treePricer->Price(mkt, euroOption);
                     std::cout << "Comparing American Option with European Option: " << std::endl;
-                    std::cout << "American Option Price: " << amerPrice << std::endl;
-                    std::cout << "European Option Price: " << euroPrice << std::endl;
+                    std::cout << "*****American Option Price*****: " << amerPrice << std::endl;
+                    std::cout << "*****European Option Price*****: " << euroPrice << std::endl;
                 }
             }
         }

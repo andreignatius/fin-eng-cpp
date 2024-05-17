@@ -3,13 +3,17 @@
 
 double Pricer::Price(const Market &mkt, Trade *trade) {
     double pv;
-    if (trade->getType() == "TreeProduct") {
+    std::cout<< "mkt: " << mkt << " trade!!!: " << trade->getType() << std::endl;
+    if (trade->getType() == "AmericanOption" || trade->getType() == "EuropeanOption") {
+        std::cout << "tree product" << " " << trade << std::endl;
         TreeProduct *treePtr = dynamic_cast<TreeProduct *>(trade);
         if (treePtr) { // check if cast is sucessful
             pv = PriceTree(mkt, *treePtr);
         }
     } else {
         double price; // get from market data
+        price = mkt.getSpotPrice(trade->getType());
+        std::cout << "not tree product, where spot price : " << price << " for type : " << trade->getType() << endl;
         pv = trade->Payoff(price);
     }
     return pv;
@@ -18,14 +22,24 @@ double Pricer::Price(const Market &mkt, Trade *trade) {
 double BinomialTreePricer::PriceTree(const Market &mkt,
                                      const TreeProduct &trade) {
     // model setup
-    double T = trade.GetExpiry() - mkt.asOf;
+    // double T = trade.GetExpiry() - mkt.asOf;
+    double T = trade.GetExpiry().differenceInDays(mkt.asOf) / 365.25;
+    std::cout << "!T: " << T << " GetExpiry: " << trade.GetExpiry() << " mkt.asOf: " << mkt.asOf << std::endl;
     double dt = T / nTimeSteps;
     /*
     get these data for the deal from market object
     */
-    double stockPrice = mkt.getSpotPrice(trade.getType());
+    double stockPrice = 0;
+    if (trade.getType() == "TreeProduct" || trade.getType() == "AmericanOption" || trade.getType() == "EuropeanOption") {
+      std::cout << "underlying111: " << trade.getUnderlying() << std::endl;
+      stockPrice = mkt.getSpotPrice(trade.getUnderlying());
+    } else {
+      stockPrice = mkt.getSpotPrice(trade.getType());
+    }
     double vol = mkt.getVolatility(trade.getType());
     double rate = mkt.getRiskFreeRate();
+
+    std::cout << "000get stockPrice: " << stockPrice << " get vol: " << vol << " get rate: " << rate << " get dt: " << dt << std::endl;
 
     ModelSetup(stockPrice, vol, rate, dt);
 

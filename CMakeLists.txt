@@ -4,8 +4,8 @@ cmake_minimum_required(VERSION 3.10)
 # Project's name
 project(MyProject)
 
-# Set C++11 as the standard
-set(CMAKE_CXX_STANDARD 11)
+# Set C++17 as the standard
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # Add executable

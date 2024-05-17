@@ -84,7 +84,7 @@ class Market {
     unordered_map<string, RateCurve> curves;
     unordered_map<string, double> bondPrices;
     unordered_map<string, double> stockPrices;
-    double riskFreeRate = 0.0;
+    double riskFreeRate = 0.02;
 };
 
 std::ostream &operator<<(std::ostream &os, const Market &obj);
