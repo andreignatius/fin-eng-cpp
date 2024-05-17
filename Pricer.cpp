@@ -23,8 +23,8 @@ double BinomialTreePricer::PriceTree(const Market &mkt,
     /*
     get these data for the deal from market object
     */
-    double stockPrice = mkt.getSpotPrice(trade.getUnderlying());
-    double vol = mkt.getVolatility(trade.getUnderlying());
+    double stockPrice = mkt.getSpotPrice(trade.getType());
+    double vol = mkt.getVolatility(trade.getType());
     double rate = mkt.getRiskFreeRate();
 
     ModelSetup(stockPrice, vol, rate, dt);

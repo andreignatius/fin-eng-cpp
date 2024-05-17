@@ -43,7 +43,15 @@ int main() {
     } else {
         perror("getcwd() error");
     }
-    mkt.updateMarketFromVolFile("../../vol.txt", "vol"); // Update market data from file
+    mkt.updateMarketFromVolFile("../../vol_bond.csv", "BondTrade"); // Update market data from file
+    mkt.updateMarketFromVolFile("../../vol_swap.csv", "SwapTrade"); // Update market data from file
+    mkt.updateMarketFromVolFile("../../vol_amer.csv", "TreeProduct"); // Update market data from file
+    
+    // mkt.updateMarketFromVolFile("../../vol_euro.csv", "euro"); // Update market data from file
+    // mkt.updateMarketFromVolFile("../../voldummycurve.csv", "vol");
+    
+    // mkt.updateMarketFromVolFile("../../vol.txt", "vol");
+
     mkt.updateMarketFromStockFile("../../stockPrice.txt");  // Load stock prices
     mkt.updateMarketFromCurveFile("../../curve.txt", "USD-SOFR");
     mkt.Print();          // Check loaded data
