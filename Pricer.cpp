@@ -12,8 +12,14 @@ double Pricer::Price(const Market &mkt, Trade *trade) {
         }
     } else {
         double price; // get from market data
-        price = mkt.getSpotPrice(trade->getType());
-        std::cout << "not tree product, where spot price : " << price << " for type : " << trade->getType() << endl;
+        if (trade->getType() == "BondTrade") {
+            std::cout << "check bond name : " << trade->getUnderlying() << std::endl;
+            price = mkt.getBondPrice(trade->getUnderlying());
+        } else {
+            price = mkt.getSpotPrice(trade->getUnderlying());
+        }
+        
+        std::cout << "not tree product, where spot price : " << price << " for underlying : " << trade->getUnderlying() << endl;
         pv = trade->Payoff(price);
     }
     return pv;

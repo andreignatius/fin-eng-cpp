@@ -274,7 +274,7 @@ void Market::updateMarketFromBondFile(const std::string &filePath) {
             std::cerr << "Failed to convert price to double: " << priceStr << " in line: " << line << std::endl;
             continue; // Skip lines with conversion errors
         }
-
+        std::cout<< "adding bond: " << bondName << " where price is : " << price << std::endl;
         addBondPrice(bondName, price);
     }
     file.close();

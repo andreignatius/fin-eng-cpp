@@ -60,9 +60,9 @@ int main() {
 
     // Adding Bonds
     myPortfolio.push_back(new Bond(Date(2024, 1, 1), Date(2034, 1, 1), 10000000,
-                                   103.5)); // Long position
+                                   103.5, 0.025, "SGD-GOV") ); // Long position
     myPortfolio.push_back(new Bond(Date(2024, 1, 1), Date(2029, 1, 1), 5000000,
-                                   105.0)); // Short position
+                                   105.0, 0.025, "SGD-GOV") ); // Short position
 
     // Adding Swaps
     myPortfolio.push_back(new Swap(Date(2024, 1, 1), Date(2029, 1, 1), 2000000,
