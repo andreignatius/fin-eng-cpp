@@ -7,11 +7,11 @@ double Swap::Payoff(double marketPrice) const {
     double currentRate = 0.0;
     double payoff = 0.0;
     try {
-        double currentRate = market.getCurve("InterestRateCurve").getRate(startDate);
+        currentRate = market.getCurve("USD-SOFR").getRate(startDate);
     } catch (const std::out_of_range& e) {
-        // throw std::runtime_error("InterestRateCurve not found in market data.");
+        // throw std::runtime_error("USD-SOFR not found in market data.");
         // Optionally use a fallback rate here
-        std::cerr << "InterestRateCurve not found in market data. - using default rate 0." << std::endl;
+        std::cerr << "USD-SOFR not found in market data. - using default rate 0." << std::endl;
     }
     if (isFixedForFloating) {
         payoff = annuity * (tradeRate - currentRate); // Fixed-for-floating swap payoff calculation
@@ -36,6 +36,7 @@ double Swap::getAnnuity() const {
     double yearsBetween = static_cast<double>(daysBetween) / 365.25;  // Convert days to years
     int numPeriods = static_cast<int>(yearsBetween * frequency);  // Calculate the total number of periods
 
+    std::cout<<"getting Swap annuity"<<std::endl;
     std::cout << "maturityDate: " << maturityDate << std::endl;
     std::cout << "startDate: " << startDate << std::endl;
     std::cout << "numPeriods: " << numPeriods << std::endl;
@@ -47,7 +48,7 @@ double Swap::getAnnuity() const {
         double rate = 0.0;
         try {
             // TODO : get rate method needs to be refactored
-            rate = market.getCurve("InterestRateCurve").getRate(paymentDate);
+            rate = market.getCurve("USD-SOFR").getRate(paymentDate);
         } catch (const std::out_of_range& e) {
             // Handle error appropriately, e.g., use a fallback rate
             std::cerr << "Failed to find rate for date: " << paymentDate << ". Using default rate 0." << std::endl;
