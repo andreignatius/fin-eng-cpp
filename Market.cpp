@@ -1,9 +1,10 @@
 #include "Market.h"
+#include <unordered_map> 
 
 void RateCurve::display() const {
     std::cout << "Rate curve for: " << name << "; Start Date :" << this->startDate<<std::endl;
     for (size_t i = 0; i < tenors.size(); i++) {
-        std::cout << "Tenor: " << tenors[i] << " Vol: " << rates[i] << std::endl;
+        std::cout << "Tenor: " << tenors[i] << " Rate: " << rates[i] << std::endl;
     }
     std::cout << std::endl;
 }
@@ -75,12 +76,12 @@ void VolCurve::addVol(Date tenor, double volInDecimal) {
         // Tenor already exists, replace the rate
         auto index = std::distance(tenors.begin(), it);
         vols[index] = volInDecimal;
-        std::cout << "Updated existing tenor " << tenor << " with new rate " << volInDecimal<< std::endl;
+        std::cout << "Updated existing tenor " << tenor << " with new vol " << volInDecimal<< std::endl;
     } else {
         // Tenor does not exist, add new tenor and rate
         tenors.push_back(tenor);
         vols.push_back(volInDecimal);
-        std::cout << "Added new tenor " << tenor << " with rate " << volInDecimal << std::endl;
+        std::cout << "Added new tenor " << tenor << " with vol " << volInDecimal << std::endl;
     }
 }
 
@@ -303,25 +304,40 @@ void Market::updateMarketFromCurveFile(const std::string& filePath, const std::s
             std::cerr << "Failed to open file: " << filePath << std::endl;
             return;
         }
-
         std::string line;
+        getline(file, line); // skip header line of curve.txt
+
         while (getline(file, line)) {
             std::istringstream iss(line);
-            std::string tenorStr;
             double rate;
             char delimiter;
-            if (iss >> tenorStr >> delimiter >> rate && delimiter == ':') {
-                rate /= 100.0;  // Convert percentage to decimal
+
+            // Find the position of the colon
+            size_t colonPos = line.find(':');
+            if (colonPos == std::string::npos) {
+                std::cout << "Failed to find colon in line: " << line << std::endl;
+                continue; // Skip this line if no colon found
+            }
+
+            // Split the line into tenorStr and rateStr assuming a space after the colon
+            std::string tenorStr = line.substr(0, colonPos);
+            std::string rateStr = line.substr(colonPos + 2); // +2 to skip ": "
+                rateStr.pop_back();
+                rate=std::stod(rateStr)/100.0; // Convert percentage to decimal
                 // Remove last character ('M' or 'Y') and calculate months
-                int numMonths = std::stoi(tenorStr.substr(0, tenorStr.size() - 1));
+                int numMonths;
+                if (tenorStr == "ON") {
+                numMonths = 0;  // Overnight doesn't add months
+                } else {
+                numMonths = std::stoi(tenorStr.substr(0, tenorStr.size() - 1));
                 if (tenorStr.back() == 'Y') {
                     numMonths *= 12;
+                 }
                 }
                 Date tenor = this->asOf;  // Use the market's current date
                 tenor.addMonths(numMonths);
                 rateCurve.addRate(tenor, rate);
-            }
-    }
+            } 
         file.close();
     }
     this->addCurve(curveName, rateCurve);  // Use the existing method to add the curve to the market

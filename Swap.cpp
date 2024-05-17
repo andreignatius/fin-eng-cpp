@@ -18,6 +18,7 @@ double Swap::Payoff(double marketPrice) const {
     } else {
         payoff = annuity * (currentRate - tradeRate); // Floating-for-fixed swap payoff calculation
     }
+
     return payoff;
 }
 
@@ -36,7 +37,7 @@ double Swap::getAnnuity() const {
     double yearsBetween = static_cast<double>(daysBetween) / 365.25;  // Convert days to years
     int numPeriods = static_cast<int>(yearsBetween * frequency);  // Calculate the total number of periods
 
-    std::cout<<"getting Swap annuity"<<std::endl;
+    std::cout<<"# getting Swap annuity"<<std::endl;
     std::cout << "maturityDate: " << maturityDate << std::endl;
     std::cout << "startDate: " << startDate << std::endl;
     std::cout << "numPeriods: " << numPeriods << std::endl;
@@ -47,14 +48,16 @@ double Swap::getAnnuity() const {
         double yearsSinceStart = static_cast<double>(paymentDate.differenceInDays(startDate)) / 365.25; // Convert days to years
         double rate = 0.0;
         try {
-            // TODO : get rate method needs to be refactored
             rate = market.getCurve("USD-SOFR").getRate(paymentDate);
+            std::cout<<"rate obtained= "<<rate<<std::endl;
         } catch (const std::out_of_range& e) {
             // Handle error appropriately, e.g., use a fallback rate
             std::cerr << "Failed to find rate for date: " << paymentDate << ". Using default rate 0." << std::endl;
         }
         double discountFactor = exp(-rate * yearsSinceStart);
         totalAnnuity += notional * discountFactor;
+
     }
+    std::cout<<"Swap's total annuity = "<<totalAnnuity<<std::endl;
     return totalAnnuity;
 }

@@ -110,6 +110,15 @@ int main() {
         //  Optionally write to a file or store results
     }
 
+    // Pricer* pricer = new Pricer();
+    // std::vector<double> pricingResults;
+    // for (auto trade: myPortfolio){
+    //     double pv = pricer->Price(mkt, trade);
+    //     pricingResults.push_back(pv);
+    //     std::cout<< "Priced trade with PV: "<<pv<<std::endl;
+
+    // }
+
     // task 4, analyzing pricing result
     //  a) compare CRR binomial tree result for an european option vs Black
     //  model b) compare CRR binomial tree result for an american option vs
