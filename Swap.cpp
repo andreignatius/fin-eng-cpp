@@ -7,7 +7,9 @@ double Swap::Payoff(double marketPrice) const {
     double currentRate = 0.0;
     double payoff = 0.0;
     try {
+
         currentRate = market.getCurve("USD-SOFR").getRate(startDate);
+
     } catch (const std::out_of_range& e) {
         // throw std::runtime_error("USD-SOFR not found in market data.");
         // Optionally use a fallback rate here
