@@ -277,7 +277,6 @@ void Market::updateMarketFromBondFile(const std::string &filePath) {
     file.close();
 }
 
-
 // JOS : assumes input csv contains 2 columns : stock | price
 void Market::updateMarketFromStockFile(const std::string &filePath) {
 
