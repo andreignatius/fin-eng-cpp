@@ -59,18 +59,12 @@ int main() {
                                    105.0, 0.025, "SGD-GOV") ); // Short position
 
     // Adding Swaps
-    myPortfolio.push_back(new Swap(Date(2024, 5, 17), Date(2029, 1, 1), 2000000,
+    myPortfolio.push_back(new Swap(Date(2024, 1, 1), Date(2029, 1, 1), 2000000,
                                    0.01, 1, true,
                                    mkt)); // Fixed-for-floating, annual
     myPortfolio.push_back(new Swap(Date(2024, 1, 1), Date(2029, 1, 1), 2000000,
                                    0.02, 2, false,
                                    mkt)); // Floating-for-fixed, semi-annual
-    // myPortfolio.push_back(new Swap(Date(2024, 1, 1), Date(2026, 1, 1), 2000000,
-    //                                0.01, 1, true,
-    //                                mkt)); // Fixed-for-floating, annual
-    // myPortfolio.push_back(new Swap(Date(2024, 1, 1), Date(2026, 1, 1), 2000000,
-    //                                0.02, 2, false,
-    //                                mkt)); // Floating-for-fixed, semi-annual
 
     // Adding European Options
     myPortfolio.push_back(
