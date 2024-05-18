@@ -63,11 +63,14 @@ class Market {
     
     void setRiskFreeRate(double rate);
 
-    void updateMarketFromVolFile(const std::string &filePath, const std::string& volName); // Add this method
+
+    void updateMarketFromVolFile(const std::string &filePath, const std::string& curveName); // Add this method
+    void updateMarketFromBondFile(const std::string& filePath); // Method to load bond prices from a file
     void updateMarketFromStockFile(const std::string& filePath);  // Method to load stock prices from a file
     void updateMarketFromCurveFile(const std::string& filePath, const std::string& curveName);
     
     double getSpotPrice(const std::string &assetName) const;
+    double getBondPrice(const std::string &assetName) const;
     double getVolatility(const std::string &assetName) const;
     double getRiskFreeRate() const; // Assuming a single risk-free rate for simplicity
 
@@ -82,7 +85,7 @@ class Market {
     unordered_map<string, RateCurve> rateCurves;
     unordered_map<string, double> bondPrices;
     unordered_map<string, double> stockPrices;
-    double riskFreeRate = 0.0;
+    double riskFreeRate = 0.02;
 };
 
 std::ostream &operator<<(std::ostream &os, const Market &obj);
