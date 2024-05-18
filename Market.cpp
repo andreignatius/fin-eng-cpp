@@ -1,11 +1,11 @@
 #include "Market.h"
+#include <unordered_map> 
 
 void RateCurve::display() const {
     std::cout << "Rate curve for: " << name
               << "; Start Date :" << this->startDate << std::endl;
     for (size_t i = 0; i < tenors.size(); i++) {
-        std::cout << "Tenor: " << tenors[i] << " Vol: " << rates[i]
-                  << std::endl;
+        std::cout << "Tenor: " << tenors[i] << " Rate: " << rates[i] << std::endl;
     }
     std::cout << std::endl;
 }
@@ -50,27 +50,22 @@ double RateCurve::getRate(Date tenor) const {
         for (size_t i = 1; i < tenors.size(); ++i) {
             if (tenors[i] >= tenor) {
                 // Perform interpolation
-                double lowerDiff =
-                    (tenors[i - 1].differenceInDays(this->startDate)) /
-                    365.; // hardcode 365 days
-                double upperDiff =
-                    (tenors[i].differenceInDays(this->startDate)) /
-                    365.; // hardcode 365 days
-                double lowerDf = exp(-1 * rates[i - 1] * lowerDiff);
-                double upperDf = exp(-1 * rates[i] * upperDiff);
-                double dfDiff = lowerDf + upperDf;
-                double tenorStep = tenors[i].differenceInDays(tenors[i - 1]);
-                double tenorDiff = tenor.differenceInDays(tenors[i - 1]);
-                double interpDf = dfDiff * (tenorDiff / tenorStep);
-                return log(interpDf) /
-                       (-1 * tenor.differenceInDays(this->startDate) / 365.);
+                double lowerDay = (tenors[i-1].differenceInDays(this->startDate))/ 365.; //hardcode 365 days
+                double upperDay = (tenors[i].differenceInDays(this->startDate))/ 365.; // hardcode 365 days
+                double Day = tenor.differenceInDays(this->startDate) /365.;
+
+                double lowerDf = exp(-rates[i-1] * lowerDay);
+                double upperDf = exp(-rates[i] * upperDay);
+
+                double interpDf=lowerDf + (upperDf-lowerDf)*(Day-lowerDay)/(upperDay-lowerDay);
+                return -log(interpDf)/(Day);
             }
         }
     }
     return 0;
 }
 
-void VolCurve::addVol(Date tenor, double vol) {
+void VolCurve::addVol(Date tenor, double volInDecimal) {
     // consider to check if tenor already exist
     // Search for the tenor in the existing list of tenors
     auto it = std::find_if(
@@ -82,15 +77,13 @@ void VolCurve::addVol(Date tenor, double vol) {
     if (it != tenors.end()) {
         // Tenor already exists, replace the rate
         auto index = std::distance(tenors.begin(), it);
-        vols[index] = vol;
-        std::cout << "Updated existing tenor " << tenor << " with new rate "
-                  << vol << std::endl;
+        vols[index] = volInDecimal;
+        std::cout << "Updated existing tenor " << tenor << " with new vol " << volInDecimal<< std::endl;
     } else {
         // Tenor does not exist, add new tenor and rate
         tenors.push_back(tenor);
-        vols.push_back(vol);
-        std::cout << "Added new tenor " << tenor << " with rate " << vol
-                  << std::endl;
+        vols.push_back(volInDecimal);
+        std::cout << "Added new tenor " << tenor << " with vol " << volInDecimal << std::endl;
     }
 }
 
@@ -142,14 +135,16 @@ void Market::Print() const {
     std::cout << "============= PRINT MARKET =============" << std::endl;
     std::cout << "market asof: " << asOf << std::endl;
 
-    for (auto &curve : curves) {
+    // LR: should we have similar methods for displaying them?
+    for (auto &curve : rateCurves) {
         curve.second.display();
     }
-    for (auto &vol : vols) {
+    for (auto &vol : volCurves) {
         vol.second.display();
     }
 
     // Add display for bond price and stock price
+    //TODO LR: bond output is not shown when running
     std::cout << "Bond Prices:" << std::endl;
     for (const auto &bond : bondPrices) {
         std::cout << "Bond: " << bond.first << " Price: " << bond.second
@@ -164,11 +159,11 @@ void Market::Print() const {
 }
 
 void Market::addCurve(const std::string &curveName, const RateCurve &curve) {
-    curves.emplace(curveName, curve);
+    rateCurves.emplace(curveName, curve);
 }
 
 void Market::addVolCurve(const std::string &curveName, const VolCurve &curve) {
-    vols[curveName] = curve;
+    volCurves[curveName] = curve;
 }
 
 void Market::setRiskFreeRate(double rate) { riskFreeRate = rate; }
@@ -181,7 +176,8 @@ void Market::addStockPrice(const std::string &stockName, double price) {
     stockPrices[stockName] = price;
 }
 
-// JOS : assumes input csv contains 2 columns : tenor | vol
+//*******************
+
 void Market::updateMarketFromVolFile(const std::string &filePath,
                                      const std::string &volName) {
     VolCurve volCurve(volName, this->asOf); // You can dynamically name it based
@@ -246,6 +242,7 @@ void Market::updateMarketFromVolFile(const std::string &filePath,
     this->addVolCurve(volName, volCurve); // Adding the vol curve to the market
 }
 
+
 void Market::updateMarketFromBondFile(const std::string &filePath) {
     std::ifstream file(filePath);
     if (!file.is_open()) {
@@ -279,7 +276,6 @@ void Market::updateMarketFromBondFile(const std::string &filePath) {
     }
     file.close();
 }
-
 
 // JOS : assumes input csv contains 2 columns : stock | price
 void Market::updateMarketFromStockFile(const std::string &filePath) {
@@ -365,25 +361,39 @@ void Market::updateMarketFromCurveFile(const std::string &filePath,
             std::cerr << "Failed to open file: " << filePath << std::endl;
             return;
         }
-
         std::string line;
+        getline(file, line); // skip header line of curve.txt
+
         while (getline(file, line)) {
             std::istringstream iss(line);
-            std::string tenorStr;
             double rate;
             char delimiter;
-            if (iss >> tenorStr >> delimiter >> rate && delimiter == ':') {
-                rate /= 100.0; // Convert percentage to decimal
-                // Remove last character ('M' or 'Y') and calculate months
-                int numMonths =
-                    std::stoi(tenorStr.substr(0, tenorStr.size() - 1));
-                if (tenorStr.back() == 'Y') {
+
+            // Find the position of the colon
+            size_t colonPos = line.find(':');
+            if (colonPos == std::string::npos) {
+                std::cout << "Failed to find colon in line: " << line << std::endl;
+                continue; // Skip this line if no colon found
+            }
+
+            // Split the line into tenorStr and rateStr assuming a space after the colon
+            std::string tenor = line.substr(0, colonPos);
+            std::string rateStr = line.substr(colonPos + 2); // +2 to skip ": "
+            rateStr.pop_back();
+            rate=std::stod(rateStr)/100.0; // Convert percentage to decimal
+            // Remove last character ('M' or 'Y') and calculate months
+            int numMonths;
+            if (tenor == "ON") {
+                numMonths = 0;  // Overnight doesn't add months
+            } else {
+                numMonths = std::stoi(tenor.substr(0, tenor.size() - 1));
+                if (tenor.back() == 'Y') {
                     numMonths *= 12;
                 }
-                Date tenorDate = this->asOf; // Use the market's current date
-                tenorDate.addMonths(numMonths);
-                rateCurve.addRate(tenorDate, rate);
             }
+            Date tenorDate = this->asOf; // Use the market's current date
+            tenorDate.addMonths(numMonths);
+            rateCurve.addRate(tenorDate, rate);
         }
         file.close();
     }
@@ -415,8 +425,8 @@ double Market::getBondPrice(const std::string &assetName) const {
 }
 
 double Market::getVolatility(const std::string &assetName) const {
-    auto it = vols.find(assetName);
-    if (it != vols.end()) {
+    auto it = volCurves.find(assetName);
+    if (it != volCurves.end()) {
         return it->second.getLatestVol();
     }
     std::cerr << "Volatility data not found for asset: " << assetName
