@@ -38,8 +38,6 @@ public:
     Df = exp(-rT), r taken from curve;
     */
     virtual double Payoff(double marketPrice) const override; // use Market data
-    // virtual double PV(double marketPrice) const override;
-    // virtual double Payoff(const Market& market) const override; // use Market data 
     double getAnnuity() const; //implement this in a cpp file
 
 private:

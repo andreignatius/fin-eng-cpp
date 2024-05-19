@@ -6,7 +6,7 @@ double Swap::Payoff(double marketPrice) const {
     double annuity = getAnnuity();  // Use internal market data
     double currentRate = 0.0;
     double rate;
-    double pv = 0.0;
+    double pv;
     double yearsSinceStart;
     Date paymentDate = startDate;
     double fixedLegPV;
@@ -16,13 +16,12 @@ double Swap::Payoff(double marketPrice) const {
     fixedLegPV=annuity*(fixedRate/frequency); // assume fixedRate is annual rate
 
     // find last discount rate for floating leg pv calculation
-        // TODO may need clean up and checks
+    // TODO may need clean up and checks
     try {
         currentRate = market.getCurve("USD-SOFR").getRate(startDate);
     } catch (const std::out_of_range& e) {
         std::cerr << "USD-SOFR not found in market data. - using default rate 0." << std::endl;
     }
-
     long daysBetween = maturityDate.differenceInDays(startDate);
     double yearsBetween = static_cast<double>(daysBetween) / 365.25;  // Convert days to years
     int numPeriods = static_cast<int>(yearsBetween * frequency);  // Calculate the total number of periods
@@ -32,17 +31,16 @@ double Swap::Payoff(double marketPrice) const {
         rate = market.getCurve("USD-SOFR").getRate(paymentDate);
         double discountFactor = exp(-rate * yearsSinceStart);
     }
+
     DF_last = exp(-rate * yearsSinceStart);
     floatLegPV= notional*(1-DF_last);
 
-    // std::cout<<"fixed PV= "<<fixedLegPV<<", flt PV= "<<floatLegPV<<std::endl;
     if (isFixedForFloating) {
-        pv = floatLegPV - fixedLegPV; // Fixed-for-floatingswap payoff calculation
+        pv = floatLegPV - fixedLegPV;
     }   else  {
-        pv = fixedLegPV - floatLegPV; // Floating-for-fixed swap payoff calculation
+        pv = fixedLegPV - floatLegPV;
     } 
     // std::cout << "fix PV: " << fixedLegPV << ", float PV: "<<floatLegPV<<std::endl;
-
     return pv;
 }
 
@@ -74,7 +72,6 @@ double Swap::getAnnuity() const {
             std::cerr << "Failed to find rate for date: " << paymentDate << ". Using default rate 0." << std::endl;
         }
         double discountFactor = exp(-disc_rate * yearsSinceStart);
-
         annuity += notional* discountFactor;
     }
     return annuity;
