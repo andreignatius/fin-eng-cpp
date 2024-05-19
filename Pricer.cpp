@@ -10,6 +10,12 @@ double Pricer::Price(const Market &mkt, Trade *trade) {
         if (treePtr) { // check if cast is sucessful
             pv = PriceTree(mkt, *treePtr);
         }
+    } else if(trade->getType() == "SwapTrade"){
+        // IIRC, PV actually IS the market price, so this input is unnecessary
+        double swapDate = 1.0;         // I just put a dummy number to get the thing running
+        pv = trade->Payoff(swapDate); //Payoff functions of SwapTrade actually returns a PV
+        std::cout<<"swap price pv= "<<pv<<std::endl;
+
     } else {
         double price; // get from market data
         if (trade->getType() == "BondTrade") {
