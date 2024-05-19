@@ -17,15 +17,6 @@ private:
   virtual double PriceTree(const Market& mkt, const TreeProduct& trade) { return 0; };
 };
 
-class SwapPricer : public Pricer {
-public:
-
-protected:
-
-private:
-
-};
-
 
 
 class BinomialTreePricer: public Pricer
