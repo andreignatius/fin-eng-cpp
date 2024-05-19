@@ -12,8 +12,8 @@ double Pricer::Price(const Market &mkt, Trade *trade) {
         }
     } else if(trade->getType() == "SwapTrade"){
         // IIRC, PV actually IS the market price, so this input is unnecessary
-        double swapDate = 1.0;         // I just put a dummy number to get it running without modifying constructor
-        pv = trade->Payoff(swapDate); //Payoff functions of SwapTrade actually returns a PV
+        double marketPrice = 1.0;         // I just put a dummy number to get it running without modifying constructor
+        pv = trade->Payoff(marketPrice); //Payoff functions of SwapTrade actually returns a PV
         std::cout<<"swap price pv= "<<pv<<std::endl;
 
     } else {
