@@ -14,9 +14,9 @@ public:
     //     */
     // }
     // Swap(Date start, Date end, double _notional, double _tradeRate, double _frequency, bool _isFixedForFloating, const Market& _market);
-    Swap(Date start, Date end, double _notional, double _fixedRate, double _frequency, bool _isFixedForFloating, const Market& _market)
-        : Trade("SwapTrade", start, "swapUnderlying"), startDate(start), maturityDate(end), notional(_notional), fixedRate(_fixedRate),
-          frequency(_frequency), isFixedForFloating(_isFixedForFloating), market(_market) {
+    Swap(Date start, Date end, double _notional, double _fixedRate, double _frequency, bool _isFixedForFloating, const Market& _market, const string _curveName)
+        : Trade("SwapTrade", start, _curveName), startDate(start), maturityDate(end), notional(_notional), fixedRate(_fixedRate),
+          frequency(_frequency), isFixedForFloating(_isFixedForFloating), market(_market), curveName(_curveName) {
         
         if (startDate >= maturityDate) {
             throw std::invalid_argument("Start date must be before the maturity date.");
@@ -49,4 +49,5 @@ private:
     double frequency; // use 1 for annual, 2 for semi-annual etc
     bool isFixedForFloating; // true if fixed-for-floating swap, false otherwise
     const Market& market;  // Store a reference to Market
+    string curveName;
 };

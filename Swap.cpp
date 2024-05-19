@@ -18,9 +18,9 @@ double Swap::Payoff(double marketPrice) const {
     // find last discount rate for floating leg pv calculation
     // TODO may need clean up and checks
     try {
-        currentRate = market.getCurve("USD-SOFR").getRate(startDate);
+        currentRate = market.getCurve(curveName).getRate(startDate);
     } catch (const std::out_of_range& e) {
-        std::cerr << "USD-SOFR not found in market data. - using default rate 0." << std::endl;
+        std::cerr << "specified curve not found in market data. - using default rate 0." << std::endl;
     }
     long daysBetween = maturityDate.differenceInDays(startDate);
     double yearsBetween = static_cast<double>(daysBetween) / 365.25;  // Convert days to years
@@ -28,7 +28,7 @@ double Swap::Payoff(double marketPrice) const {
     for (int i = 1; i <= numPeriods; ++i) {
         paymentDate.addMonths(static_cast<int>(12 / frequency));  // Adjust the payment date according to the frequency
         yearsSinceStart = static_cast<double>(paymentDate.differenceInDays(startDate)) / 365.25; // Convert days to years
-        rate = market.getCurve("USD-SOFR").getRate(paymentDate);
+        rate = market.getCurve(curveName).getRate(paymentDate);
         double discountFactor = exp(-rate * yearsSinceStart);
     }
 
@@ -55,7 +55,6 @@ double Swap::getAnnuity() const {
     double yearsBetween = static_cast<double>(daysBetween) / 365.25;  // Convert days to years
     int numPeriods = static_cast<int>(yearsBetween * frequency);  // Calculate the total number of periods
 
-    std::cout<<"# getting Swap annuity"<<std::endl;
     std::cout << "maturityDate: " << maturityDate << std::endl;
     std::cout << "startDate: " << startDate << std::endl;
     std::cout << "numPeriods: " << numPeriods << std::endl;
@@ -66,7 +65,7 @@ double Swap::getAnnuity() const {
         double yearsSinceStart = static_cast<double>(paymentDate.differenceInDays(startDate)) / 365.25; // Convert days to years
         double disc_rate = 0.0;
         try {
-            disc_rate = market.getCurve("USD-SOFR").getRate(paymentDate);
+            disc_rate = market.getCurve(curveName).getRate(paymentDate);
         } catch (const std::out_of_range& e) {
             // Handle error appropriately, e.g., use a fallback rate
             std::cerr << "Failed to find rate for date: " << paymentDate << ". Using default rate 0." << std::endl;
