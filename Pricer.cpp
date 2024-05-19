@@ -10,12 +10,6 @@ double Pricer::Price(const Market &mkt, Trade *trade) {
         if (treePtr) { // check if cast is sucessful
             pv = PriceTree(mkt, *treePtr);
         }
-    } else if(trade->getType() == "SwapTrade"){
-        // IIRC, PV actually IS the market price, so this input is unnecessary
-        double marketPrice = 1.0;         // I just put a dummy number to get it running without modifying constructor
-        pv = trade->Payoff(marketPrice); //Payoff functions of SwapTrade actually returns a PV
-        std::cout<<"swap price pv= "<<pv<<std::endl;
-
     } else {
         double price; // get from market data
         if (trade->getType() == "BondTrade") {
@@ -26,7 +20,7 @@ double Pricer::Price(const Market &mkt, Trade *trade) {
         }
         
         // std::cout << "not tree product, where spot price : " << price << " for underlying : " << trade->getUnderlying() << endl;
-        pv = trade->Payoff(price);
+        pv = trade->Payoff(price); // should be noted that for Swap , market price input is irrelevant
     }
     return pv;
 }
