@@ -89,6 +89,8 @@ int main() {
         std::cout << "*****Priced trade with PV*****: " << pv << std::endl;
         // log pv details out in a file
         //  Optionally write to a file or store results
+
+        // please output trade info such as id, trade type, notional, start/end/traded price and PV into a txt or csv file
     }
 
     std::cout << "========end of Part 3============" << std::endl;
