@@ -4,7 +4,7 @@
 
 namespace PAYOFF
 {
-  inline double VanillaOption(OptionType optType, double strike, double S)
+  double VanillaOption(OptionType optType, double strike, double S)
   {
     switch (optType)
       {
@@ -21,7 +21,7 @@ namespace PAYOFF
       }
   }
 
-  inline double CallSpread(double strike1, double strike2, double S)
+  double CallSpread(double strike1, double strike2, double S)
   {
     if (S < strike1)
       return 0;

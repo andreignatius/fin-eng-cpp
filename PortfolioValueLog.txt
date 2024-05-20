@@ -1,0 +1,51 @@
+#
+Bond Holdings: SGD-GOV, Present Value: -100000#
+#
+Bond Holdings: USD-GOV, Present Value: -190000#
+#
+Bond Holdings: NoDataBond, Present Value: 1.035e+07#
+#
+Swap Holdings: USD-SOFR, Present Value: -74563.8#
+#
+Swap Holdings: NoSwap, Present Value: 183674#
+#
+Swap Holdings: wrongfrequency, Present Value: 0#
+#
+EuroOption 0: APPL, Present Value: 12.0321#
+extracted info: Asset=APPL, expiry=2024 7 20
+, strike=690, OptType=0, r=0.0552089, vol=0.229404, T=0.163927#
+Option Value by Black-Scholes is 12.0235#
+#
+AmericanOption 0: APPL, Present Value: 11.9068#
+#
+EuroOption 1: SP500, Present Value: 147.092#
+extracted info: Asset=SP500, expiry=2024 7 19
+, strike=5000, OptType=1, r=0.0552155, vol=0.230308, T=0.161187#
+Option Value by Black-Scholes is 146.968#
+#
+AmericanOption 1: SP500, Present Value: 150.239#
+#
+EuroOption 2: STI, Present Value: 0.463807#
+extracted info: Asset=STI, expiry=2024 9 19
+, strike=3500, OptType=2, r=0.0548443, vol=0.19664, T=0.327854#
+Option Value by Black-Scholes is 0.451207#
+#
+AmericanOption 2: STI, Present Value: 0.834227#
+#
+EuroOption 3: STI, Present Value: 0.341309#
+extracted info: Asset=STI, expiry=2024 9 19
+, strike=3300, OptType=3, r=0.0548443, vol=0.19664, T=0.327854#
+Option Value by Black-Scholes is 0.331006#
+#
+AmericanOption 3: STI, Present Value: 0.699983#
+#
+EuroCallSpread: SP500, Present Value: 68.675#
+#
+AmerCallSpread: SP500, Present Value: 68.675#
+#
+EuroOption 0: NoName, Present Value: 0#
+extracted info: Asset=NoName, expiry=2024 8 19
+, strike=690, OptType=0, r=0.0550133, vol=0.202808, T=0.244521#
+Option Value by Black-Scholes is 0#
+#
+AmerCallSpread: NoName2, Present Value: 0#

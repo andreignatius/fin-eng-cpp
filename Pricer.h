@@ -8,6 +8,9 @@
 #include "TreeProduct.h"
 #include "Market.h"
 
+#include "Bond.h"
+#include "Swap.h"
+
 //interface
 class Pricer {
 public:
@@ -16,6 +19,21 @@ public:
 private:
   virtual double PriceTree(const Market& mkt, const TreeProduct& trade) { return 0; };
 };
+
+
+//class BlackScholesPricer: public Pricer {
+//public:
+//    // Function to calculate the cumulative normal distribution
+//    double cnorm(double x);
+//    // Black-Scholes formula for different payoff types
+//
+//    double bsPrice(double S, double r, double vol, double T, double strike, OptionType payoffType);
+//    // Black-Scholes formula for different payoff types
+//    //double bsPrice(double S, double r, double vol, double T, double strike, OptionType payoffType);
+//
+//    double Price(const Market& mkt, Trade* trade);
+//
+//};
 
 
 
@@ -27,7 +45,8 @@ public:
     states.resize(N+1);
   }
   double PriceTree(const Market& mkt, const TreeProduct& trade) override;
-  
+
+
 protected:
   virtual void ModelSetup(double S0, double sigma, double rate, double dt) = 0; // pure virtual
   virtual double GetSpot(int ti, int si) const = 0;

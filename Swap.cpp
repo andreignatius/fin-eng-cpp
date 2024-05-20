@@ -1,90 +1,143 @@
-#include "Swap.h"
 #include <cmath>
-#include <stdexcept>
+#include "Market.h"
+#include "Date.h"
+#include "Swap.h"
 
-double Swap::Payoff(double marketPrice) const { // TODO marketPrice is redundant
-    double annuity = getAnnuity(); // Use internal market data
-    double currentRate = 0.0;
-    double rate;
-    double pv;
-    double yearsSinceStart;
-    Date paymentDate = startDate;
-    double fixedLegPV;
-    double floatLegPV;
-    double DF_last;
-
-    fixedLegPV = annuity * (fixedRate / frequency); // assume fixedRate is annual rate
-
-    // find last discount rate for floating leg pv calculation
-    // TODO may need clean up and checks
+// Implement getAnnuity method
+double Swap::getAnnuity(const RateCurve& rates) const {
+    time_t t = time(0);
+    tm now_;
+    localtime_s(&now_, &t);
+    Date today;
+    today.year = now_.tm_year + 1900;
+    today.month = now_.tm_mon + 1;
+    today.day = now_.tm_mday;
+    //cout << today << endl;
     try {
-        currentRate = market.getCurve(curveName).getRate(startDate);
-    } catch (const std::out_of_range &e) {
-        std::cerr << "specified curve not found in market data. - using "
-                     "default rate 0."
-                  << std::endl;
+        //cout << frequency << endl;
+
+        vector<Date> paymentDates;
+        Date nextPay = startDate;
+        while (operator-(maturityDate, nextPay) >= 0) {
+            //cout << "current examing pay Date: " << nextPay << endl;
+            if (operator-(nextPay, today) > 0) {
+                paymentDates.push_back(nextPay);
+            }
+            tm time = {};
+            time.tm_year = nextPay.year - 1900;
+            time.tm_mon = nextPay.month - 1 + 12 / frequency;
+            time.tm_mday = nextPay.day;
+            mktime(&time);
+
+            nextPay = Date(time.tm_year + 1900, time.tm_mon + 1, time.tm_mday);
+
+            //cout << paymentDates.size() << endl;
+        }
+
+        double df_fix = 0;
+        double df_flt = 0;
+
+        for (size_t i = 0; i < paymentDates.size(); ++i) {
+            double r = rates.getRate(paymentDates[i]);
+            double T = operator-(paymentDates[i], today);
+            df_flt = exp(-r * T);
+            df_fix += df_flt;
+        }
+
+        return notional * df_fix / frequency;
     }
-    long daysBetween    = maturityDate.differenceInDays(startDate);
-    double yearsBetween = static_cast<double>(daysBetween) / 365.25; // Convert days to years
-    int numPeriods      = static_cast<int>(yearsBetween * frequency); // Calculate the total number of periods
-    for (int i = 1; i <= numPeriods; ++i) {
-        paymentDate.addMonths(static_cast<int>(
-            12 /
-            frequency)); // Adjust the payment date according to the frequency
-        yearsSinceStart =
-            static_cast<double>(paymentDate.differenceInDays(startDate)) /
-            365.25; // Convert days to years
-        rate = market.getCurve(curveName).getRate(paymentDate);
-        double discountFactor = exp(-rate * yearsSinceStart);
+    catch (const std::bad_alloc& e) {
+        std::cerr << "Out of memory space: " << e.what() << std::endl;
+    }
+    catch (const std::runtime_error& e) {
+        std::cerr << "Runtime error: " << e.what() << std::endl;
+    }
+    catch (const std::exception& e) {
+        std::cerr << "Exception: " << e.what() << std::endl;
+    }
+    catch (...) {
+        std::cerr << "Unknown exception occurred." << std::endl;
     }
 
-    DF_last = exp(-rate * yearsSinceStart);
-    floatLegPV = notional * (1 - DF_last);
+    return 0.0;
 
-    if (isFixedForFloating) {
-        pv = floatLegPV - fixedLegPV;
-    } else {
-        pv = fixedLegPV - floatLegPV;
-    }
-    // std::cout << "fix PV: " << fixedLegPV << ", float PV:
-    // "<<floatLegPV<<std::endl;
-    return pv;
 }
 
-// annuity = DV01*notional
-double Swap::getAnnuity() const {
-    double annuity = 0.0;
-    Date paymentDate = startDate;
 
-    // Using differenceInDays to calculate the total number of periods
-    long daysBetween = maturityDate.differenceInDays(startDate);
-    double yearsBetween =
-        static_cast<double>(daysBetween) / 365.25; // Convert days to years
-    int numPeriods = static_cast<int>(
-        yearsBetween * frequency); // Calculate the total number of periods
+double Swap::getMktRate(const RateCurve& rates) const
+{
+    time_t t = time(0);
+    tm now_;
+    localtime_s(&now_, &t);
+    Date today;
+    today.year = now_.tm_year + 1900;
+    today.month = now_.tm_mon + 1;
+    today.day = now_.tm_mday;
+    //cout << today << endl;
+    try {
+        //cout << frequency << endl;
 
-    std::cout << "maturityDate: " << maturityDate << std::endl;
-    std::cout << "startDate: " << startDate << std::endl;
-    std::cout << "numPeriods: " << numPeriods << std::endl;
-    std::cout << "frequency: " << frequency << std::endl;
+        vector<Date> paymentDates;
+        Date nextPay = startDate;
+        while (operator-(maturityDate, nextPay) >= 0) {
+            //cout << "current examing pay Date: " << nextPay << endl;
+            if (operator-(nextPay, today) > 0) {
+            paymentDates.push_back(nextPay);
+            }
+            tm time = {};
+            time.tm_year = nextPay.year - 1900;
+            time.tm_mon = nextPay.month - 1 + 12 / frequency;
+            time.tm_mday = nextPay.day;
+            mktime(&time);
 
-    for (int i = 1; i <= numPeriods; ++i) {
-        paymentDate.addMonths(static_cast<int>(
-            12 /
-            frequency)); // Adjust the payment date according to the frequency
-        double yearsSinceStart =
-            static_cast<double>(paymentDate.differenceInDays(startDate)) /
-            365.25; // Convert days to years
-        double disc_rate = 0.0;
-        try {
-            disc_rate = market.getCurve(curveName).getRate(paymentDate);
-        } catch (const std::out_of_range &e) {
-            // Handle error appropriately, e.g., use a fallback rate
-            std::cerr << "Failed to find rate for date: " << paymentDate
-                      << ". Using default rate 0." << std::endl;
+            nextPay =  Date(time.tm_year + 1900, time.tm_mon + 1, time.tm_mday);
+
+        //cout << paymentDates.size() << endl;
         }
-        double discountFactor = exp(-disc_rate * yearsSinceStart);
-        annuity += notional * discountFactor;
+
+        double df_fix = 0;
+        double df_flt = 0;
+
+        for (size_t i = 0; i < paymentDates.size(); ++i) {
+            double r = rates.getRate(paymentDates[i]);
+            double T = operator-(paymentDates[i], today);
+            df_flt = exp(-r * T);
+            df_fix += df_flt;
+        }
+        cout << "current market rate: " << (1 - df_flt) / df_fix / frequency << endl;
+        return (1 - df_flt) / df_fix / frequency;
     }
-    return annuity;
+    catch (const std::bad_alloc& e) {
+        std::cerr << "Out of memory space: " << e.what() << std::endl;
+    }
+    catch (const std::runtime_error& e) {
+        std::cerr << "Runtime error: " << e.what() << std::endl;
+    }
+    catch (const std::exception& e) {
+        std::cerr << "Exception: " << e.what() << std::endl;
+    }
+    catch (...) {
+        std::cerr << "Unknown exception occurred." << std::endl;
+    }
+
+    return 0.0;
+}
+
+
+
+// Override the Payoff method with one parameter
+double Swap::Payoff(double marketRate) const {
+    cout << "I'm using the wrong pricer for swap" << endl;
+    double annuity = 0;
+    return annuity * (marketRate - tradeRate);
+}
+
+// Additional Payoff method with two parameters
+double Swap::Payoff(double marketRate, double annuity) const {
+
+    cout << "I'm using the RIGHT pricer for swap" << endl;
+    if (!valid) {
+        return 0;
+    }
+    return annuity * (marketRate - tradeRate);
 }
