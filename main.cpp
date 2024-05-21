@@ -60,11 +60,11 @@ int main() {
 
     // Adding Swaps
     myPortfolio.push_back(new Swap(Date(2024, 1, 1), Date(2029, 1, 1), 2000000,
-                                   0.01, 1, true,
-                                   mkt)); // Fixed-for-floating, annual
+                                   0.05, 1, true,
+                                   mkt, "USD-SOFR")); // Fixed-for-floating, annual
     myPortfolio.push_back(new Swap(Date(2024, 1, 1), Date(2029, 1, 1), 2000000,
-                                   0.02, 2, false,
-                                   mkt)); // Floating-for-fixed, semi-annual
+                                   0.06, 2, false, 
+                                   mkt, "USD-SOFR")); // Floating-for-fixed, semi-annual
 
     // Adding European Options
     myPortfolio.push_back(
@@ -83,9 +83,9 @@ int main() {
     Pricer *treePricer = new CRRBinomialTreePricer(10);
     std::vector<double> pricingResults;
     for (auto trade : myPortfolio) {
+        std::cout << "trade: " << trade->getType() << ", underlying: " << trade->getUnderlying() << std::endl;
         double pv = treePricer->Price(mkt, trade);
         pricingResults.push_back(pv);
-        std::cout << "trade: " << trade->getType() << " " << trade->getUnderlying() << std::endl;
         std::cout << "*****Priced trade with PV*****: " << pv << std::endl;
         // log pv details out in a file
         //  Optionally write to a file or store results
