@@ -451,7 +451,31 @@ int main()
   Trade* Amer6 = new AmerCallSpread("NoName2", 5600, 6090, Date(2024, 10, 19)); // American call spread - NoName error
   myPortfolio.push_back(Amer6);
 
+  // team result calibration starting here
 
+  Trade* tmbond1 = new Bond("SGD-GOV", Date(2024, 1, 1), Date(2034, 1, 1), 10000000, 103.5); // Bond long
+  myPortfolio.push_back(tmbond1);
+
+  Trade* tmbond2 = new Bond("SGD-GOV", Date(2024, 1, 1), Date(2029, 1, 1), -5000000, 103.5); // Bond short
+  myPortfolio.push_back(tmbond2);
+
+  Trade* tmswap1 = new Swap("USD-SOFR", Date(2024, 1, 1), Date(2029, 1, 1), 2000000, 0.01, 1); // Swap long, freq=1
+  myPortfolio.push_back(tmswap1);
+
+  Trade* tmswap2 = new Swap("USD-SOFR", Date(2024, 1, 1), Date(2029, 1, 1), -2000000, 0.02, 1); // Swap short, freq=2
+  myPortfolio.push_back(tmswap2);
+
+  Trade* tmEuro1 = new EuropeanOption("APPL", Call, 700, Date(2025, 12, 31)); // European call option
+  myPortfolio.push_back(tmEuro1);
+
+  Trade* tmEuro2 = new EuropeanOption("APPL", Put, 700, Date(2025, 12, 31)); // European put option
+  myPortfolio.push_back(tmEuro2);
+
+  Trade* tmAmer1 = new AmericanOption("APPL", Call, 700, Date(2025, 12, 31)); // American call option
+  myPortfolio.push_back(tmAmer1);
+
+  Trade* tmAmer2 = new AmericanOption("APPL", Put, 700, Date(2025, 12, 31)); // American put option
+  myPortfolio.push_back(tmAmer2);
 
   //task 3, creat a pricer and price the portfolio, output the pricing result of each deal.
   Pricer* treePricer = new CRRBinomialTreePricer(300);
