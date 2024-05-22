@@ -49,3 +49,25 @@ extracted info: Asset=NoName, expiry=2024 8 19
 Option Value by Black-Scholes is 0#
 #
 AmerCallSpread: NoName2, Present Value: 0#
+#
+Bond Holdings: SGD-GOV, Present Value: -100000#
+#
+Bond Holdings: SGD-GOV, Present Value: 50000#
+#
+Swap Holdings: USD-SOFR, Present Value: 311105#
+#
+Swap Holdings: USD-SOFR, Present Value: -223276#
+#
+EuroOption 0: APPL, Present Value: 53.3152#
+extracted info: Asset=APPL, expiry=2025 12 31
+, strike=700, OptType=0, r=0.0541448, vol=0.146648, T=1.60799#
+Option Value by Black-Scholes is 53.2774#
+#
+EuroOption 1: APPL, Present Value: 42.9479#
+extracted info: Asset=APPL, expiry=2025 12 31
+, strike=700, OptType=1, r=0.0541448, vol=0.146648, T=1.60799#
+Option Value by Black-Scholes is 42.91#
+#
+AmericanOption 0: APPL, Present Value: 53.3152#
+#
+AmericanOption 1: APPL, Present Value: 56.671#
