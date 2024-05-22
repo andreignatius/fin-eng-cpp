@@ -1,12 +1,17 @@
 FULL set of QF633 part1 project
 developed in Windows Visual Studio
-NOT TO MERGE with main (which is from apple VS code)
+NOT TO DIRECT MERGE with main (which is from apple VS code)
 
 
-# fin-eng-cpp
-Financial Engineering Project using C++
+# file adding list as per windows visual studio sequence:
 
-To build and run using windows OS, run : `./build_and_run.bat`
+Header files: `AmericanTrade.h` `Bond.h` `Date.h` `EuropeanTrade.h` `Market.h` `Payoff.h` `Pricer.h` `Swap.h` `Trade.h` `TreeProduct.h` `Types.h`
 
-To build and run using Mac OS, run : `./build_and_run.sh`
+Source files: `Date.cpp` `main.cpp` `Maket.cpp` `Pricer.cpp` `Swap.cpp`
+
+Resource files: `bondPrice.txt` `curve.txt` `stockPrice.txt` `vol.txt`
+
+output files: `PortfolioValueLog.txt` `QF633 cpp Project YU Lingfeng.exe`
+
+other files: `QF633 Binomial Tree Validation.ipynb` `_QF620 project part 1_calculus YLF.pdf`
 
