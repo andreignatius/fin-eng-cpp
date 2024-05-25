@@ -14,6 +14,10 @@
 
 using namespace std;
 
+/*
+Comments: when using new, pls remember to use delete for ptr
+*/
+
 int main() {
     // task 1, create an market data object, and update the market data from
     // from txt file
