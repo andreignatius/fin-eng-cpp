@@ -1,6 +1,16 @@
 #ifndef JSONREADER_H
 #define JSONREADER_H
+#include "AmericanTrade.h"
+#include "Bond.h"
+#include "Date.h"
+#include "EuropeanTrade.h"
+#include "Market.h"
+#include "Swap.h"
+#include "Trade.h"
 #include <algorithm>
+#include <chrono>
+#include <ctime>
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <regex>
@@ -10,32 +20,35 @@
 #include <vector>
 
 class JSONReader {
-    /*
-        The JSONReader function expects the following at the very least
-        {
-            "name":"dataname",
-            "records":[
-                {"col1":"key1","col2":"value1"},
-                {"col1":"key2","col2":"value2"},
-            ]
-        }
-
-        or you can refer to example in /data/sofrdummycurve.json
-    */
-  private:
-    std::string myfilename;
-
   public:
+    std::string theFilename;
+    Market theMarket;
+    vector<Trade *> thePortfolio;
+
     // constructors
-    JSONReader(const std::string &filename) : myfilename(filename){};
-    JSONReader();
+    JSONReader(const std::string &filename, const Market &marketObj,
+               vector<Trade *> &portfolioVec)
+        : theFilename(filename), theMarket(marketObj),
+          thePortfolio(portfolioVec) {
+        std::cout << "from constructor" << std::endl;
+    };
+
+    // setter getters
+    void setFileName(const std::string &filename);
+    std::string getFileName();
+
+    void setMarketObject(const Market &marketObj);
+    Market getMarketObject();
+
+    // no const because we will be modifying god willing
+    void setPortfolio(vector<Trade *> &portfolioVec);
+    vector<Trade *> getPortfolio();
 
     // methods
     std::unordered_map<std::string, std::vector<std::string>> parseFile();
     std::vector<std::string> parseRow(const std::string &row,
                                       const char &delim);
-    void setFileName(const std::string &filename);
-    std::string getFileName(const std::string &filename);
+    void constructPortfolio();
 
     // inplace leading trim
     inline void ltrim(std::string &s) {
@@ -57,4 +70,4 @@ class JSONReader {
         ltrim(s);
     }
 };
-#endif
+#endif // jsonreader
