@@ -61,6 +61,13 @@ int main() {
     // task 2, create a portfolio of bond, swap, european option, american
     // option for each time, at least should have long / short, different tenor
     // or expiry, different underlying totally no less than 16 trades
+
+    /*
+        JOS 2024/05/25
+            This utilizes the JSONReader functionality,
+            Users supply a JSON file containing the portfolio.
+            JSONReader will parse and construct the portfolio vector.
+    */
     vector<Trade *> myPortfolio;
     JSONReader myJSONReader((DATA_PATH / "portfolio.json").string(), mkt,
                             myPortfolio);
