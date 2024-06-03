@@ -7,6 +7,7 @@ double Pricer::Price(const Market &mkt, Trade *trade) {
     if (trade->getType() == "AmericanOption" || trade->getType() == "EuropeanOption") {
         // std::cout << "tree product" << " " << trade << std::endl;
         TreeProduct *treePtr = dynamic_cast<TreeProduct *>(trade);
+
         if (treePtr) { // check if cast is sucessful
             pv = PriceTree(mkt, *treePtr);
         }
@@ -15,11 +16,12 @@ double Pricer::Price(const Market &mkt, Trade *trade) {
         if (trade->getType() == "BondTrade") {
             // std::cout << "check bond name : " << trade->getUnderlying() << std::endl;
             price = mkt.getBondPrice(trade->getUnderlying());
+        } else if (trade->getType() == "SwapTrade") {
+            // do nothing, swap price is in Payoff(price)
         } else {
             price = mkt.getSpotPrice(trade->getUnderlying());
         }
         
-        // std::cout << "not tree product, where spot price : " << price << " for underlying : " << trade->getUnderlying() << endl;
         pv = trade->Payoff(price); // should be noted that for Swap , market price input is irrelevant
     }
     return pv;
@@ -30,7 +32,7 @@ double BinomialTreePricer::PriceTree(const Market &mkt,
     // model setup
     // double T = trade.GetExpiry() - mkt.asOf;
     double T = trade.GetExpiry().differenceInDays(mkt.asOf) / 365.25;
-    std::cout << "!T: " << T << " GetExpiry: " << trade.GetExpiry() << " mkt.asOf: " << mkt.asOf << std::endl;
+    // std::cout << "T: " << T << " Expiry: " << trade.GetExpiry() << " as of: " << mkt.asOf << std::endl; //LR: redundant
     double dt = T / nTimeSteps;
     /*
     get these data for the deal from market object

@@ -62,11 +62,12 @@ double Swap::getAnnuity() const {
         static_cast<double>(daysBetween) / 365.25; // Convert days to years
     int numPeriods = static_cast<int>(
         yearsBetween * frequency); // Calculate the total number of periods
-
-    std::cout << "maturityDate: " << maturityDate << std::endl;
-    std::cout << "startDate: " << startDate << std::endl;
-    std::cout << "numPeriods: " << numPeriods << std::endl;
-    std::cout << "frequency: " << frequency << std::endl;
+    
+    std::cout << "Swap notional: " << notional << std::endl;
+    std::cout << "Swap start date: " << startDate << std::endl;
+    std::cout << "Swap maturity date: " << maturityDate << std::endl;
+    std::cout << "Number of periods: " << numPeriods << std::endl;
+    std::cout << "Frequency: " << frequency << std::endl;
 
     for (int i = 1; i <= numPeriods; ++i) {
         paymentDate.addMonths(static_cast<int>(

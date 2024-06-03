@@ -11,10 +11,6 @@
 #include "Pricer.h"
 #include "Swap.h"
 #include "BlackScholesPricer.h"
-#include "logger.h"
-
-// #include "spdlog/spdlog.h"
-// #include "spdlog/sinks/stdout_color_sinks.h" 
 
 using namespace std;
 
@@ -23,10 +19,6 @@ Comments: when using new, pls remember to use delete for ptr
 */
 
 int main() {
-    
-    init_logger();
-    console->info("Starting the application...");
-
 
 
     // task 1, create an market data object, and update the market data from
@@ -44,7 +36,8 @@ int main() {
     load data from file and update market object with data
     */
     
-    std::cout << DATA_PATH / "vol_bond.csv111" << std::endl;
+    cout<<"============= Task 1 ============="<<endl;
+    // std::cout << DATA_PATH / "vol_bond.csv111" << std::endl;
     mkt.updateMarketFromVolFile((DATA_PATH / "vol_bond.csv").string(), "BondTrade"); // Update market data from file
     mkt.updateMarketFromVolFile((DATA_PATH / "vol_swap.csv").string(), "SwapTrade"); // Update market data from file
     mkt.updateMarketFromVolFile((DATA_PATH / "vol_amer.csv").string(), "AmericanOption"); // Update market data from file
@@ -64,6 +57,8 @@ int main() {
     // task 2, create a portfolio of bond, swap, european option, american
     // option for each time, at least should have long / short, different tenor
     // or expiry, different underlying totally no less than 16 trades
+    cout<<"============= Task 2 ============="<<endl;
+
     vector<Trade *> myPortfolio;
 
     // Adding Bonds
@@ -92,22 +87,27 @@ int main() {
     myPortfolio.push_back(
         new AmericanOption(Put, 700, Date(2025, 12, 31), "AAPL")); // Put option
 
+    std::cout<<myPortfolio.size()<<" financial Instruments added to portfolio"<<std::endl;
+    std::cout<<std::endl;
+
     // task 3, create a pricer and price the portfolio, output the pricing result
     // of each deal.
+    cout<<"============= Task 3 ============="<<endl;
+
     Pricer *treePricer = new CRRBinomialTreePricer(10);
     std::vector<double> pricingResults;
     for (auto trade : myPortfolio) {
-        std::cout << "trade: " << trade->getType() << ", underlying: " << trade->getUnderlying() << std::endl;
+        std::cout << "Trade: " << trade->getType() << ", Underlying: " << trade->getUnderlying() << std::endl;
         double pv = treePricer->Price(mkt, trade);
         pricingResults.push_back(pv);
-        std::cout << "*****Priced trade with PV*****: " << pv << std::endl;
+        std::cout << "Priced trade with PV: " << pv << std::endl;
+        std::cout<<std::endl;
         // log pv details out in a file
         //  Optionally write to a file or store results
 
         // please output trade info such as id, trade type, notional, start/end/traded price and PV into a txt or csv file
     }
 
-    std::cout << "========end of Part 3============" << std::endl;
 
     // task 4, analyzing pricing result
     //  a) compare CRR binomial tree result for an european option vs Black
@@ -117,16 +117,22 @@ int main() {
     // task 4, analyzing pricing result
     // a) compare CRR binomial tree result for a European option vs Black-Scholes model
     // results should converge over time
+    cout<<"============= Task 4 ============="<<endl;
+
     for (auto trade : myPortfolio) {
         EuropeanOption *euroOption = dynamic_cast<EuropeanOption *>(trade);
         if (euroOption) {
+            std::cout <<trade->getType()<< " underlying: " << trade->getUnderlying() << std::endl;
             double bsPrice = BlackScholesPricer::Price(mkt, *euroOption);
             double crrPrice = treePricer->Price(mkt, euroOption);
             std::cout << "Comparing European Option: " << std::endl;
             std::cout << "Black-Scholes Price: " << bsPrice << std::endl;
             std::cout << "CRR Binomial Tree Price: " << crrPrice << std::endl;
+            std::cout<<std::endl;
+
         }
     }
+
 
     // b) compare CRR binomial tree result for an American option vs European option
     // compare between US call / put vs EU call / put
@@ -137,11 +143,13 @@ int main() {
                 EuropeanOption *euroOption = dynamic_cast<EuropeanOption *>(trade2);
                 if (euroOption && euroOption->getStrike() == amerOption->getStrike() &&
                     euroOption->GetExpiry() == amerOption->GetExpiry() && euroOption->getOptionType() == amerOption->getOptionType()) {
+                    std::cout <<trade->getType()<< " underlying: " << trade->getUnderlying() << std::endl;
                     double amerPrice = treePricer->Price(mkt, amerOption);
                     double euroPrice = treePricer->Price(mkt, euroOption);
                     std::cout << "Comparing American Option with European Option: " << std::endl;
-                    std::cout << "*****American Option Price*****: " << amerPrice << std::endl;
-                    std::cout << "*****European Option Price*****: " << euroPrice << std::endl;
+                    std::cout << "American Option Price: " << amerPrice << std::endl;
+                    std::cout << "European Option Price: " << euroPrice << std::endl;
+                    std::cout<<std::endl;
                 }
             }
         }

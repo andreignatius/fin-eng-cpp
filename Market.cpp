@@ -29,8 +29,8 @@ void RateCurve::addRate(const Date &tenor, double rate) {
         // Tenor does not exist, add new tenor and rate
         tenors.push_back(tenor);
         rates.push_back(rate);
-        std::cout << "Added new tenor " << tenor << " with rate " << rate << "."
-                  << std::endl;
+        // std::cout << "Added new tenor " << tenor << " with rate " << rate << "."
+        //           << std::endl;
     }
 }
 
@@ -83,7 +83,7 @@ void VolCurve::addVol(Date tenor, double volInDecimal) {
         // Tenor does not exist, add new tenor and rate
         tenors.push_back(tenor);
         vols.push_back(volInDecimal);
-        std::cout << "Added new tenor " << tenor << " with vol " << volInDecimal << std::endl;
+        // std::cout << "Added new tenor " << tenor << " with vol " << volInDecimal << std::endl;
     }
 }
 
@@ -132,8 +132,7 @@ void VolCurve::display() const {
 }
 
 void Market::Print() const {
-    std::cout << "============= PRINT MARKET =============" << std::endl;
-    std::cout << "market asof: " << asOf << std::endl;
+    std::cout << "Market asof: " << asOf << std::endl;
 
     // LR: should we have similar methods for displaying them?
     for (auto &curve : rateCurves) {
@@ -144,18 +143,20 @@ void Market::Print() const {
     }
 
     // Add display for bond price and stock price
-    //TODO LR: bond output is not shown when running
     std::cout << "Bond Prices:" << std::endl;
     for (const auto &bond : bondPrices) {
         std::cout << "Bond: " << bond.first << " Price: " << bond.second
                   << std::endl;
     }
+    std::cout << std::endl;
+
     std::cout << "Stock Prices:" << std::endl;
     for (const auto &stock : stockPrices) {
         std::cout << "Stock: " << stock.first << " Price: " << stock.second
                   << std::endl;
     }
-    std::cout << "============= PRINT MARKET =============" << std::endl;
+    std::cout << std::endl;
+
 }
 
 void Market::addCurve(const std::string &curveName, const RateCurve &curve) {
@@ -238,6 +239,7 @@ void Market::updateMarketFromVolFile(const std::string &filePath,
         }
         file.close();
     }
+    std::cout<< "Added vol for " << volName << std::endl;
 
     this->addVolCurve(volName, volCurve); // Adding the vol curve to the market
 }
@@ -271,7 +273,7 @@ void Market::updateMarketFromBondFile(const std::string &filePath) {
             std::cerr << "Failed to convert price to double: " << priceStr << " in line: " << line << std::endl;
             continue; // Skip lines with conversion errors
         }
-        std::cout<< "adding bond: " << bondName << " where price is : " << price << std::endl;
+        std::cout<< "Added bond: " << bondName << ", where price is : " << price << std::endl;
         addBondPrice(bondName, price);
     }
     file.close();
@@ -286,9 +288,10 @@ void Market::updateMarketFromStockFile(const std::string &filePath) {
         CSVReader myCSVReader = CSVReader(filePath);
         stockMap = myCSVReader.parseFile();
         for (int i = 0; i < stockMap["stock"].size(); i++) {
-            std::cout << "adding stock : " << stockMap["stock"][i] << std::endl;
             addStockPrice(stockMap["stock"][i],
                           std::stod(stockMap["price"][i]));
+            std::cout << "Added stock : " << stockMap["stock"][i] << std::endl;
+
         }
         // if user supplies TXT File
     } else {
