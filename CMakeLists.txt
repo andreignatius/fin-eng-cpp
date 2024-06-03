@@ -8,8 +8,11 @@ project(MyProject)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+# Include the spdlog headers
+include_directories(${CMAKE_SOURCE_DIR}/include)
+
 # Add executable
-add_executable(main main.cpp Trade.cpp AmericanTrade.cpp Bond.cpp BlackScholesPricer.cpp Date.cpp EuropeanTrade.cpp Market.cpp Pricer.cpp Swap.cpp CSVReader.cpp TenorMap.cpp)
+add_executable(main main.cpp Trade.cpp AmericanTrade.cpp Bond.cpp BlackScholesPricer.cpp Date.cpp EuropeanTrade.cpp Market.cpp Pricer.cpp Swap.cpp CSVReader.cpp TenorMap.cpp logger.cpp)
 
 # Optionally, you can set the output directory for binaries
 set_target_properties(main PROPERTIES

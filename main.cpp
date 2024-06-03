@@ -11,6 +11,10 @@
 #include "Pricer.h"
 #include "Swap.h"
 #include "BlackScholesPricer.h"
+#include "logger.h"
+
+// #include "spdlog/spdlog.h"
+// #include "spdlog/sinks/stdout_color_sinks.h" 
 
 using namespace std;
 
@@ -19,6 +23,12 @@ Comments: when using new, pls remember to use delete for ptr
 */
 
 int main() {
+    
+    init_logger();
+    console->info("Starting the application...");
+
+
+
     // task 1, create an market data object, and update the market data from
     // from txt file
     std::filesystem::path DATA_PATH = std::filesystem::current_path() / "../../data";
