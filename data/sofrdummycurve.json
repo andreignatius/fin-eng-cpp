@@ -1,0 +1,13 @@
+{
+    "name":"USD-SOFR",
+    "records":[
+        {"tenor":"ON","rate":"5.56%"},
+        {"tenor":"3M","rate":"5.50%"},
+        {"tenor":"6M","rate":"5.45%"},
+        {"tenor":"9M","rate":"5.40%"},
+        {"tenor":"1Y","rate":"5.53%"},
+        {"tenor":"2Y","rate":"5.34%"},
+        {"tenor":"5Y","rate":"4.75%"},
+        {"tenor":"10Y","rate":"3.90%"}
+    ]
+}

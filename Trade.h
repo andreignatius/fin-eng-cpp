@@ -13,6 +13,8 @@ public:
 
     string getType() const;
     string getUnderlying() const; // Accessor for the underlying asset
+    // inline string getType() const { return tradeType; }
+    // inline string getUnderlying() const { return underlying; } // Accessor for the underlying asset
     virtual double Payoff(double marketPrice) const = 0;
     virtual ~Trade() {};
 
