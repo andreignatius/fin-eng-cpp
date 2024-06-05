@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <string>
 
 #include "AmericanTrade.h"
 #include "BlackScholesPricer.h"
@@ -12,12 +13,61 @@
 #include "Market.h"
 #include "Pricer.h"
 #include "Swap.h"
+#include "Logger.h"
 
 using namespace std;
 
 /*
 Comments: when using new, pls remember to use delete for ptr
 */
+
+std::string generateDateTimeFilename() {
+    // Get current time point
+    auto now = std::chrono::system_clock::now();
+    auto in_time_t = std::chrono::system_clock::to_time_t(now);
+
+    // Convert to local time
+    std::tm bt;
+#if defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))
+    localtime_r(&in_time_t, &bt);  // POSIX
+#elif defined(_MSC_VER)
+    localtime_s(&bt, &in_time_t);  // Windows
+#else
+    static std::mutex mtx;
+    std::lock_guard<std::mutex> lock(mtx);
+    bt = *std::localtime(&in_time_t);  // Not thread-safe as a last resort
+#endif
+
+    // Format the time string to 'YYYYMMDD_HHMMSS'
+    std::ostringstream oss;
+    oss << std::put_time(&bt, "output_%Y%m%d_%H%M%S.txt");
+    return oss.str();
+}
+
+// we want to compare options across types but with the same strike and expiry.
+struct SecurityKey {
+    double strike;
+    Date expiry;
+
+    bool operator==(const SecurityKey& other) const {
+        return std::tie(strike, expiry) == std::tie(other.strike, other.expiry);
+    }
+};
+
+// struct SecurityHash {
+//     size_t operator()(const SecurityKey& k) const {
+//         return std::hash<double>()(k.strike) ^ std::hash<int>()(k.expiry.toDays());
+//     }
+// };
+
+struct SecurityHash {
+    size_t operator()(const SecurityKey& k) const {
+        std::size_t h1 = std::hash<double>()(k.strike);
+        std::size_t h2 = std::hash<int>()(k.expiry.year * 10000 + k.expiry.month * 100 + k.expiry.day);
+        return h1 ^ (h2 << 1);  // Shift h2 left to avoid collisions
+    }
+};
+
 
 int main() {
     // task 1, create an market data object, and update the market data from
@@ -72,6 +122,8 @@ int main() {
             Users supply a JSON file containing the portfolio.
             JSONReader will parse and construct the portfolio vector.
     */
+    
+
     vector<Trade *> myPortfolio;
     JSONReader myJSONReader((DATA_PATH / "portfolio.json").string(), mkt,
                             myPortfolio);
@@ -81,6 +133,24 @@ int main() {
 
     // why do i need to re-set myPortfolio?
     myPortfolio = myJSONReader.getPortfolio();
+
+    // std::unordered_map<SecurityKey, std::vector<Trade*>, SecurityHash> securityMap;
+    std::unordered_map<SecurityKey, std::pair<std::vector<AmericanOption*>, std::vector<EuropeanOption*>>, SecurityHash> securityMap;
+    // Populate the map
+	// for (auto& trade : myPortfolio) {
+	//     SecurityKey key{trade->getType(), trade->getStrike(), trade->GetExpiry()};
+	//     securityMap[key].push_back(trade);
+	// }
+	for (auto& trade : myPortfolio) {
+	    if (auto amerOption = dynamic_cast<AmericanOption*>(trade)) {
+	        SecurityKey key{amerOption->getStrike(), amerOption->GetExpiry()};
+	        securityMap[key].first.push_back(amerOption);
+	    }
+	    if (auto euroOption = dynamic_cast<EuropeanOption*>(trade)) {
+	        SecurityKey key{euroOption->getStrike(), euroOption->GetExpiry()};
+	        securityMap[key].second.push_back(euroOption);
+	    }
+	}
 
     // task 3, create a pricer and price the portfolio, output the pricing
     // result of each deal.
@@ -111,6 +181,12 @@ int main() {
     // myPortfolio.push_back(
     //     new AmericanOption(Put, 700, Date(2025, 12, 31), "AAPL")); // Put option
 
+    std::string output_filename = generateDateTimeFilename();
+    Logger logger((DATA_PATH / output_filename).string());  // Initialize the logger
+    // Example of using the logger
+    logger.info("Starting the application.");
+    // Log data path
+    logger.info("Data path: " + DATA_PATH.string());
     Pricer *treePricer = new CRRBinomialTreePricer(10);
     std::vector<double> pricingResults;
     for (auto trade : myPortfolio) {
@@ -120,6 +196,7 @@ int main() {
         std::cout << "trade: " << trade->getType() << " "
                   << trade->getUnderlying() << std::endl;
         std::cout << "*****Priced trade with PV*****: " << pv << std::endl;
+        logger.info("trade: " + trade->getType() + " " + trade->getUnderlying() + " PV : " + std::to_string(pv));
         // log pv details out in a file
         //  Optionally write to a file or store results
 
@@ -144,37 +221,64 @@ int main() {
             std::cout << "Comparing European Option: " << std::endl;
             std::cout << "Black-Scholes Price: " << bsPrice << std::endl;
             std::cout << "CRR Binomial Tree Price: " << crrPrice << std::endl;
+            logger.info("Comparing European Option: ");
+            logger.info("Black-Scholes Price: " + std::to_string(bsPrice));
+            logger.info("CRR Binomial Tree Price: " + std::to_string(crrPrice));
         }
     }
 
     // b) compare CRR binomial tree result for an American option vs European
     // option compare between US call / put vs EU call / put
-    for (auto trade : myPortfolio) {
-        AmericanOption *amerOption = dynamic_cast<AmericanOption *>(trade);
-        if (amerOption) {
-            for (auto trade2 : myPortfolio) {
-                EuropeanOption *euroOption =
-                    dynamic_cast<EuropeanOption *>(trade2);
-                if (euroOption &&
-                    euroOption->getStrike() == amerOption->getStrike() &&
-                    euroOption->GetExpiry() == amerOption->GetExpiry() &&
-                    euroOption->getOptionType() ==
-                        amerOption->getOptionType()) {
-                    double amerPrice = treePricer->Price(mkt, amerOption);
-                    double euroPrice = treePricer->Price(mkt, euroOption);
-                    std::cout
-                        << "Comparing American Option with European Option: "
-                        << std::endl;
-                    std::cout
-                        << "*****American Option Price*****: " << amerPrice
-                        << std::endl;
-                    std::cout
-                        << "*****European Option Price*****: " << euroPrice
-                        << std::endl;
-                }
-            }
-        }
-    }
+    // for (auto trade : myPortfolio) {
+    //     AmericanOption *amerOption = dynamic_cast<AmericanOption *>(trade);
+    //     if (amerOption) {
+    //         for (auto trade2 : myPortfolio) {
+    //             EuropeanOption *euroOption =
+    //                 dynamic_cast<EuropeanOption *>(trade2);
+    //             if (euroOption &&
+    //                 euroOption->getStrike() == amerOption->getStrike() &&
+    //                 euroOption->GetExpiry() == amerOption->GetExpiry() &&
+    //                 euroOption->getOptionType() ==
+    //                     amerOption->getOptionType()) {
+    //                 double amerPrice = treePricer->Price(mkt, amerOption);
+    //                 double euroPrice = treePricer->Price(mkt, euroOption);
+    //                 std::cout
+    //                     << "Comparing American Option with European Option: "
+    //                     << std::endl;
+    //                 std::cout
+    //                     << "*****American Option Price*****: " << amerPrice
+    //                     << std::endl;
+    //                 std::cout
+    //                     << "*****European Option Price*****: " << euroPrice
+    //                     << std::endl;
+    //                 logger.info("Comparing American Option with European Option: ");
+		  //           logger.info("*****American Option Price*****: " + std::to_string(amerPrice));
+		  //           logger.info("*****European Option Price*****: " + std::to_string(euroPrice));
+    //             }
+    //         }
+    //     }
+    // }
+    // only relevant pairs of American and European options are compared,
+    // rather than comparing every possible pair in the portfolio.
+    // It leverages the structured nature of the SecurityKey to enforce that only matching options are compared.
+    for (const auto& pair : securityMap) {
+	    const auto& americanOptions = pair.second.first;
+	    const auto& europeanOptions = pair.second.second;
+
+	    for (auto amerOption : americanOptions) {
+	        double amerPrice = treePricer->Price(mkt, amerOption);
+	        for (auto euroOption : europeanOptions) {
+	            double euroPrice = treePricer->Price(mkt, euroOption);
+	            std::cout << "Comparing American Option with European Option: " << std::endl;
+	            std::cout << "*****American Option Price*****: " << amerPrice << std::endl;
+	            std::cout << "*****European Option Price*****: " << euroPrice << std::endl;
+	            logger.info("Comparing American Option with European Option: ");
+	            logger.info("*****American Option Price*****: " + std::to_string(amerPrice));
+	            logger.info("*****European Option Price*****: " + std::to_string(euroPrice));
+	        }
+	    }
+	}
+
 
     // final
     cout << "Project build successfully!" << endl;
