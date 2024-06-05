@@ -72,10 +72,10 @@ void JSONReader::constructPortfolio() {
         trim(lineText); // in place trim
 
         // parsing logic starts here
-        if (lineText.find("{") != std::string::npos & !buildReady) {
+        if (lineText.find("{") != std::string::npos && !buildReady) {
             // cue to start building something
             buildReady = true;
-        } else if (lineText.find("}") != std::string::npos & buildReady) {
+        } else if (lineText.find("}") != std::string::npos && buildReady) {
             // build the instrument
             switch (toBuild) {
             case BOND:
