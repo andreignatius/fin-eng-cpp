@@ -46,9 +46,11 @@ void JSONReader::constructPortfolio() {
     std::regex getFixed_rate_pct(R"(\"fixed_rate_pct\":([0-9\.]*))");
     std::regex getFixed_for_float(R"(\"fixed_for_float\":([0-9\.]*))");
     std::regex getFrequency(R"(\"frequency\":([0-9\.]*))");
+    std::regex getCurveName(R"(\"curve_name\":\"(.*?)\")");
     double fixedRate;
     bool fixed_for_float;
     int frequency;
+    std::string curveName;
 
     // OPTION specific
     std::regex getOptionType(R"(\"type\":\"(.*?)\")");
@@ -90,11 +92,12 @@ void JSONReader::constructPortfolio() {
             case SWAP:
                 std::cout << name << " " << startDate << " " << endDate << " "
                           << notional << " " << fixedRate << " "
-                          << fixed_for_float << " " << frequency << std::endl;
+                          << fixed_for_float << " " << frequency << " "
+                          << curveName << std::endl;
                 std::cout << "building SWAP" << std::endl;
                 thePortfolio.push_back(new Swap(startDate, endDate, notional,
                                                 fixedRate, frequency,
-                                                fixed_for_float, theMarket));
+                                                fixed_for_float, theMarket, curveName));
                 break;
 
             case EURO_OPTION:
@@ -240,6 +243,11 @@ void JSONReader::constructPortfolio() {
                     frequency = std::stoi(match.str(1));
                 } else {
                     frequency = frequency;
+                }
+
+                if (std::regex_search(lineText, match, getCurveName)) {
+                    curveName = match.str(1);
+                    std::cout << "CURVENAME: " << curveName << std::endl;
                 }
 
             } else if (toBuild == EURO_OPTION) {

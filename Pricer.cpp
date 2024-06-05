@@ -20,7 +20,7 @@ double Pricer::Price(const Market &mkt, Trade *trade) {
         }
         
         // std::cout << "not tree product, where spot price : " << price << " for underlying : " << trade->getUnderlying() << endl;
-        pv = trade->Payoff(price);
+        pv = trade->Payoff(price); // should be noted that for Swap , market price input is irrelevant
     }
     return pv;
 }

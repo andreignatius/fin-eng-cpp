@@ -14,9 +14,9 @@ public:
     //     */
     // }
     // Swap(Date start, Date end, double _notional, double _tradeRate, double _frequency, bool _isFixedForFloating, const Market& _market);
-    Swap(Date start, Date end, double _notional, double _fixedRate, double _frequency, bool _isFixedForFloating, const Market& _market)
-        : Trade("SwapTrade", start), startDate(start), maturityDate(end), notional(_notional), tradeRate(_fixedRate),
-          frequency(_frequency), isFixedForFloating(_isFixedForFloating), market(_market) {
+    Swap(Date start, Date end, double _notional, double _fixedRate, double _frequency, bool _isFixedForFloating, const Market& _market, const string _curveName)
+        : Trade("SwapTrade", start, _curveName), startDate(start), maturityDate(end), notional(_notional), fixedRate(_fixedRate),
+          frequency(_frequency), isFixedForFloating(_isFixedForFloating), market(_market), curveName(_curveName) {
         
         if (startDate >= maturityDate) {
             throw std::invalid_argument("Start date must be before the maturity date.");
@@ -38,15 +38,16 @@ public:
     Df = exp(-rT), r taken from curve;
     */
     virtual double Payoff(double marketPrice) const override; // use Market data
-    // virtual double Payoff(const Market& market) const override; // use Market data 
     double getAnnuity() const; //implement this in a cpp file
 
 private:
     Date startDate;
     Date maturityDate;
     double notional;
+    double fixedRate;
     double tradeRate;
     double frequency; // use 1 for annual, 2 for semi-annual etc
     bool isFixedForFloating; // true if fixed-for-floating swap, false otherwise
     const Market& market;  // Store a reference to Market
+    string curveName;
 };
