@@ -35,17 +35,16 @@ class JSONReader {
 
     // setter getters
     void setFileName(const std::string &filename);
-    std::string getFileName();
+    std::string getFileName() const;
 
     void setMarketObject(const Market &marketObj);
-    Market getMarketObject();
+    Market getMarketObject() const;
 
     // no const because we will be modifying god willing
     void setPortfolio(vector<Trade *> &portfolioVec);
     vector<Trade *> getPortfolio();
 
     // methods
-    std::unordered_map<std::string, std::vector<std::string>> parseFile();
     std::vector<std::string> parseRow(const std::string &row,
                                       const char &delim);
     void constructPortfolio();

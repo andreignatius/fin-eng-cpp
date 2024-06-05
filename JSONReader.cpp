@@ -4,12 +4,12 @@ void JSONReader::setFileName(const std::string &filename) {
     theFilename = filename;
 }
 
-std::string JSONReader::getFileName() { return theFilename; }
+std::string JSONReader::getFileName() const { return theFilename; }
 
 void JSONReader::setMarketObject(const Market &marketObj) {
     theMarket = marketObj;
 }
-Market JSONReader::getMarketObject() { return theMarket; };
+Market JSONReader::getMarketObject() const { return theMarket; };
 
 void JSONReader::setPortfolio(vector<Trade *> &portfolioVec) {
     thePortfolio = portfolioVec;
@@ -315,65 +315,6 @@ void JSONReader::constructPortfolio() {
             }
         }
     }
-}
-
-/*
-    this is the main file parsing function
-*/
-std::unordered_map<std::string, std::vector<std::string>>
-JSONReader::parseFile() {
-    std::string lineText;
-    std::ifstream MyReadFile(theFilename);
-    std::unordered_map<std::string, std::vector<std::string>> myMap;
-    std::vector<std::string> keyvector;
-    std::vector<std::string> rowdatavector;
-    // trust me this is the regex to extract the records
-    std::regex pattern(R"(\{\"(.*)\":\"([^\"]+)\",\"(.*)\":\"([^\"]+)\"\})");
-    std::smatch match;
-
-    bool startRecord = false;
-    int linecount = 0;
-
-    while (getline(MyReadFile, lineText)) {
-
-        trim(lineText);
-        // get name
-        if (lineText.find("name") != std::string::npos) {
-            std::string dirtyName = parseRow(lineText, ':')[1];
-            // remove the annoying comma in the end
-            std::cout << dirtyName.erase(dirtyName.size() - 1) << std::endl;
-        }
-        // get the column first
-        if (lineText.find("record") != std::string::npos) {
-            startRecord = true;
-        }
-
-        // get keys and record
-        if (std::regex_search(lineText, match, pattern)) {
-            if (match.size() > 1) {
-                if (startRecord) {
-                    std::cout << "key found " << match.str(1) << " "
-                              << match.str(3) << std::endl;
-                    keyvector.push_back(match.str(1));
-                    keyvector.push_back(match.str(3));
-                    for (std::string element : keyvector) {
-                        myMap[element] = std::vector<std::string>{};
-                    }
-                    startRecord = false;
-                }
-
-                rowdatavector = {match.str(2), match.str(4)};
-                int index = 0;
-                for (std::string element : keyvector) {
-                    std::cout << rowdatavector[index] << std::endl;
-                    myMap[element].push_back(rowdatavector[index]);
-                    index = index + 1;
-                }
-            }
-        }
-    }
-    MyReadFile.close();
-    return myMap;
 }
 
 std::vector<std::string> JSONReader::parseRow(const std::string &row,
