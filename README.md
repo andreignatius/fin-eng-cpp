@@ -1,7 +1,9 @@
 # Financial Engineering Project using C++
 
 ## Overview
-This project involves pricing various financial instruments such as options and swaps using C++. The project takes in market data in .txt or .csv or .json format, as well as user-defined financial instruments to perform these operations.
+This project involves pricing various financial instruments such as options and swaps using C++. 
+
+The project takes in market data in .txt or .csv or .json format, as well as user-defined financial instruments to perform these operations.
 
 ## Features
 - CSV Data Parsing: Efficiently reads and processes input data from CSV files.
@@ -28,6 +30,17 @@ This project involves pricing various financial instruments such as options and 
 ## Building and running the project
 - To build and run using windows OS, run : `./build_and_run.bat`
 - To build and run using Mac OS, run : `./build_and_run.sh`
+
+## Example
+```
+// user input
+mkt.updateMarketFromVolFile((DATA_PATH / "vol_euro.csv").string(), "EuropeanOption");
+myPortfolio.push_back(new EuropeanOption(Call, 700, Date(2025, 12, 31), "AAPL"));
+
+// console output
+Trade: EuropeanOption, Underlying: AAPL
+CRR tree priced trade with PV: 93.3583
+```
 
 ## Code Structure
 - asdf
