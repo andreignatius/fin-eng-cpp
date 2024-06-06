@@ -46,28 +46,61 @@ std::string generateDateTimeFilename() {
 }
 
 // we want to compare options across types but with the same strike and expiry.
+// struct SecurityKey {
+//     double strike;
+//     Date expiry;
+
+//     bool operator==(const SecurityKey& other) const {
+//         return std::tie(strike, expiry) == std::tie(other.strike, other.expiry);
+//     }
+// };
+
+// struct SecurityHash {
+//     size_t operator()(const SecurityKey& k) const {
+//         std::size_t h1 = std::hash<double>()(k.strike);
+//         std::size_t h2 = std::hash<int>()(k.expiry.year * 10000 + k.expiry.month * 100 + k.expiry.day);
+//         return h1 ^ (h2 << 1);  // Shift h2 left to avoid collisions
+//     }
+// };
+
+
 struct SecurityKey {
+    OptionType optionType;  // Type of the option (call or put)
     double strike;
     Date expiry;
 
     bool operator==(const SecurityKey& other) const {
-        return std::tie(strike, expiry) == std::tie(other.strike, other.expiry);
+        return std::tie(optionType, strike, expiry) == std::tie(other.optionType, other.strike, other.expiry);
+    }
+};
+
+struct SecurityHash {
+    size_t operator()(const SecurityKey& k) const {
+        // Combine hashes of all key components
+        size_t hash_optionType = std::hash<int>()(static_cast<int>(k.optionType));        
+        size_t hash_strike = std::hash<double>()(k.strike);
+        // size_t hash_expiry = std::hash<int>()(k.expiry.year * 10000 + k.expiry.month * 100 + k.expiry.day);
+        size_t hash_expiry = std::hash<std::string>()(k.expiry.toString());
+
+        // A robust way to combine hashes
+        return hash_optionType ^ (hash_strike << 1) ^ (hash_expiry << 2); // Left shift each hash by a different amount to reduce hash collision
     }
 };
 
 // struct SecurityHash {
 //     size_t operator()(const SecurityKey& k) const {
-//         return std::hash<double>()(k.strike) ^ std::hash<int>()(k.expiry.toDays());
+//         size_t h1 = std::hash<int>()(static_cast<int>(k.optionType));
+//         size_t h2 = std::hash<double>()(k.strike);
+//         size_t h3 = std::hash<int>()(k.expiry.year * 10000 + k.expiry.month * 100 + k.expiry.day);
+
+//         size_t hash = 17;
+//         hash = hash * 31 + h1;
+//         hash = hash * 31 + h2;
+//         hash = hash * 31 + h3;
+
+//         return hash;
 //     }
 // };
-
-struct SecurityHash {
-    size_t operator()(const SecurityKey& k) const {
-        std::size_t h1 = std::hash<double>()(k.strike);
-        std::size_t h2 = std::hash<int>()(k.expiry.year * 10000 + k.expiry.month * 100 + k.expiry.day);
-        return h1 ^ (h2 << 1);  // Shift h2 left to avoid collisions
-    }
-};
 
 
 int main() {
@@ -134,23 +167,74 @@ int main() {
 
     // why do i need to re-set myPortfolio?
     myPortfolio = myJSONReader.getPortfolio();
-    // std::unordered_map<SecurityKey, std::vector<Trade*>, SecurityHash> securityMap;
-    std::unordered_map<SecurityKey, std::pair<std::vector<AmericanOption*>, std::vector<EuropeanOption*>>, SecurityHash> securityMap;
+    std::unordered_map<SecurityKey, std::vector<Trade*>, SecurityHash> securityMap;
+    // std::unordered_map<SecurityKey, std::pair<std::vector<AmericanOption*>, std::vector<EuropeanOption*>>, SecurityHash> securityMap;
     // Populate the map
 	// for (auto& trade : myPortfolio) {
 	//     SecurityKey key{trade->getType(), trade->getStrike(), trade->GetExpiry()};
 	//     securityMap[key].push_back(trade);
 	// }
+	
 	for (auto& trade : myPortfolio) {
+
+	    // Check if the trade is an AmericanOption
 	    if (auto amerOption = dynamic_cast<AmericanOption*>(trade)) {
-	        SecurityKey key{amerOption->getStrike(), amerOption->GetExpiry()};
-	        securityMap[key].first.push_back(amerOption);
+	        SecurityKey key{amerOption->getOptionType(), amerOption->getStrike(), amerOption->GetExpiry()};
+	        std::cout << "Inserting0: " << key.optionType << ", " << key.strike << ", " << key.expiry << std::endl;
+    
+	        securityMap[key].push_back(amerOption);
 	    }
-	    if (auto euroOption = dynamic_cast<EuropeanOption*>(trade)) {
-	        SecurityKey key{euroOption->getStrike(), euroOption->GetExpiry()};
-	        securityMap[key].second.push_back(euroOption);
+	    // Check if the trade is a EuropeanOption
+	    else if (auto euroOption = dynamic_cast<EuropeanOption*>(trade)) {
+	        SecurityKey key{euroOption->getOptionType(), euroOption->getStrike(), euroOption->GetExpiry()};
+	        std::cout << "Inserting1: " << key.optionType << ", " << key.strike << ", " << key.expiry << std::endl;
+    
+	        securityMap[key].push_back(euroOption);
 	    }
 	}
+
+	SecurityKey key1{OptionType::Call, 700, Date(2025, 12, 31)};
+	SecurityKey key2{OptionType::Call, 700, Date(2025, 12, 31)};
+
+	SecurityHash hasher;
+	auto hash1 = hasher(key1);
+	auto hash2 = hasher(key2);
+
+	std::cout << "Hash1: " << hash1 << ", Hash2: " << hash2 << std::endl;
+
+	if (key1.expiry == key2.expiry) {
+	    std::cout << "Dates are equal." << std::endl;
+	} else {
+	    std::cout << "Dates are not equal." << std::endl;
+	}
+	// std::cout << "key1 expiry: " << key1.expiry.year << " " << key1.expiry.month << " " << key1.expiry.day << std::endl;
+	// std::cout << "key2 expiry: " << key2.expiry.year << " " << key2.expiry.month << " " << key2.expiry.day << std::endl;
+	std::cout << "key1 expiry: " << key1.expiry.toString() << std::endl;
+	std::cout << "key2 expiry: " << key2.expiry.toString() << std::endl;
+
+	size_t hash_optionType = std::hash<int>()(static_cast<int>(key1.optionType));        
+    size_t hash_strike = std::hash<double>()(key1.strike);
+    size_t hash_expiry = std::hash<int>()(key1.expiry.year * 10000 + key1.expiry.month * 100 + key1.expiry.day);
+    std::cout << "hash_optionType1: " << hash_optionType << std::endl;
+    std::cout << "hash_strike1: " << hash_strike << std::endl;
+    std::cout << "hash_expiry1: " << hash_expiry << std::endl;
+
+    size_t hash_optionType2 = std::hash<int>()(static_cast<int>(key2.optionType));        
+    size_t hash_strike2 = std::hash<double>()(key2.strike);
+    size_t hash_expiry2 = std::hash<int>()(key2.expiry.year * 10000 + key2.expiry.month * 100 + key2.expiry.day);
+    std::cout << "hash_optionType2: " << hash_optionType2 << std::endl;
+    std::cout << "hash_strike2: " << hash_strike2 << std::endl;
+    std::cout << "hash_expiry2: " << hash_expiry2 << std::endl;
+	// for (auto& trade : myPortfolio) {
+	//     if (auto amerOption = dynamic_cast<AmericanOption*>(trade)) {
+	//         SecurityKey key{amerOption->getOptionType(), amerOption->getStrike(), amerOption->GetExpiry()};
+	//         securityMap[key].first.push_back(amerOption);
+	//     }
+	//     if (auto euroOption = dynamic_cast<EuropeanOption*>(trade)) {
+	//         SecurityKey key{euroOption->getOptionType(), euroOption->getStrike(), euroOption->GetExpiry()};
+	//         securityMap[key].second.push_back(euroOption);
+	//     }
+	// }
 
     // task 3, create a pricer and price the portfolio, output the pricing
     // result of each deal.
@@ -263,38 +347,81 @@ int main() {
     //         }
     //     }
     // }
-    // only relevant pairs of American and European options are compared,
-    // rather than comparing every possible pair in the portfolio.
-    // It leverages the structured nature of the SecurityKey to enforce that only matching options are compared.
-    for (const auto& pair : securityMap) {
-    	const SecurityKey& key = pair.first;
-	    const auto& americanOptions = pair.second.first;
-	    const auto& europeanOptions = pair.second.second;
-        std::cout << "Key - Strike: " << key.strike << ", Expiry: " << key.expiry.toString() << std::endl;
-        std::cout << "American options size: " << americanOptions.size() << std::endl;
+
+    for (const auto& entry : securityMap) {
+	    const SecurityKey& key = entry.first;
+	    const std::vector<Trade*>& trades = entry.second;
+
+	    std::vector<AmericanOption*> americanOptions;
+	    std::vector<EuropeanOption*> europeanOptions;
+
+	    std::cout << "Key - OptionType: " << key.optionType << " Strike: " << key.strike << ", Expiry: " << key.expiry.toString() << std::endl;
+        
+
+	    // Separate American and European options
+	    for (auto* trade : trades) {
+	        if (auto* amerOption = dynamic_cast<AmericanOption*>(trade)) {
+	            americanOptions.push_back(amerOption);
+	        } else if (auto* euroOption = dynamic_cast<EuropeanOption*>(trade)) {
+	            europeanOptions.push_back(euroOption);
+	        }
+	    }
+
+	    std::cout << "American options size: " << americanOptions.size() << std::endl;
         std::cout << "European options size: " << europeanOptions.size() << std::endl;
 
-	    for (auto amerOption : americanOptions) {
-            Date amerExpiry = amerOption->GetExpiry();
-            logger.info("Processing American Option. Underlying= " + amerOption->getUnderlying() +", Type= " + std::to_string(amerOption->getOptionType()) + ", Strike= " + std::to_string(amerOption->getStrike()) +
-                    ", Expiry= " + amerExpiry.toString()); // !!!
-        
-	        double amerPrice = treePricer->Price(mkt, amerOption);
-	        for (auto euroOption : europeanOptions) {
-                std::cout<<"entered euro option loop"<<std::endl; //!!!
-                Date euroExpiry = euroOption->GetExpiry();
-                logger.info("Processing European Option. Underlying= " + euroOption->getUnderlying() +", Type= " + std::to_string(euroOption->getOptionType()) + ", Strike= " + std::to_string(euroOption->getStrike()) +
-                    ", Expiry= " + euroExpiry.toString()); // !!!
-                double euroPrice = treePricer->Price(mkt, euroOption);
-	            std::cout << "Comparing American Option with European Option: " << std::endl;
-	            std::cout << "*****American Option Price*****: " << amerPrice << std::endl;
-	            std::cout << "*****European Option Price*****: " << euroPrice << std::endl;
-	            logger.info("Comparing American Option with European Option: ");
-	            logger.info("*****American Option Price*****: " + std::to_string(amerPrice));
-	            logger.info("*****European Option Price*****: " + std::to_string(euroPrice));
+	    // Compare options if both types are present
+	    if (!americanOptions.empty() && !europeanOptions.empty()) {
+	        for (auto* amerOption : americanOptions) {
+	            double amerPrice = treePricer->Price(mkt, amerOption);
+	            for (auto* euroOption : europeanOptions) {
+	                double euroPrice = treePricer->Price(mkt, euroOption);
+	                std::cout << "Comparing American and European Options for Type: " << key.optionType
+	                          << ", Strike: " << key.strike << ", Expiry: " << key.expiry << std::endl;
+	                // Log or further process the comparison as needed
+	                std::cout << "Comparing American Option with European Option: " << std::endl;
+		            std::cout << "*****American Option Price*****: " << amerPrice << std::endl;
+		            std::cout << "*****European Option Price*****: " << euroPrice << std::endl;
+		            logger.info("Comparing American Option with European Option: ");
+		            logger.info("*****American Option Price*****: " + std::to_string(amerPrice));
+		            logger.info("*****European Option Price*****: " + std::to_string(euroPrice));
+	            }
 	        }
 	    }
 	}
+
+    // only relevant pairs of American and European options are compared,
+    // rather than comparing every possible pair in the portfolio.
+    // It leverages the structured nature of the SecurityKey to enforce that only matching options are compared.
+ //    for (const auto& pair : securityMap) {
+ //    	const SecurityKey& key = pair.first;
+	//     const auto& americanOptions = pair.second.first;
+	//     const auto& europeanOptions = pair.second.second;
+ //        std::cout << "Key - Strike: " << key.strike << ", Expiry: " << key.expiry.toString() << std::endl;
+ //        std::cout << "American options size: " << americanOptions.size() << std::endl;
+ //        std::cout << "European options size: " << europeanOptions.size() << std::endl;
+
+	//     for (auto amerOption : americanOptions) {
+ //            Date amerExpiry = amerOption->GetExpiry();
+ //            logger.info("Processing American Option. Underlying= " + amerOption->getUnderlying() +", Type= " + std::to_string(amerOption->getOptionType()) + ", Strike= " + std::to_string(amerOption->getStrike()) +
+ //                    ", Expiry= " + amerExpiry.toString()); // !!!
+        
+	//         double amerPrice = treePricer->Price(mkt, amerOption);
+	//         for (auto euroOption : europeanOptions) {
+ //                std::cout<<"entered euro option loop"<<std::endl; //!!!
+ //                Date euroExpiry = euroOption->GetExpiry();
+ //                logger.info("Processing European Option. Underlying= " + euroOption->getUnderlying() +", Type= " + std::to_string(euroOption->getOptionType()) + ", Strike= " + std::to_string(euroOption->getStrike()) +
+ //                    ", Expiry= " + euroExpiry.toString()); // !!!
+ //                double euroPrice = treePricer->Price(mkt, euroOption);
+	//             std::cout << "Comparing American Option with European Option: " << std::endl;
+	//             std::cout << "*****American Option Price*****: " << amerPrice << std::endl;
+	//             std::cout << "*****European Option Price*****: " << euroPrice << std::endl;
+	//             logger.info("Comparing American Option with European Option: ");
+	//             logger.info("*****American Option Price*****: " + std::to_string(amerPrice));
+	//             logger.info("*****European Option Price*****: " + std::to_string(euroPrice));
+	//         }
+	//     }
+	// }
 
 
     // final
