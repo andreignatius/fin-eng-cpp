@@ -674,7 +674,11 @@ int main()
   //final
   cout << "Project build successfully!" << endl;
 
-  system("pause");
+  
+
+#if defined(_MSC_VER)
+    system("pause");
+#endif
   return 0;
 
 }

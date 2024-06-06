@@ -7,7 +7,15 @@
 double Swap::getAnnuity(const RateCurve& rates) const {
     time_t t = time(0);
     tm now_;
-    localtime_s(&now_, &t);
+#if defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))
+    localtime_r(&t, &now_);  // POSIX
+#elif defined(_MSC_VER)
+    localtime_s(&now_, &t);  // Windows: Note that localtime_s has the arguments in the order (output, input)
+#else
+    static std::mutex mtx;   // Lock a mutex for thread safety
+    std::lock_guard<std::mutex> lock(mtx);
+    now_ = *std::localtime(&t);  // Not thread-safe as a last resort
+#endif
     Date today;
     today.year = now_.tm_year + 1900;
     today.month = now_.tm_mon + 1;
@@ -68,7 +76,15 @@ double Swap::getMktRate(const RateCurve& rates) const
 {
     time_t t = time(0);
     tm now_;
-    localtime_s(&now_, &t);
+#if defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))
+    localtime_r(&t, &now_);  // POSIX
+#elif defined(_MSC_VER)
+    localtime_s(&now_, &t);  // Windows: Note that localtime_s has the arguments in the order (output, input)
+#else
+    static std::mutex mtx;   // Lock a mutex for thread safety
+    std::lock_guard<std::mutex> lock(mtx);
+    now_ = *std::localtime(&t);  // Not thread-safe as a last resort
+#endif
     Date today;
     today.year = now_.tm_year + 1900;
     today.month = now_.tm_mon + 1;
