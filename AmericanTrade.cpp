@@ -2,13 +2,17 @@
 #include <algorithm>
 
 AmericanOption::AmericanOption(OptionType optType, double strike, const Date& expiry, const string& underlying)
-    : TreeProduct("AmericanOption", expiry, underlying), optType(optType), strike(strike), expiryDate(expiry) {}
+    : TreeProduct("AmericanOption", expiry, underlying), optType(optType), strike(strike), expiryDate(expiry) {
+    std::cout << "Constructing AmericanOption with expiry: " << expiry << std::endl; // !!!
+    std::cout << "expiryDate in constructor: " << expiryDate << std::endl; // !!!
+    }
 
 double AmericanOption::Payoff(double S) const {
     return PAYOFF::VanillaOption(optType, strike, S);
 }
 
 const Date& AmericanOption::GetExpiry() const {
+    std::cout << "GetExpiry called, expiryDate: " << expiryDate << std::endl; // !!!
     return expiryDate;
 }
 
@@ -26,6 +30,8 @@ double AmericanOption::AmericanOption::ValueAtNode(double S, double t, double co
 
 AmerCallSpread::AmerCallSpread(double k1, double k2, const Date& expiry)
     : TreeProduct("AmerCallSpread", expiry, ""), strike1(k1), strike2(k2), expiryDate(expiry) {
+    std::cout << "Constructing AmerCallSpread with expiry: " << expiry << std::endl; // !!!
+    std::cout << "expiryDate in constructor: " << expiryDate << std::endl; // !!!
     assert(k1 < k2); // Assert condition to ensure valid strikes
 }
 

@@ -4,6 +4,7 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <mutex>
 
 #include "AmericanTrade.h"
 #include "BlackScholesPricer.h"
@@ -268,9 +269,23 @@ int main() {
 	    const auto& europeanOptions = pair.second.second;
 
 	    for (auto amerOption : americanOptions) {
+            Date amerExpiry = amerOption->GetExpiry();
+            logger.info("Processing American Option: Strike = " + std::to_string(amerOption->getStrike()) +
+                    ", Expiry = " + std::to_string(amerOption->GetExpiry().year) + "-" + 
+                    std::to_string(amerOption->GetExpiry().month) + "-" + std::to_string(amerOption->GetExpiry().day)); // !!!
+            std::cout << "American Option Expiry: " << amerExpiry.year << "-" 
+                    << amerExpiry.month << "-" << amerExpiry.day << std::endl; // !!!
+            std::cout << "Debug: AmericanOption address: " << amerOption << " expiryDate address: " << &amerExpiry << std::endl; // !!!
 	        double amerPrice = treePricer->Price(mkt, amerOption);
 	        for (auto euroOption : europeanOptions) {
-	            double euroPrice = treePricer->Price(mkt, euroOption);
+                Date euroExpiry = euroOption->GetExpiry();
+                logger.info("Processing European Option: Strike = " + std::to_string(euroOption->getStrike()) +
+                        ", Expiry = " + std::to_string(euroOption->GetExpiry().year) + "-" + 
+                        std::to_string(euroOption->GetExpiry().month) + "-" + std::to_string(euroOption->GetExpiry().day)); // !!!
+	            std::cout << "European Option Expiry: " << euroExpiry.year << "-" 
+                    << euroExpiry.month << "-" << euroExpiry.day << std::endl; // !!!
+                std::cout << "Debug: EuropeanOption address: " << euroOption << " expiryDate address: " << &euroExpiry << std::endl; // !!!
+                double euroPrice = treePricer->Price(mkt, euroOption);
 	            std::cout << "Comparing American Option with European Option: " << std::endl;
 	            std::cout << "*****American Option Price*****: " << amerPrice << std::endl;
 	            std::cout << "*****European Option Price*****: " << euroPrice << std::endl;
