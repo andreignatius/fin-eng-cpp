@@ -267,24 +267,20 @@ int main() {
     for (const auto& pair : securityMap) {
 	    const auto& americanOptions = pair.second.first;
 	    const auto& europeanOptions = pair.second.second;
+        std::cout << "American options size: " << americanOptions.size() << std::endl;
+        std::cout << "European options size: " << europeanOptions.size() << std::endl;
 
 	    for (auto amerOption : americanOptions) {
             Date amerExpiry = amerOption->GetExpiry();
-            logger.info("Processing American Option: Strike = " + std::to_string(amerOption->getStrike()) +
-                    ", Expiry = " + std::to_string(amerOption->GetExpiry().year) + "-" + 
-                    std::to_string(amerOption->GetExpiry().month) + "-" + std::to_string(amerOption->GetExpiry().day)); // !!!
-            std::cout << "American Option Expiry: " << amerExpiry.year << "-" 
-                    << amerExpiry.month << "-" << amerExpiry.day << std::endl; // !!!
-            std::cout << "Debug: AmericanOption address: " << amerOption << " expiryDate address: " << &amerExpiry << std::endl; // !!!
+            logger.info("Processing American Option. Underlying= " + amerOption->getUnderlying() +", Type= " + std::to_string(amerOption->getOptionType()) + ", Strike= " + std::to_string(amerOption->getStrike()) +
+                    ", Expiry= " + amerExpiry.toString()); // !!!
+        
 	        double amerPrice = treePricer->Price(mkt, amerOption);
 	        for (auto euroOption : europeanOptions) {
+                std::cout<<"entered euro option loop"<<std::endl; //!!!
                 Date euroExpiry = euroOption->GetExpiry();
-                logger.info("Processing European Option: Strike = " + std::to_string(euroOption->getStrike()) +
-                        ", Expiry = " + std::to_string(euroOption->GetExpiry().year) + "-" + 
-                        std::to_string(euroOption->GetExpiry().month) + "-" + std::to_string(euroOption->GetExpiry().day)); // !!!
-	            std::cout << "European Option Expiry: " << euroExpiry.year << "-" 
-                    << euroExpiry.month << "-" << euroExpiry.day << std::endl; // !!!
-                std::cout << "Debug: EuropeanOption address: " << euroOption << " expiryDate address: " << &euroExpiry << std::endl; // !!!
+                logger.info("Processing European Option. Underlying= " + euroOption->getUnderlying() +", Type= " + std::to_string(euroOption->getOptionType()) + ", Strike= " + std::to_string(euroOption->getStrike()) +
+                    ", Expiry= " + euroExpiry.toString()); // !!!
                 double euroPrice = treePricer->Price(mkt, euroOption);
 	            std::cout << "Comparing American Option with European Option: " << std::endl;
 	            std::cout << "*****American Option Price*****: " << amerPrice << std::endl;

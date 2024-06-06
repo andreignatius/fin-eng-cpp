@@ -1,4 +1,5 @@
 #include "Date.h"
+#include <sstream>
 
 Date::Date()
 {
@@ -98,4 +99,14 @@ std::istream &operator>>(std::istream &is, Date &date)
     is.setstate(std::ios::failbit);
   }
   return is;
+}
+
+std::string Date::toString() const {
+    std::time_t t = std::chrono::system_clock::to_time_t(timePoint);
+    std::tm *ptm = std::localtime(&t);
+    std::ostringstream oss;
+    oss << (1900 + ptm->tm_year) << "-"
+        << std::setw(2) << std::setfill('0') << (ptm->tm_mon + 1) << "-"
+        << std::setw(2) << std::setfill('0') << ptm->tm_mday;
+    return oss.str();
 }
