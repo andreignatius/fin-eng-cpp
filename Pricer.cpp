@@ -1,11 +1,43 @@
 #include "Pricer.h"
+#include "AmericanTrade.h"
+#include "EuropeanTrade.h"
+#include "Market.h"
 #include <cmath>
 
 double Pricer::Price(const Market &mkt, Trade *trade) {
     double pv;
     // std::cout<< "mkt: " << mkt << " trade!!!: " << trade->getType() << std::endl;
     if (trade->getType() == "AmericanOption" || trade->getType() == "EuropeanOption") {
+        std::string opt_type_str = "";
+        std::string underlying = "";
+        Date expiry ;
+        double strike= 0 ;
         // std::cout << "tree product" << " " << trade << std::endl;
+        if (trade->getType() == "AmericanOption"){
+            AmericanOption *tempptr = dynamic_cast<AmericanOption *>(trade);
+            OptionType opt_type = tempptr->getOptionType();
+            if (opt_type == Call){
+                opt_type_str = "CALL";
+            } else if (opt_type == Put){
+                opt_type_str = "PUT";
+            }            
+            strike = tempptr ->getStrike();
+            underlying = tempptr->getUnderlying();
+            expiry = tempptr->GetExpiry();
+
+        } else if (trade->getType() == "EuropeanOption"){
+            EuropeanOption *tempptr = dynamic_cast<EuropeanOption *>(trade);
+            OptionType opt_type = tempptr->getOptionType();
+            if (opt_type == Call){
+                opt_type_str = "CALL";
+            } else if (opt_type == Put){
+                opt_type_str = "PUT";
+            }
+            strike = tempptr ->getStrike();
+            underlying = tempptr->getUnderlying();
+            expiry = tempptr->GetExpiry();
+        }
+        std::cout<<"INSTRUMENT : "<< trade->getType() <<"; OPTION TYPE : "<<opt_type_str << "; STRIKE : " << strike<<std::endl; 
         TreeProduct *treePtr = dynamic_cast<TreeProduct *>(trade);
         if (treePtr) { // check if cast is sucessful
             pv = PriceTree(mkt, *treePtr);
@@ -15,6 +47,10 @@ double Pricer::Price(const Market &mkt, Trade *trade) {
         if (trade->getType() == "BondTrade") {
             // std::cout << "check bond name : " << trade->getUnderlying() << std::endl;
             price = mkt.getBondPrice(trade->getUnderlying());
+        }
+        else if (trade->getType() == "SwapTrade"){
+            std::cout<<"This is a SWAP TRADE"<<std::endl;
+            price = 0;
         } else {
             price = mkt.getSpotPrice(trade->getUnderlying());
         }
@@ -30,7 +66,6 @@ double BinomialTreePricer::PriceTree(const Market &mkt,
     // model setup
     // double T = trade.GetExpiry() - mkt.asOf;
     double T = trade.GetExpiry().differenceInDays(mkt.asOf) / 365.25;
-    std::cout << "!T: " << T << " GetExpiry: " << trade.GetExpiry() << " mkt.asOf: " << mkt.asOf << std::endl;
     double dt = T / nTimeSteps;
     /*
     get these data for the deal from market object
@@ -42,10 +77,13 @@ double BinomialTreePricer::PriceTree(const Market &mkt,
     } else {
       stockPrice = mkt.getSpotPrice(trade.getType());
     }
-    double vol = mkt.getVolatility(trade.getType());
+    double vol= mkt.getVolCurve("EuropeanOption").getVol(trade.GetExpiry()); 
     double rate = mkt.getRiskFreeRate();
-
-    // std::cout << "000get stockPrice: " << stockPrice << " get vol: " << vol << " get rate: " << rate << " get dt: " << dt << std::endl;
+    
+    std::cout << "!T: " << T << " GetExpiry: " << trade.GetExpiry() << " mkt.asOf: " << mkt.asOf << std::endl;
+    std::cout << "!price: "<< stockPrice <<std::endl;
+    std::cout << "!vol: "<< vol <<std::endl;
+    std::cout << "!r: "<<rate<<std::endl;
 
     ModelSetup(stockPrice, vol, rate, dt);
 

@@ -134,7 +134,6 @@ int main() {
 
     // why do i need to re-set myPortfolio?
     myPortfolio = myJSONReader.getPortfolio();
-
     // std::unordered_map<SecurityKey, std::vector<Trade*>, SecurityHash> securityMap;
     std::unordered_map<SecurityKey, std::pair<std::vector<AmericanOption*>, std::vector<EuropeanOption*>>, SecurityHash> securityMap;
     // Populate the map
@@ -190,7 +189,10 @@ int main() {
     logger.info("Starting the application.");
     // Log data path
     logger.info("Ouput path: " + OUTPUT_PATH.string());
-    Pricer *treePricer = new CRRBinomialTreePricer(10);
+    std::cout << "============Start of Part 3============" << std::endl;
+
+    Pricer *treePricer = new CRRBinomialTreePricer(100);
+
     std::vector<double> pricingResults;
     for (auto trade : myPortfolio) {
         std::cout << "trade: " << trade->getType() << ", underlying: " << trade->getUnderlying() << std::endl;
@@ -206,7 +208,7 @@ int main() {
         // please output trade info such as id, trade type, notional, start/end/traded price and PV into a txt or csv file
     }
 
-    std::cout << "========end of Part 3============" << std::endl;
+    std::cout << "===========end of Part 3============" << std::endl;
 
     // task 4, analyzing pricing result
     //  a) compare CRR binomial tree result for an european option vs Black

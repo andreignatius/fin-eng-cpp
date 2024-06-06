@@ -30,7 +30,7 @@ void JSONReader::constructPortfolio() {
     std::regex getStartDate(R"(\"start_date\":\"(.*?)\")");
     std::regex getEndDate(R"(\"end_date\":\"(.*?)\")");
     std::regex getExpiry(R"(\"expiry\":\"(.*?)\")");
-    std::regex getNotional(R"(\"notional\":([0-9\.]*))");
+    std::regex getNotional(R"(\"notional\":([0-9\.\-]*))");
     Date startDate;
     Date endDate;
     Date expiryDate;
@@ -44,7 +44,7 @@ void JSONReader::constructPortfolio() {
 
     // SWAP specific
     std::regex getFixed_rate_pct(R"(\"fixed_rate_pct\":([0-9\.]*))");
-    std::regex getFixed_for_float(R"(\"fixed_for_float\":([0-9\.]*))");
+    std::regex getFixed_for_float(R"(\"fixed_for_float\":(.*))");
     std::regex getFrequency(R"(\"frequency\":([0-9\.]*))");
     std::regex getCurveName(R"(\"curve_name\":\"(.*?)\")");
     double fixedRate;
@@ -167,8 +167,13 @@ void JSONReader::constructPortfolio() {
                 }
 
                 if (std::regex_search(lineText, match, getNotional)) {
-                    std::string temporary = match.str(1);
-                    notional = std::stoi(match.str(1));
+                    char neg_sign = match.str(1)[0];
+                    std::cout<<"i have neg no "<<neg_sign<< " "<< match.str(1)<<std::endl;
+                    if (neg_sign == '-'){
+                        notional = -1 * std::stoi(match.str(1).erase(0, 1));
+                    } else {
+                        notional = std::stoi(match.str(1));
+                    }
                 } else {
                     notional = notional;
                 }
@@ -222,7 +227,13 @@ void JSONReader::constructPortfolio() {
                 }
 
                 if (std::regex_search(lineText, match, getNotional)) {
-                    notional = std::stoi(match.str(1));
+                    char neg_sign = match.str(1)[0];
+                    std::cout<<"i have neg no "<<neg_sign<< " "<< match.str(1)<<std::endl;
+                    if (neg_sign == '-'){
+                        notional = -1 * std::stoi(match.str(1).erase(0, 1));
+                    } else {
+                        notional = std::stoi(match.str(1));
+                    }
                 } else {
                     notional = notional;
                 }
@@ -234,7 +245,15 @@ void JSONReader::constructPortfolio() {
                 }
 
                 if (std::regex_search(lineText, match, getFixed_for_float)) {
-                    fixed_for_float = match.str(1) == "true";
+                    std::string temp = match.str(1);
+                    temp.pop_back();
+                    std::cout<<"parse check get "<<temp <<std::endl;
+                    if (temp == "true"){
+                        fixed_for_float = true;
+                    } else{
+                        fixed_for_float = false;
+                    }
+
                 } else {
                     fixed_for_float = fixed_for_float;
                 }

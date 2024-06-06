@@ -19,6 +19,7 @@ double Swap::Payoff(double marketPrice) const { // TODO marketPrice is redundant
     // TODO may need clean up and checks
     try {
         currentRate = market.getCurve(curveName).getRate(startDate);
+        std::cout<<"current rate is "<<currentRate<<std::endl;
     } catch (const std::out_of_range &e) {
         std::cerr << "specified curve not found in market data. - using "
                      "default rate 0."
@@ -40,7 +41,7 @@ double Swap::Payoff(double marketPrice) const { // TODO marketPrice is redundant
 
     DF_last = exp(-rate * yearsSinceStart);
     floatLegPV = notional * (1 - DF_last);
-
+    std::cout<<isFixedForFloating<<std::endl;
     if (isFixedForFloating) {
         pv = floatLegPV - fixedLegPV;
     } else {
