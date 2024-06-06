@@ -1,0 +1,28 @@
+[INFO] Starting the application.
+[INFO] Ouput path: /Users/andre/Documents/SMU MQF/Financial Engineering CPP/fin-eng-cpp/build/bin/../../output
+[INFO] trade: BondTrade SGD-GOV PV : -100000.000000
+[INFO] trade: BondTrade SGD-GOV PV : -125000.000000
+[INFO] trade: SwapTrade USD-SOFR PV : 7580.512295
+[INFO] trade: SwapTrade USD-SOFR PV : 6217.997521
+[INFO] trade: EuropeanOption AAPL PV : 93.254490
+[INFO] trade: EuropeanOption AAPL PV : 119.669576
+[INFO] trade: AmericanOption AAPL PV : 90.010239
+[INFO] trade: AmericanOption AAPL PV : 119.618269
+[INFO] Comparing European Option: 
+[INFO] Black-Scholes Price: 80.427045
+[INFO] CRR Binomial Tree Price: 93.254490
+[INFO] Comparing European Option: 
+[INFO] Black-Scholes Price: 126.946936
+[INFO] CRR Binomial Tree Price: 119.669576
+[INFO] Comparing American Option with European Option: 
+[INFO] *****American Option Price*****: 90.010239
+[INFO] *****European Option Price*****: 93.254490
+[INFO] Comparing American Option with European Option: 
+[INFO] *****American Option Price*****: 90.010239
+[INFO] *****European Option Price*****: 119.669576
+[INFO] Comparing American Option with European Option: 
+[INFO] *****American Option Price*****: 119.618269
+[INFO] *****European Option Price*****: 93.254490
+[INFO] Comparing American Option with European Option: 
+[INFO] *****American Option Price*****: 119.618269
+[INFO] *****European Option Price*****: 119.669576

@@ -181,12 +181,14 @@ int main() {
     // myPortfolio.push_back(
     //     new AmericanOption(Put, 700, Date(2025, 12, 31), "AAPL")); // Put option
 
+	std::filesystem::path OUTPUT_PATH =
+        std::filesystem::current_path() / "../../output";
     std::string output_filename = generateDateTimeFilename();
-    Logger logger((DATA_PATH / output_filename).string());  // Initialize the logger
+    Logger logger((OUTPUT_PATH / output_filename).string());  // Initialize the logger
     // Example of using the logger
     logger.info("Starting the application.");
     // Log data path
-    logger.info("Data path: " + DATA_PATH.string());
+    logger.info("Ouput path: " + OUTPUT_PATH.string());
     Pricer *treePricer = new CRRBinomialTreePricer(10);
     std::vector<double> pricingResults;
     for (auto trade : myPortfolio) {
