@@ -39,7 +39,7 @@ double Pricer::Price(const Market& mkt, Trade* trade) {
           }
           
           pv = bondPtr->Payoff(price);
-          return pv;
+          // return pv;
       }
 
   }
@@ -64,7 +64,7 @@ double Pricer::Price(const Market& mkt, Trade* trade) {
 
 
           pv = swapPtr->Payoff(marketRate, annuity);
-          return pv;
+          // return pv;
 
       }
   else {
@@ -72,8 +72,9 @@ double Pricer::Price(const Market& mkt, Trade* trade) {
           pv = trade->Payoff(price);
   }
 
-      return pv;
+      // return pv;
   }
+  return pv;
 }
 
 double BinomialTreePricer::PriceTree(const Market& mkt, const TreeProduct& trade){
