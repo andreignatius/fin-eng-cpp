@@ -234,41 +234,43 @@ int main() {
 
     // b) compare CRR binomial tree result for an American option vs European
     // option compare between US call / put vs EU call / put
-    // for (auto trade : myPortfolio) {
-    //     AmericanOption *amerOption = dynamic_cast<AmericanOption *>(trade);
-    //     if (amerOption) {
-    //         for (auto trade2 : myPortfolio) {
-    //             EuropeanOption *euroOption =
-    //                 dynamic_cast<EuropeanOption *>(trade2);
-    //             if (euroOption &&
-    //                 euroOption->getStrike() == amerOption->getStrike() &&
-    //                 euroOption->GetExpiry() == amerOption->GetExpiry() &&
-    //                 euroOption->getOptionType() ==
-    //                     amerOption->getOptionType()) {
-    //                 double amerPrice = treePricer->Price(mkt, amerOption);
-    //                 double euroPrice = treePricer->Price(mkt, euroOption);
-    //                 std::cout
-    //                     << "Comparing American Option with European Option: "
-    //                     << std::endl;
-    //                 std::cout
-    //                     << "*****American Option Price*****: " << amerPrice
-    //                     << std::endl;
-    //                 std::cout
-    //                     << "*****European Option Price*****: " << euroPrice
-    //                     << std::endl;
-    //                 logger.info("Comparing American Option with European Option: ");
-		  //           logger.info("*****American Option Price*****: " + std::to_string(amerPrice));
-		  //           logger.info("*****European Option Price*****: " + std::to_string(euroPrice));
-    //             }
-    //         }
-    //     }
-    // }
+    for (auto trade : myPortfolio) {
+        AmericanOption *amerOption = dynamic_cast<AmericanOption *>(trade);
+        if (amerOption) {
+            for (auto trade2 : myPortfolio) {
+                EuropeanOption *euroOption =
+                    dynamic_cast<EuropeanOption *>(trade2);
+                if (euroOption &&
+                    euroOption->getStrike() == amerOption->getStrike() &&
+                    euroOption->GetExpiry() == amerOption->GetExpiry() &&
+                    euroOption->getOptionType() ==
+                        amerOption->getOptionType()) {
+                    double amerPrice = treePricer->Price(mkt, amerOption);
+                    double euroPrice = treePricer->Price(mkt, euroOption);
+                    std::cout
+                        << "Comparing American Option with European Option: "
+                        << std::endl;
+                    std::cout
+                        << "*****American Option Price*****: " << amerPrice
+                        << std::endl;
+                    std::cout
+                        << "*****European Option Price*****: " << euroPrice
+                        << std::endl;
+                    logger.info("Comparing American Option with European Option: ");
+		            logger.info("*****American Option Price*****: " + std::to_string(amerPrice));
+		            logger.info("*****European Option Price*****: " + std::to_string(euroPrice));
+                }
+            }
+        }
+    }
     // only relevant pairs of American and European options are compared,
     // rather than comparing every possible pair in the portfolio.
     // It leverages the structured nature of the SecurityKey to enforce that only matching options are compared.
     for (const auto& pair : securityMap) {
+    	const SecurityKey& key = pair.first;
 	    const auto& americanOptions = pair.second.first;
 	    const auto& europeanOptions = pair.second.second;
+        std::cout << "Key - Strike: " << key.strike << ", Expiry: " << key.expiry.toString() << std::endl;
         std::cout << "American options size: " << americanOptions.size() << std::endl;
         std::cout << "European options size: " << europeanOptions.size() << std::endl;
 
