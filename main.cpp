@@ -102,6 +102,20 @@ struct SecurityHash {
 //     }
 // };
 
+std::map<OptionType, std::string> optionTypeNames = {
+    {Call, "Call"},
+    {Put, "Put"},
+    {BinaryCall, "BinaryCall"},
+    {BinaryPut, "BinaryPut"}
+};
+
+std::string OptionTypeToString(OptionType type) {
+    auto it = optionTypeNames.find(type);
+    if (it != optionTypeNames.end()) {
+        return it->second;
+    }
+    return "Unknown";
+}
 
 int main() {
     // task 1, create an market data object, and update the market data from
@@ -374,9 +388,13 @@ int main() {
 	    if (!americanOptions.empty() && !europeanOptions.empty()) {
 	        for (auto* amerOption : americanOptions) {
 	            double amerPrice = treePricer->Price(mkt, amerOption);
+	            logger.info("Processing American Option. Underlying= " + amerOption->getUnderlying() +", Type= " + std::to_string(amerOption->getOptionType()) + ", Strike= " + std::to_string(amerOption->getStrike()) +
+                    ", Expiry= " + amerOption->GetExpiry().toString()); // !!!
 	            for (auto* euroOption : europeanOptions) {
 	                double euroPrice = treePricer->Price(mkt, euroOption);
-	                std::cout << "Comparing American and European Options for Type: " << key.optionType
+	                logger.info("Processing European Option. Underlying= " + euroOption->getUnderlying() +", Type= " + std::to_string(euroOption->getOptionType()) + ", Strike= " + std::to_string(euroOption->getStrike()) +
+                    ", Expiry= " + euroOption->GetExpiry().toString()); // !!!
+	                std::cout << "Comparing American and European Options for Type: " << OptionTypeToString(key.optionType)
 	                          << ", Strike: " << key.strike << ", Expiry: " << key.expiry << std::endl;
 	                // Log or further process the comparison as needed
 	                std::cout << "Comparing American Option with European Option: " << std::endl;
@@ -390,9 +408,9 @@ int main() {
 	    }
 	}
 
-    // only relevant pairs of American and European options are compared,
-    // rather than comparing every possible pair in the portfolio.
-    // It leverages the structured nature of the SecurityKey to enforce that only matching options are compared.
+ //    // only relevant pairs of American and European options are compared,
+ //    // rather than comparing every possible pair in the portfolio.
+ //    // It leverages the structured nature of the SecurityKey to enforce that only matching options are compared.
  //    for (const auto& pair : securityMap) {
  //    	const SecurityKey& key = pair.first;
 	//     const auto& americanOptions = pair.second.first;
