@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Create output folder
+mkdir -p output
+
 # Creating a build directory and entering it
 mkdir -p build
 cd build
