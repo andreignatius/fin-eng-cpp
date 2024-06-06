@@ -73,11 +73,8 @@ class Market {
     double getVolatility(const std::string &assetName) const;
     double getRiskFreeRate() const; // Assuming a single risk-free rate for simplicity
 
-    // inline RateCurve getCurve(const string& name) { return curves[name]; };
-    inline const RateCurve &getCurve(const string &name) const {
-        return rateCurves.at(name);
-    };
-    inline VolCurve getVolCurve(const string &name) { return volCurves[name]; };
+    RateCurve getCurve(const string& name) const;
+    VolCurve getVolCurve(const string& name) const;
 
   private:
     unordered_map<string, VolCurve> volCurves;

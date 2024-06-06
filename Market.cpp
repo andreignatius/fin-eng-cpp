@@ -103,10 +103,10 @@ double VolCurve::getVol(Date tenor) const {
         for (size_t i = 1; i < tenors.size(); ++i) {
             if (tenors[i] >= tenor) {
                 // Perform interpolation
-                double sumVol = vols[i - 1] + vols[i];
+                double diffVol =  vols[i] - vols[i - 1];
                 double tenorStep = tenors[i].differenceInDays(tenors[i - 1]);
                 double tenorDiff = tenor.differenceInDays(tenors[i - 1]);
-                double interpVol = sumVol * (tenorDiff / tenorStep);
+                double interpVol = vols[i - 1] + diffVol * (tenorDiff / tenorStep);
                 return interpVol;
             }
         }
@@ -174,6 +174,25 @@ void Market::addBondPrice(const std::string &bondName, double price) {
 
 void Market::addStockPrice(const std::string &stockName, double price) {
     stockPrices[stockName] = price;
+}
+
+RateCurve Market::getCurve(const string& name) const {
+    auto defaultIt = this->rateCurves.find(name);
+    if (defaultIt != this->rateCurves.end()) {
+        return defaultIt->second;
+    } else{
+        throw std::invalid_argument("invalid rate curve name supplied");
+    }
+}
+
+VolCurve Market::getVolCurve(const string& name) const {
+
+    auto defaultIt = this->volCurves.find(name);
+    if (defaultIt != this->volCurves.end()) {
+        return defaultIt->second;
+    } else{
+        throw std::invalid_argument("invalid vol curve supplied");
+    }
 }
 
 //*******************
