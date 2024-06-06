@@ -13,7 +13,7 @@ double BlackScholesPricer::Price(const Market& market, const EuropeanOption& opt
     std::cout << "diff in days: " << option.GetExpiry().differenceInDays(market.asOf) << std::endl;
     double T = option.GetExpiry().differenceInDays(market.asOf) / 365.25;
     double r = market.getRiskFreeRate();
-    double sigma = market.getVolatility(option.getType());
+    double sigma = market.getVolCurve("EuropeanOption").getVol(option.GetExpiry());
     std::cout << "expiry: " << option.GetExpiry() << " market.asOf: " << market.asOf << std::endl;
     std::cout << "S: " << S << " K: " << K << " T: " << T << " r: " << r << std::endl;
 
@@ -21,8 +21,8 @@ double BlackScholesPricer::Price(const Market& market, const EuropeanOption& opt
     double d2 = d1 - sigma * std::sqrt(T);
 
     if (option.getOptionType() == Call) {
-        return S * std::exp(-r * T) * normcdf(d1) - K * std::exp(-r * T) * normcdf(d2);
+        return S * normcdf(d1) - K * std::exp(-r * T) * normcdf(d2);
     } else {
-        return K * std::exp(-r * T) * normcdf(-d2) - S * std::exp(-r * T) * normcdf(-d1);
+        return K * std::exp(-r * T) * normcdf(-d2) - S * normcdf(-d1);
     }
 }
