@@ -388,11 +388,11 @@ int main() {
 	    if (!americanOptions.empty() && !europeanOptions.empty()) {
 	        for (auto* amerOption : americanOptions) {
 	            double amerPrice = treePricer->Price(mkt, amerOption);
-	            logger.info("Processing American Option. Underlying= " + amerOption->getUnderlying() +", Type= " + std::to_string(amerOption->getOptionType()) + ", Strike= " + std::to_string(amerOption->getStrike()) +
+	            logger.info("Processing American Option. Underlying= " + amerOption->getUnderlying() +", Type= " + OptionTypeToString(amerOption->getOptionType()) + ", Strike= " + std::to_string(amerOption->getStrike()) +
                     ", Expiry= " + amerOption->GetExpiry().toString()); // !!!
 	            for (auto* euroOption : europeanOptions) {
 	                double euroPrice = treePricer->Price(mkt, euroOption);
-	                logger.info("Processing European Option. Underlying= " + euroOption->getUnderlying() +", Type= " + std::to_string(euroOption->getOptionType()) + ", Strike= " + std::to_string(euroOption->getStrike()) +
+	                logger.info("Processing European Option. Underlying= " + euroOption->getUnderlying() +", Type= " + OptionTypeToString(euroOption->getOptionType()) + ", Strike= " + std::to_string(euroOption->getStrike()) +
                     ", Expiry= " + euroOption->GetExpiry().toString()); // !!!
 	                std::cout << "Comparing American and European Options for Type: " << OptionTypeToString(key.optionType)
 	                          << ", Strike: " << key.strike << ", Expiry: " << key.expiry << std::endl;
