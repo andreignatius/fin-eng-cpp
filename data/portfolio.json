@@ -13,30 +13,52 @@
         "name":"SGD-GOV",
         "start_date":"2024-1-1",
         "end_date":"2029-1-1",
-        "price":105.0,
-        "notional":5000000,
+        "price":103.5,
+        "notional":-5000000,
         "coupon_rate_pct":2.5
     },
     {
         "instrument":"SWAP",
-        "name":"SWAP_1",
+        "name":"SWAP_1A",
         "start_date":"2024-1-1",
         "end_date":"2029-1-1",
         "notional":2000000,
-        "fixed_rate_pct":5.0,
+        "fixed_rate_pct":1.0,
         "fixed_for_float":true,
         "frequency":1,
         "curve_name":"USD-SOFR"
     },
     {
         "instrument":"SWAP",
-        "name":"SWAP_2",
-        "start_date":"2024-5-1",
-        "end_date":"2024-11-1",
-        "notional":3000000,
-        "fixed_rate_pct":6.0,
+        "name":"SWAP_1B",
+        "start_date":"2024-1-1",
+        "end_date":"2029-1-1",
+        "notional":2000000,
+        "fixed_rate_pct":1.0,
         "fixed_for_float":false,
-        "frequency":2,
+        "frequency":1,
+        "curve_name":"USD-SOFR"
+    },
+    {
+        "instrument":"SWAP",
+        "name":"SWAP_2A",
+        "start_date":"2024-1-1",
+        "end_date":"2029-1-1",
+        "notional":2000000,
+        "fixed_rate_pct":2.0,
+        "fixed_for_float":true,
+        "frequency":1,
+        "curve_name":"USD-SOFR"
+    },
+    {
+        "instrument":"SWAP",
+        "name":"SWAP_2B",
+        "start_date":"2024-1-1",
+        "end_date":"2029-1-1",
+        "notional":2000000,
+        "fixed_rate_pct":2.0,
+        "fixed_for_float":false,
+        "frequency":1,
         "curve_name":"USD-SOFR"
     },
     {
@@ -50,7 +72,7 @@
     {
         "instrument":"EURO_OPTION",
         "type":"PUT",
-        "name":"EURO_OPTION_1",
+        "name":"EURO_OPTION_2",
         "strike":700,
         "expiry":"2025-12-31",
         "underlying":"AAPL"
@@ -66,7 +88,7 @@
     {
         "instrument":"AMERICAN_OPTION",
         "type":"PUT",
-        "name":"AMERICAN_OPTION_1",
+        "name":"AMERICAN_OPTION_2",
         "strike":700,
         "expiry":"2025-12-31",
         "underlying":"AAPL"
