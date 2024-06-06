@@ -82,36 +82,9 @@ int main() {
     // why do i need to re-set myPortfolio?
     myPortfolio = myJSONReader.getPortfolio();
 
-    // task 3, create a pricer and price the portfolio, output the pricing
-    // result of each deal.
+    std::cout << "============Start of Part 3============" << std::endl;
 
-    // // Adding Bonds
-    // myPortfolio.push_back(new Bond(Date(2024, 1, 1), Date(2034, 1, 1), 10000000,
-    //                                103.5, 0.025, "SGD-GOV") ); // Long position
-    // myPortfolio.push_back(new Bond(Date(2024, 1, 1), Date(2029, 1, 1), 5000000,
-    //                                105.0, 0.025, "SGD-GOV") ); // Short position
-
-    // // Adding Swaps
-    // myPortfolio.push_back(new Swap(Date(2024, 1, 1), Date(2029, 1, 1), 2000000,
-    //                                0.05, 1, true,
-    //                                mkt, "USD-SOFR")); // Fixed-for-floating, annual
-    // myPortfolio.push_back(new Swap(Date(2024, 1, 1), Date(2029, 1, 1), 2000000,
-    //                                0.06, 2, false, 
-    //                                mkt, "USD-SOFR")); // Floating-for-fixed, semi-annual
-
-    // // Adding European Options
-    // myPortfolio.push_back(
-    //     new EuropeanOption(Call, 700, Date(2025, 12, 31), "AAPL")); // Call option
-    // myPortfolio.push_back(
-    //     new EuropeanOption(Put, 700, Date(2025, 12, 31), "AAPL")); // Put option
-
-    // // Adding American Options
-    // myPortfolio.push_back(
-    //     new AmericanOption(Call, 700, Date(2025, 12, 31), "AAPL")); // Call option
-    // myPortfolio.push_back(
-    //     new AmericanOption(Put, 700, Date(2025, 12, 31), "AAPL")); // Put option
-
-    Pricer *treePricer = new CRRBinomialTreePricer(10);
+    Pricer *treePricer = new CRRBinomialTreePricer(100);
     std::vector<double> pricingResults;
     for (auto trade : myPortfolio) {
         std::cout << "trade: " << trade->getType() << ", underlying: " << trade->getUnderlying() << std::endl;
@@ -126,7 +99,7 @@ int main() {
         // please output trade info such as id, trade type, notional, start/end/traded price and PV into a txt or csv file
     }
 
-    std::cout << "========end of Part 3============" << std::endl;
+    std::cout << "===========end of Part 3============" << std::endl;
 
     // task 4, analyzing pricing result
     //  a) compare CRR binomial tree result for an european option vs Black
