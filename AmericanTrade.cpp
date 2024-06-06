@@ -2,7 +2,8 @@
 #include <algorithm>
 
 AmericanOption::AmericanOption(OptionType optType, double strike, const Date& expiry, const string& underlying)
-    : TreeProduct("AmericanOption", expiry, underlying), optType(optType), strike(strike), expiryDate(expiry) {}
+    : TreeProduct("AmericanOption", expiry, underlying), optType(optType), strike(strike), expiryDate(expiry) {
+    }
 
 double AmericanOption::Payoff(double S) const {
     return PAYOFF::VanillaOption(optType, strike, S);

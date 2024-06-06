@@ -14,6 +14,7 @@ public:
   Date(int y, int m, int d);
   Date();
   long differenceInDays(const Date &other) const;
+  std::string toString() const;
   void addMonths(int months);
   std::chrono::system_clock::time_point timePoint;
   // friend double operator-(const Date& d1, const Date& d2);
@@ -27,5 +28,6 @@ public:
 double operator-(const Date &d1, const Date &d2);
 std::ostream &operator<<(std::ostream &os, const Date &date);
 std::istream &operator>>(std::istream &is, Date &date);
+
 
 #endif

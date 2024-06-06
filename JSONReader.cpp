@@ -297,6 +297,7 @@ void JSONReader::constructPortfolio() {
                     expiryDate =
                         Date(std::stoi(temp_parse[0]), std::stoi(temp_parse[1]),
                              std::stoi(temp_parse[2]));
+                    std::cout << "Parsed expiryDate: " << expiryDate << std::endl; // !!!
                 } else {
                     expiryDate = expiryDate;
                 }
@@ -332,6 +333,7 @@ void JSONReader::constructPortfolio() {
                     expiryDate =
                         Date(std::stoi(temp_parse[0]), std::stoi(temp_parse[1]),
                              std::stoi(temp_parse[2]));
+                    std::cout << "Parsed expiryDate: " << expiryDate << std::endl; // !!!
                 } else {
                     expiryDate = expiryDate;
                 }

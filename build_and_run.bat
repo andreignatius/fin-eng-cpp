@@ -1,5 +1,8 @@
 @echo off
 
+REM Creating an output directory
+if not exist output mkdir output
+
 REM Creating a build directory and entering it
 if not exist build mkdir build
 cd build
