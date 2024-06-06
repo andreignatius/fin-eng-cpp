@@ -293,7 +293,7 @@ int main()
     //}
 
     RateCurve rateC;
-    string filename = "curve.txt";
+    string filename = "../../curve.txt";
     string fileContents;
 
     readFromFile(filename, fileContents);
@@ -346,7 +346,7 @@ int main()
 
     tenors[0] = addMonths(valueDate, 1);   // 1 month later
     VolCurve volC("volCurve");
-    filename = "vol.txt";
+    filename = "../../vol.txt";
     //cout << "vol file name:\n" << filename << endl;
     fileContents = "";
     readFromFile(filename, fileContents);
@@ -372,7 +372,7 @@ int main()
 
 
 
-    filename = "bondPrice.txt";
+    filename = "../../bondPrice.txt";
     //cout << "vol file name:\n" << filename << endl;
     fileContents = "";
     readFromFile(filename, fileContents);
@@ -387,7 +387,7 @@ int main()
         mkt.addBondPrice(pair.first, pair.second);
     }
 
-    filename = "stockPrice.txt";
+    filename = "../../stockPrice.txt";
     fileContents = "";
     readFromFile(filename, fileContents);
     //cout << "stockPrice fileContents:\n" << fileContents << endl;
