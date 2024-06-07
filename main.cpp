@@ -233,6 +233,8 @@ int main() {
     // (1) option type ( call / put )
     // (2) strike price
     // (3) expiration date
+
+    // make use of hashmap to reduce full portfolio O(n^2 comparisons)
     std::cout << "\nb) Comparing pricing results between Amer vs Euro, Call vs Put" << std::endl;
 
     for (const auto& entry : securityMap) {
