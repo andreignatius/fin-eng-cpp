@@ -1,4 +1,5 @@
 #include "Market.h"
+#include "Constants.h"
 #include <unordered_map> 
 
 void RateCurve::display() const {
@@ -50,9 +51,9 @@ double RateCurve::getRate(Date tenor) const {
         for (size_t i = 1; i < tenors.size(); ++i) {
             if (tenors[i] >= tenor) {
                 // Perform interpolation
-                double lowerDay = (tenors[i-1].differenceInDays(this->startDate))/ 365.; //hardcode 365 days
-                double upperDay = (tenors[i].differenceInDays(this->startDate))/ 365.; // hardcode 365 days
-                double Day = tenor.differenceInDays(this->startDate) /365.;
+                double lowerDay = (tenors[i-1].differenceInDays(this->startDate))/ Constants::NUM_DAYS_IN_YEAR;
+                double upperDay = (tenors[i].differenceInDays(this->startDate))/ Constants::NUM_DAYS_IN_YEAR;
+                double Day = tenor.differenceInDays(this->startDate) / Constants::NUM_DAYS_IN_YEAR;
 
                 double lowerDf = exp(-rates[i-1] * lowerDay);
                 double upperDf = exp(-rates[i] * upperDay);
