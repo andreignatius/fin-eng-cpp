@@ -1,8 +1,8 @@
 #include "AmericanTrade.h"
 #include <algorithm>
 
-AmericanOption::AmericanOption(OptionType optType, double strike, const Date& expiry, const string& underlying)
-    : TreeProduct("AmericanOption", expiry, underlying), optType(optType), strike(strike), expiryDate(expiry) {
+AmericanOption::AmericanOption(OptionType optType, double strike, const Date& expiry, const string& underlying, const string& uuid)
+    : TreeProduct("AmericanOption", expiry, underlying, uuid), optType(optType), strike(strike), expiryDate(expiry), underlying(underlying), uuid(uuid) {
     }
 
 double AmericanOption::Payoff(double S) const {
@@ -25,8 +25,8 @@ double AmericanOption::AmericanOption::ValueAtNode(double S, double t, double co
     return std::max(Payoff(S), continuation);
 }
 
-AmerCallSpread::AmerCallSpread(double k1, double k2, const Date& expiry)
-    : TreeProduct("AmerCallSpread", expiry, ""), strike1(k1), strike2(k2), expiryDate(expiry) {
+AmerCallSpread::AmerCallSpread(double k1, double k2, const Date& expiry, const string& uuid)
+    : TreeProduct("AmerCallSpread", expiry, "", uuid), strike1(k1), strike2(k2), expiryDate(expiry) {
     assert(k1 < k2); // Assert condition to ensure valid strikes
 }
 

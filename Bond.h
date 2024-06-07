@@ -8,9 +8,9 @@ public:
         tradePrice = _price;
     }
 
-    Bond(Date start, Date end, double _notional, double _price, double _couponRate, string _underlying):
-        Trade("BondTrade", start, _underlying), notional(_notional), tradePrice(_price),
-        startDate(start), maturityDate(end), couponRate(_couponRate), underlying(_underlying) {}
+    Bond(Date start, Date end, double _notional, double _price, double _couponRate, string _underlying, string _uuid):
+        Trade("BondTrade", start, _underlying, _uuid), notional(_notional), tradePrice(_price),
+        startDate(start), maturityDate(end), couponRate(_couponRate), underlying(_underlying), uuid(_uuid) {}
 
     double Payoff(double marketPrice) const override;
 
@@ -21,4 +21,5 @@ private:
     Date startDate;
     Date maturityDate;
     string underlying;
+    string uuid;
 };

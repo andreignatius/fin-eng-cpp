@@ -10,7 +10,7 @@ class EuropeanOption : public TreeProduct {
 public:
     EuropeanOption();
     EuropeanOption(OptionType _optType, double _strike, const Date &_expiry);
-    EuropeanOption(OptionType optType, double strike, const Date &expiry, const string &underlying);
+    EuropeanOption(OptionType optType, double strike, const Date &expiry, const string &underlying, const string& uuid);
 
     virtual double Payoff(double S) const override;
     virtual const Date &GetExpiry() const override;
@@ -23,17 +23,19 @@ protected:
     double strike;
     Date expiryDate;
     string underlying;
+    string uuid;
 };
 
 class EuroCallSpread : public EuropeanOption {
 public:
-    EuroCallSpread(double _k1, double _k2, const Date &_expiry);
+    EuroCallSpread(double _k1, double _k2, const Date &_expiry, const string& _uuid);
 
     virtual double Payoff(double S) const override;
 
 private:
     double strike1;
     double strike2;
+    string uuid;
 };
 
 #endif // _EUROPEAN_TRADE

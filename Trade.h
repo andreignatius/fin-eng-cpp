@@ -10,9 +10,12 @@ public:
     Trade(const string& _type, const Date& _tradeDate): tradeType(_type), tradeDate(_tradeDate) {};
     Trade(const string& _type, const Date& _tradeDate, const string& _underlying)
         : tradeType(_type), tradeDate(_tradeDate), underlying(_underlying) {}
+    Trade(const string& _type, const Date& _tradeDate, const string& _underlying, const string& _uuid)
+        : tradeType(_type), tradeDate(_tradeDate), underlying(_underlying), uuid(_uuid) {}
 
     string getType() const;
     string getUnderlying() const; // Accessor for the underlying asset
+    string getUUID() const;
     // inline string getType() const { return tradeType; }
     // inline string getUnderlying() const { return underlying; } // Accessor for the underlying asset
     virtual double Payoff(double marketPrice) const = 0;
@@ -23,4 +26,5 @@ protected:
     Date tradeDate;
 private:
     string underlying; // Identifier for the underlying asset
+    string uuid;
 };

@@ -2,7 +2,7 @@
     {
         "uuid":"001",
         "instrument":"BOND",
-        "name":"SGD-GOV-01",
+        "name":"SGD-GOV",
         "start_date":"2024-1-1",
         "end_date":"2034-01-01",
         "price":103.5,
@@ -12,7 +12,7 @@
     {
         "uuid":"002",
         "instrument":"BOND",
-        "name":"SGD-GOV-02",
+        "name":"SGD-GOV",
         "start_date":"2024-1-1",
         "end_date":"2029-1-1",
         "price":103.5,
@@ -22,7 +22,7 @@
     {
         "uuid":"003",
         "instrument":"BOND",
-        "name":"USD-GOV-01",
+        "name":"USD-GOV",
         "start_date":"2024-1-1",
         "end_date":"2034-01-01",
         "price":110,
@@ -32,7 +32,7 @@
     {
         "uuid":"004",
         "instrument":"BOND",
-        "name":"USD-GOV-02",
+        "name":"USD-GOV",
         "start_date":"2024-1-1",
         "end_date":"2029-1-1",
         "price":110,

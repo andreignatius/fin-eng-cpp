@@ -184,7 +184,7 @@ int main() {
         // log pv details out in a file
         //  Optionally write to a file or store results
         // please output trade info such as id, trade type, notional, start/end/traded price and PV into a txt or csv file
-        logger.info("trade: " + trade->getType() + " " + trade->getUnderlying() + " PV : " + std::to_string(pv));
+        logger.info("trade: " + trade->getUUID() + " " + trade->getType() + " " + trade->getUnderlying() + " PV : " + std::to_string(pv));
     }
 
     std::cout << "===========end of Part 3============" << std::endl;

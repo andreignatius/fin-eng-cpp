@@ -10,3 +10,8 @@ string Trade::getUnderlying() const {
     return underlying;
 }
 
+// Accessor for the asset UUID
+string Trade::getUUID() const {
+    return uuid;
+}
+
