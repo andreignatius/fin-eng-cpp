@@ -39,16 +39,17 @@ double Pricer::Price(const Market &mkt, Trade *trade) {
         }
         TreeProduct *treePtr = dynamic_cast<TreeProduct *>(trade);
         if (treePtr) { // check if cast is sucessful
+            std::cout << "Pricing Option" << std::endl;
             pv = PriceTree(mkt, *treePtr);
         }
     } else {
         double price; // get from market data
         if (trade->getType() == "BondTrade") {
-            // std::cout << "check bond name : " << trade->getUnderlying() << std::endl;
+            std::cout << "Pricing Bond" << std::endl;
             price = mkt.getBondPrice(trade->getUnderlying());
         }
         else if (trade->getType() == "SwapTrade"){
-            std::cout<<"This is a SWAP TRADE"<<std::endl;
+            std::cout << "Pricing Swap" << std::endl;
             price = 0;
         } else {
             price = mkt.getSpotPrice(trade->getUnderlying());
@@ -79,8 +80,11 @@ double BinomialTreePricer::PriceTree(const Market &mkt,
     double vol= mkt.getVolCurve("EuropeanOption").getVol(trade.GetExpiry()); 
     double rate = mkt.getRiskFreeRate();
 
-    std::cout << "Tree pricer parameters "<<std::endl;
-    std::cout << "T: " << T <<", Price: "<< stockPrice  << ", Vol: "<< vol << ", r: "<<rate<<std::endl;
+    std::cout << "Tree pricer parameters:"<<std::endl;
+    std::cout << "____T: " << T;
+    std::cout << ", Price: "<< stockPrice;
+    std::cout << ", Vol: "<< vol;
+    std::cout <<", r: "<<rate <<std::endl;
 
     ModelSetup(stockPrice, vol, rate, dt);
 

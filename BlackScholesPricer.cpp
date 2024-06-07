@@ -15,7 +15,7 @@ double BlackScholesPricer::Price(const Market& market, const EuropeanOption& opt
     double r = market.getRiskFreeRate();
     double sigma = market.getVolCurve("EuropeanOption").getVol(option.GetExpiry());
     std::cout << "BS pricer parameters "<<std::endl;
-    std::cout << "S: " << S << " K: " << K << " T: " << T << " r: " << r << std::endl;
+    std::cout << "____S: " << S << " K: " << K << " T: " << T << " r: " << r << std::endl;
 
     double d1 = (std::log(S / K) + (r + 0.5 * sigma * sigma) * T) / (sigma * std::sqrt(T));
     double d2 = d1 - sigma * std::sqrt(T);

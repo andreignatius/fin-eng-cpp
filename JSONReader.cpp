@@ -84,45 +84,46 @@ void JSONReader::constructPortfolio() {
                 std::cout << name << " " << startDate << " " << endDate << " "
                           << bondPrice << " " << notional << " "
                           << bondCouponRate << std::endl;
-                std::cout << "building BOND" ;
+                std::cout << "Building Bond" ;
                 thePortfolio.push_back(new Bond(startDate, endDate, notional,
                                                 bondPrice, bondCouponRate,
                                                 name));
-                std::cout << " ---> build complete" << std::endl;
+                std::cout << " ---> Build complete" << std::endl;
 
                 break;
             case SWAP:
+                std::cout << "Building Swap";
                 std::cout << name << " " << startDate << " " << endDate << " "
                           << notional << " " << fixedRate << " "
                           << fixed_for_float << " " << frequency << " "
                           << curveName << std::endl;
-                std::cout << "building SWAP";
+                
                 thePortfolio.push_back(new Swap(startDate, endDate, notional,
                                                 fixedRate, frequency,
                                                 fixed_for_float, theMarket, curveName));
-                std::cout << " ---> build complete" << std::endl;
+                std::cout << "---> Build complete" << std::endl;
                 break;
 
             case EURO_OPTION:
                 std::cout << name << " " << option_type << " " << strike << " "
                           << expiryDate << " " << underlying << std::endl;
-                std::cout << "building EURO_OPTION";
+                std::cout << "Building European_Option";
                 thePortfolio.push_back(new EuropeanOption(
                     option_type, strike, expiryDate, underlying));
-                std::cout << " ---> build complete" << std::endl;
+                std::cout << " ---> Build complete" << std::endl;
                 break;
 
             case AMERICAN_OPTION:
                 std::cout << name << " " << option_type << " " << strike << " "
                           << expiryDate << " " << underlying << std::endl;
-                std::cout << "building AMERICAN_OPTION";
+                std::cout << "Building American_Option";
                 thePortfolio.push_back(new AmericanOption(
                     option_type, strike, expiryDate, underlying));
-                std::cout << " ---> build complete" << std::endl;
+                std::cout << " ---> Build complete" << std::endl;
                 break;
 
             default:
-                std::cout << "UNKNOWN" << std::endl;
+                std::cout << "UNKNOWN TRADE" << std::endl;
             }
             // end of an instrument
             buildReady = false;
@@ -271,7 +272,7 @@ void JSONReader::constructPortfolio() {
 
                 if (std::regex_search(lineText, match, getCurveName)) {
                     curveName = match.str(1);
-                    std::cout << "CURVENAME: " << curveName << std::endl;
+                    std::cout << "Curve name: " << curveName << std::endl;
                 }
 
             } else if (toBuild == EURO_OPTION) {

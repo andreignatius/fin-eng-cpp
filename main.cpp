@@ -123,6 +123,7 @@ int main() {
     // mkt.updateMarketFromCurveFile("../../data/curve.txt", "USD-SOFR");
     mkt.updateMarketFromCurveFile((DATA_PATH / "sofrdummycurve.csv").string(),
                                   "USD-SOFR");
+    std::cout<<"(print market after reading txt and csv)"<<std::endl;
     mkt.Print(); // Check loaded data
 
     // TODO : create more bonds / swaps/ european option / american options
@@ -136,10 +137,13 @@ int main() {
             Users supply a JSON file containing the portfolio.
             JSONReader will parse and construct the portfolio vector.
     */
+    std::cout << "\n============Start of Part 2============" << std::endl;
+
     vector<Trade *> myPortfolio;
     JSONReader myJSONReader((DATA_PATH / "portfolio.json").string(), mkt,
                             myPortfolio);
     myJSONReader.constructPortfolio();
+    std::cout<<"(print market after reading json)"<<std::endl;
     myJSONReader.getMarketObject().Print();
 
     // why do i need to re-set myPortfolio?
@@ -150,16 +154,21 @@ int main() {
 	    // Check if the trade is an AmericanOption
 	    if (auto amerOption = dynamic_cast<AmericanOption*>(trade)) {
 	        SecurityKey key{amerOption->getOptionType(), amerOption->getStrike(), amerOption->GetExpiry()};
-	        std::cout << "Inserting amer option: " << key.optionType << ", " << key.strike << ", " << key.expiry << std::endl;
+	        std::cout << "Inserting Amer Option: " << std::endl;
+            std::cout<<"Underlying: " << trade->getUnderlying() <<", Option type : "<<OptionTypeToString(amerOption->getOptionType())<< ", Strike : " << amerOption->getStrike()<<", Expiry: "<< amerOption->GetExpiry()<<std::endl; 
+
 	        securityMap[key].push_back(amerOption);
 	    }
 	    // Check if the trade is a EuropeanOption
 	    else if (auto euroOption = dynamic_cast<EuropeanOption*>(trade)) {
 	        SecurityKey key{euroOption->getOptionType(), euroOption->getStrike(), euroOption->GetExpiry()};
-	        std::cout << "Inserting euro option: " << key.optionType << ", " << key.strike << ", " << key.expiry << std::endl;
+	        std::cout << "Inserting Euro Option: " << std::endl;
+            std::cout<<"Underlying: " << trade->getUnderlying() <<", Option type : "<<OptionTypeToString(euroOption->getOptionType())<< ", Strike : " << euroOption->getStrike()<<", Expiry: "<< euroOption->GetExpiry()<<std::endl; 
 	        securityMap[key].push_back(euroOption);
 	    }
 	}
+    std::cout << "===========end of Part 2============" << std::endl;
+
 
     // task 3, create a pricer and price the portfolio, output the pricing
     // result of each deal.
@@ -170,13 +179,15 @@ int main() {
     // Example of using the logger
     logger.info("Starting the application.");
     // Log data path
-    logger.info("Ouput path: " + OUTPUT_PATH.string());
+    logger.info("Log file output path: " + OUTPUT_PATH.string());
+
     std::cout << "\n============Start of Part 3============" << std::endl;
 
     Pricer *treePricer = new CRRBinomialTreePricer(100);
 
     std::vector<double> pricingResults;
     for (auto trade : myPortfolio) {
+        std::cout<<std::endl;
         double pv = treePricer->Price(mkt, trade);
         pricingResults.push_back(pv);
  
@@ -184,7 +195,8 @@ int main() {
         // log pv details out in a file
         //  Optionally write to a file or store results
         // please output trade info such as id, trade type, notional, start/end/traded price and PV into a txt or csv file
-        logger.info("trade: " + trade->getType() + " " + trade->getUnderlying() + " PV : " + std::to_string(pv));
+        logger.info("Trade: " + trade->getType() + " " + trade->getUnderlying() + ", PV: " + std::to_string(pv));
+        
     }
 
     std::cout << "===========end of Part 3============" << std::endl;
@@ -214,11 +226,11 @@ int main() {
             double bsPrice = BlackScholesPricer::Price(mkt, *euroOption);
             double crrPrice = treePricer->Price(mkt, euroOption);
             std::cout << "Comparing European Option: " << std::endl;
-            std::cout << "Black-Scholes Price: " << bsPrice << std::endl;
-            std::cout << "CRR Binomial Tree Price: " << crrPrice << std::endl;
+            std::cout << "____Black-Scholes Price: " << bsPrice << std::endl;
+            std::cout << "____CRR Binomial Tree Price: " << crrPrice << std::endl;
             logger.info("Comparing European Option BS vs CRR Tree: ");
-            logger.info("Black-Scholes Price: " + std::to_string(bsPrice));
-            logger.info("CRR Binomial Tree Price: " + std::to_string(crrPrice));
+            logger.info("____Black-Scholes Price: " + std::to_string(bsPrice));
+            logger.info("____CRR Binomial Tree Price: " + std::to_string(crrPrice));
         }
     }
 
@@ -256,19 +268,19 @@ int main() {
 	        for (auto* amerOption : americanOptions) {
 	            double amerPrice = treePricer->Price(mkt, amerOption);
                 logger.info("Comparing American Option with European Option: ");
-	            logger.info("Processing American Option. Underlying= " + amerOption->getUnderlying() +", Type= " + OptionTypeToString(amerOption->getOptionType()) + ", Strike= " + std::to_string(amerOption->getStrike()) +
-                    ", Expiry= " + amerOption->GetExpiry().toString()); // !!!
+	            logger.info("____American Option Underlying: " + amerOption->getUnderlying() +", Type: " + OptionTypeToString(amerOption->getOptionType()) + ", Strike: " + std::to_string(amerOption->getStrike()) +
+                    ", Expiry: " + amerOption->GetExpiry().toString());
 	            for (auto* euroOption : europeanOptions) {
 	                double euroPrice = treePricer->Price(mkt, euroOption);
-	                logger.info("Processing European Option. Underlying= " + euroOption->getUnderlying() +", Type= " + OptionTypeToString(euroOption->getOptionType()) + ", Strike= " + std::to_string(euroOption->getStrike()) +
-                    ", Expiry= " + euroOption->GetExpiry().toString()); // !!!
+	                logger.info("____European Option Underlying: " + euroOption->getUnderlying() +", Type: " + OptionTypeToString(euroOption->getOptionType()) + ", Strike: " + std::to_string(euroOption->getStrike()) +
+                    ", Expiry: " + euroOption->GetExpiry().toString());
 	                
 	                // Log or further process the comparison as needed
 	                std::cout << "Comparing American Option with European Option: " << std::endl;
 		            std::cout << "*****American Option Price*****: " << amerPrice << std::endl;
 		            std::cout << "*****European Option Price*****: " << euroPrice << std::endl;
-		            logger.info("*****American Option Price*****: " + std::to_string(amerPrice));
-		            logger.info("*****European Option Price*****: " + std::to_string(euroPrice));
+		            logger.info("____American Option Price: " + std::to_string(amerPrice));
+		            logger.info("____European Option Price: " + std::to_string(euroPrice));
 	            }
 	        }
 	    }

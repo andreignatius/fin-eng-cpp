@@ -3,7 +3,7 @@
 #include <stdexcept>
 
 double Swap::Payoff(double marketPrice) const { // TODO marketPrice is redundant
-    double annuity = getAnnuity(); // Use internal market data
+    double annuity; // Use internal market data
     double currentRate = 0.0;
     double rate;
     double pv;
@@ -13,13 +13,14 @@ double Swap::Payoff(double marketPrice) const { // TODO marketPrice is redundant
     double floatLegPV;
     double DF_last;
 
+    annuity = getAnnuity(); // Use internal market data
     fixedLegPV = annuity * (fixedRate / frequency); // assume fixedRate is annual rate
 
     // find last discount rate for floating leg pv calculation
     // TODO may need clean up and checks
     try {
         currentRate = market.getCurve(curveName).getRate(startDate);
-        std::cout<<"current rate is "<<currentRate<<std::endl;
+        // std::cout<<"Current rate is "<<currentRate<<std::endl;
     } catch (const std::out_of_range &e) {
         std::cerr << "specified curve not found in market data. - using "
                      "default rate 0."
@@ -41,7 +42,8 @@ double Swap::Payoff(double marketPrice) const { // TODO marketPrice is redundant
 
     DF_last = exp(-rate * yearsSinceStart);
     floatLegPV = notional * (1 - DF_last);
-    std::cout<<isFixedForFloating<<std::endl;
+    // std::cout<<isFixedForFloating<<std::endl;
+    std::cout << (isFixedForFloating ? "Pay fixed Get float" : "Pay float Get fixed") << std::endl;
     if (isFixedForFloating) {
         pv = floatLegPV - fixedLegPV;
     } else {
@@ -63,11 +65,12 @@ double Swap::getAnnuity() const {
         static_cast<double>(daysBetween) / 365.25; // Convert days to years
     int numPeriods = static_cast<int>(
         yearsBetween * frequency); // Calculate the total number of periods
-
-    std::cout << "maturityDate: " << maturityDate << std::endl;
-    std::cout << "startDate: " << startDate << std::endl;
-    std::cout << "numPeriods: " << numPeriods << std::endl;
-    std::cout << "frequency: " << frequency << std::endl;
+    
+    std::cout << "Swap underlying: " << curveName << std::endl;
+    std::cout << "Maturity date: " << maturityDate << std::endl;
+    std::cout << "Start date: " << startDate << std::endl;
+    std::cout << "Number of years: " << numPeriods << std::endl;
+    std::cout << "Number of payout p.a.: " << frequency << std::endl;
 
     for (int i = 1; i <= numPeriods; ++i) {
         paymentDate.addMonths(static_cast<int>(

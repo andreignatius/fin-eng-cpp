@@ -132,8 +132,8 @@ void VolCurve::display() const {
 }
 
 void Market::Print() const {
-    std::cout << "============= PRINT MARKET START =============" << std::endl;
-    std::cout << "market asof: " << asOf << std::endl;
+    std::cout << "\n============= PRINT MARKET START =============" << std::endl;
+    std::cout << "           Market as of: " << asOf << std::endl;
 
     // LR: should we have similar methods for displaying them?
     for (auto &curve : rateCurves) {
@@ -150,6 +150,8 @@ void Market::Print() const {
         std::cout << "Bond: " << bond.first << " Price: " << bond.second
                   << std::endl;
     }
+    std::cout<<std::endl;
+
     std::cout << "Stock Prices:" << std::endl;
     for (const auto &stock : stockPrices) {
         std::cout << "Stock: " << stock.first << " Price: " << stock.second
@@ -291,8 +293,9 @@ void Market::updateMarketFromBondFile(const std::string &filePath) {
             std::cerr << "Failed to convert price to double: " << priceStr << " in line: " << line << std::endl;
             continue; // Skip lines with conversion errors
         }
-        std::cout<< "adding bond: " << bondName << " where price is : " << price << std::endl;
         addBondPrice(bondName, price);
+        std::cout<< "Added bond: " << bondName << " where price is : " << price << std::endl;
+
     }
     file.close();
 }
@@ -304,11 +307,12 @@ void Market::updateMarketFromStockFile(const std::string &filePath) {
     if (filePath.find(".csv") != std::string::npos) {
         std::unordered_map<std::string, std::vector<std::string>> stockMap;
         CSVReader myCSVReader = CSVReader(filePath);
+        std::cout << "Reading file from .csv" << std::endl;
         stockMap = myCSVReader.parseFile();
         for (int i = 0; i < stockMap["stock"].size(); i++) {
-            std::cout << "adding stock : " << stockMap["stock"][i] << std::endl;
-            addStockPrice(stockMap["stock"][i],
-                          std::stod(stockMap["price"][i]));
+            addStockPrice(stockMap["stock"][i], std::stod(stockMap["price"][i]));
+            std::cout << "Added stock : " << stockMap["stock"][i] << std::endl;
+
         }
         // if user supplies TXT File
     } else {
@@ -320,6 +324,7 @@ void Market::updateMarketFromStockFile(const std::string &filePath) {
         }
 
         std::string line;
+        std::cout << "Reading file from .txt" << std::endl;
         while (getline(file, line)) {
             // Remove spaces around the line if needed
             line.erase(std::remove_if(line.begin(), line.end(), ::isspace),
