@@ -69,13 +69,6 @@ struct SecurityHash {
     }
 };
 
-// std::map<OptionType, std::string> optionTypeNames = {
-//     {Call, "Call"},
-//     {Put, "Put"},
-//     {BinaryCall, "BinaryCall"},
-//     {BinaryPut, "BinaryPut"}
-// };
-
 
 int main() {
     // task 1, create an market data object, and update the market data from
@@ -286,7 +279,7 @@ int main() {
 	    }
 	}
 
-	// Just before returning from main, clean up the dynamic memory.
+    // Just before returning from main, clean up the dynamic memory.
     delete treePricer;
     treePricer = nullptr;
 
