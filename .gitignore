@@ -4,3 +4,6 @@ build/
 out/
 .DS_Store
 output/
+Date.dSYM/
+main.dSYM/
+not_in_use/
