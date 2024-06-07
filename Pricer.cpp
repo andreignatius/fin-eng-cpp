@@ -28,7 +28,7 @@ double Pricer::Price(const Market &mkt, Trade *trade) {
     return pv;
 }
 
-// 
+// REFERENCE : VERBOSE LOGIC FOR DEBUGGING PURPOSES
 // double Pricer::Price(const Market &mkt, Trade *trade) {
 //     double pv;
 //     // std::cout<< "mkt: " << mkt << " trade!!!: " << trade->getType() << std::endl;
