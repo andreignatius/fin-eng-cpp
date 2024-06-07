@@ -51,12 +51,13 @@ The project takes in market data in .txt or .csv or .json format, as well as use
 - Fixed rate given is annual rate,
 - FixedLegPV = annuity * (fixedRate / frequency)
 - FloatLegPV = notional * (1 - DF_last), where DF_last refers to the discount factor at the time of the final cashflow exchange
+- If rate data is missing, fallback rate is 0
 
-if rate data is missing, fallback rate is 0
 3. Option Pricing
 - Time between maturity and start date is annualized using the following formula: (Maturity Date - Start Date)/ 365.25
 - Start date is assumed to be today's date when the program is run
 - European options in the portfolio is priced with the TreePricer
+- Risk free rate fix at 2%
 
 ## Example
 A short extract of user input and project output
