@@ -167,7 +167,7 @@ int main() {
     logger.info("Ouput path: " + OUTPUT_PATH.string());
     std::cout << "\n============Start of Part 3============" << std::endl;
 
-    Pricer *treePricer = new CRRBinomialTreePricer(100);
+    Pricer *treePricer = new CRRBinomialTreePricer(700);
 
     std::vector<double> pricingResults;
     for (auto trade : myPortfolio) {
@@ -285,6 +285,10 @@ int main() {
 	        }
 	    }
 	}
+
+	// Just before returning from main, clean up the dynamic memory.
+    delete treePricer;
+    treePricer = nullptr;
 
     // final
     std::cout << "\nProject build successfully!" << std::endl;
