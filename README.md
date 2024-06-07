@@ -31,8 +31,28 @@ The project takes in market data in .txt or .csv or .json format, as well as use
 - Any standard C++ compiler (e.g., GCC, Clang, MSVC)
 
 ## Instruction for building and running the project
-- For windows OS, run in console: `./build_and_run.bat`
-- For Mac OS, run in console: `./build_and_run.sh`
+1. Prepare market data in .csv or .txt format. Formatting should follow the provided sample files in /data directory
+2. Prepare your portfolio using .json file. Formatting should follow the provided sample files in /data directory
+3. Adjust filenames accordingly in main.cpp inside main() function
+4. Compile and run using either of the following scripts
+  - For windows OS, run in console: `./build_and_run.bat`
+  - For Mac OS, run in console: `./build_and_run.sh`
+
+## Notable Assumptions
+1. Bond Pricing
+- Bond value is a matter of difference between market rate and the price we entered the position. 
+- We are not pricing the bond from discounting cashflows
+
+2. Swap Pricing
+- Time between maturity and start date is annualized using the following formula: (Maturity Date - Start Date)/ 365.25
+- Start date refers to the start date of the swap
+- fixedLegPV = annuity * (fixedRate / frequency)
+- floatLegPV = notional * (1 - DF_last), where DF_last refers to the discount factor at the time of the final cashflow exchange
+
+3. Option Pricing
+- Time between maturity and start date is annualized using the following formula: (Maturity Date - Start Date)/ 365.25
+- Start date is assumed to be today's date when the program is run
+- European options in the portfolio is priced with the TreePricer
 
 ## Example
 A short extract of user input and project output
