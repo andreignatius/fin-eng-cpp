@@ -16,6 +16,7 @@ The project takes in market data in .txt or .csv or .json format, as well as use
   - different pricing models (e.g. Black-scholes model and CRR Binomial tree model for options)
 - Error Handling: Robust error handling for data processing and pricing calculations.
 - Logging: output runtime results and warnings in a log file for review
+- Version control: using GitHub and following industry best practice (e.g. branch out, pull request, review, merge)
 - Various C++ techniques, including but not limited to:
   - Polymorphism
   - Operator overload
@@ -30,8 +31,8 @@ The project takes in market data in .txt or .csv or .json format, as well as use
 - Any standard C++ compiler (e.g., GCC, Clang, MSVC)
 
 ## Instruction for building and running the project
-- For windows OS, run : `./build_and_run.bat`
-- For Mac OS, run : `./build_and_run.sh`
+- For windows OS, run in console: `./build_and_run.bat`
+- For Mac OS, run in console: `./build_and_run.sh`
 
 ## Example
 A short extract of user input and project output
@@ -46,7 +47,7 @@ CRR tree priced trade with PV: 93.3583
 
 // log file output
 [INFO] Processing European Option. Underlying= AAPL, Type= 1, Strike= 700.000000, Expiry= 2025-12-31
-[INFO] *****European Option Price*****: 93.3583
+[INFO] trade: EuropeanOption AAPL PV : 105.594224
 ```
 
 ## Code Structure
