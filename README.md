@@ -46,9 +46,13 @@ The project takes in market data in .txt or .csv or .json format, as well as use
 2. Swap Pricing
 - Time between maturity and start date is annualized using the following formula: (Maturity Date - Start Date)/ 365.25
 - Start date refers to the start date of the swap
-- fixedLegPV = annuity * (fixedRate / frequency)
-- floatLegPV = notional * (1 - DF_last), where DF_last refers to the discount factor at the time of the final cashflow exchange
+- Assume no forward start
+- Linear interpolation of discount factor
+- Fixed rate given is annual rate,
+- FixedLegPV = annuity * (fixedRate / frequency)
+- FloatLegPV = notional * (1 - DF_last), where DF_last refers to the discount factor at the time of the final cashflow exchange
 
+if rate data is missing, fallback rate is 0
 3. Option Pricing
 - Time between maturity and start date is annualized using the following formula: (Maturity Date - Start Date)/ 365.25
 - Start date is assumed to be today's date when the program is run
