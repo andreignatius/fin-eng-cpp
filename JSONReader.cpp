@@ -63,11 +63,11 @@ void JSONReader::constructPortfolio() {
     std::smatch match;
     int toBuild = 100;
     enum instruments { BOND, SWAP, EURO_OPTION, AMERICAN_OPTION };
-    std::cout << "from json construct portfolio" << std::endl;
-    std::cout << theFilename << std::endl;
+    std::cout << "Construct portfolio from JSON file: " << theFilename << std::endl;
 
     if (MyReadFile.is_open()) {
-        std::cout << "file is open" << std::endl;
+        std::cout << "JSON file is open" << std::endl;
+        std::cout<<std::endl;
     }
 
     while (std::getline(MyReadFile, lineText)) {
@@ -84,36 +84,41 @@ void JSONReader::constructPortfolio() {
                 std::cout << name << " " << startDate << " " << endDate << " "
                           << bondPrice << " " << notional << " "
                           << bondCouponRate << std::endl;
-                std::cout << "building BOND" << std::endl;
+                std::cout << "building BOND" ;
                 thePortfolio.push_back(new Bond(startDate, endDate, notional,
                                                 bondPrice, bondCouponRate,
                                                 name));
+                std::cout << " ---> build complete" << std::endl;
+
                 break;
             case SWAP:
                 std::cout << name << " " << startDate << " " << endDate << " "
                           << notional << " " << fixedRate << " "
                           << fixed_for_float << " " << frequency << " "
                           << curveName << std::endl;
-                std::cout << "building SWAP" << std::endl;
+                std::cout << "building SWAP";
                 thePortfolio.push_back(new Swap(startDate, endDate, notional,
                                                 fixedRate, frequency,
                                                 fixed_for_float, theMarket, curveName));
+                std::cout << " ---> build complete" << std::endl;
                 break;
 
             case EURO_OPTION:
                 std::cout << name << " " << option_type << " " << strike << " "
                           << expiryDate << " " << underlying << std::endl;
-                std::cout << "building EURO_OPTION" << std::endl;
+                std::cout << "building EURO_OPTION";
                 thePortfolio.push_back(new EuropeanOption(
                     option_type, strike, expiryDate, underlying));
+                std::cout << " ---> build complete" << std::endl;
                 break;
 
             case AMERICAN_OPTION:
                 std::cout << name << " " << option_type << " " << strike << " "
                           << expiryDate << " " << underlying << std::endl;
-                std::cout << "building AMERICAN_OPTION" << std::endl;
+                std::cout << "building AMERICAN_OPTION";
                 thePortfolio.push_back(new AmericanOption(
                     option_type, strike, expiryDate, underlying));
+                std::cout << " ---> build complete" << std::endl;
                 break;
 
             default:
@@ -121,7 +126,7 @@ void JSONReader::constructPortfolio() {
             }
             // end of an instrument
             buildReady = false;
-            std::cout << "***************************" << std::endl;
+            std::cout << std::endl;
         } else if (buildReady) {
             // get the instrument first
             if (std::regex_search(lineText, match, getInstrument)) {
@@ -228,7 +233,7 @@ void JSONReader::constructPortfolio() {
 
                 if (std::regex_search(lineText, match, getNotional)) {
                     char neg_sign = match.str(1)[0];
-                    std::cout<<"i have neg no "<<neg_sign<< " "<< match.str(1)<<std::endl;
+                    // std::cout<<"i have neg no "<<neg_sign<< " "<< match.str(1)<<std::endl;
                     if (neg_sign == '-'){
                         notional = -1 * std::stoi(match.str(1).erase(0, 1));
                     } else {
@@ -247,7 +252,7 @@ void JSONReader::constructPortfolio() {
                 if (std::regex_search(lineText, match, getFixed_for_float)) {
                     std::string temp = match.str(1);
                     temp.pop_back();
-                    std::cout<<"parse check get "<<temp <<std::endl;
+                    // std::cout<<"parse check get "<<temp <<std::endl;
                     if (temp == "true"){
                         fixed_for_float = true;
                     } else{

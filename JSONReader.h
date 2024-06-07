@@ -30,7 +30,7 @@ class JSONReader {
                vector<Trade *> &portfolioVec)
         : theFilename(filename), theMarket(marketObj),
           thePortfolio(portfolioVec) {
-        std::cout << "from constructor" << std::endl;
+        std::cout << "Start JSONReader constructor" << std::endl;
     };
 
     // setter getters

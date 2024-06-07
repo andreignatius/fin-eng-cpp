@@ -132,7 +132,7 @@ void VolCurve::display() const {
 }
 
 void Market::Print() const {
-    std::cout << "============= PRINT MARKET =============" << std::endl;
+    std::cout << "============= PRINT MARKET START =============" << std::endl;
     std::cout << "market asof: " << asOf << std::endl;
 
     // LR: should we have similar methods for displaying them?
@@ -155,7 +155,8 @@ void Market::Print() const {
         std::cout << "Stock: " << stock.first << " Price: " << stock.second
                   << std::endl;
     }
-    std::cout << "============= PRINT MARKET =============" << std::endl;
+    std::cout << "============= PRINT MARKET END =============" << std::endl;
+    std::cout<<std::endl;
 }
 
 void Market::addCurve(const std::string &curveName, const RateCurve &curve) {

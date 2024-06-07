@@ -37,7 +37,6 @@ double Pricer::Price(const Market &mkt, Trade *trade) {
             underlying = tempptr->getUnderlying();
             expiry = tempptr->GetExpiry();
         }
-        std::cout<<"INSTRUMENT : "<< trade->getType() <<"; OPTION TYPE : "<<opt_type_str << "; STRIKE : " << strike<<std::endl; 
         TreeProduct *treePtr = dynamic_cast<TreeProduct *>(trade);
         if (treePtr) { // check if cast is sucessful
             pv = PriceTree(mkt, *treePtr);
@@ -79,11 +78,9 @@ double BinomialTreePricer::PriceTree(const Market &mkt,
     }
     double vol= mkt.getVolCurve("EuropeanOption").getVol(trade.GetExpiry()); 
     double rate = mkt.getRiskFreeRate();
-    
-    std::cout << "!T: " << T << " GetExpiry: " << trade.GetExpiry() << " mkt.asOf: " << mkt.asOf << std::endl;
-    std::cout << "!price: "<< stockPrice <<std::endl;
-    std::cout << "!vol: "<< vol <<std::endl;
-    std::cout << "!r: "<<rate<<std::endl;
+
+    std::cout << "Tree pricer parameters "<<std::endl;
+    std::cout << "T: " << T <<", Price: "<< stockPrice  << ", Vol: "<< vol << ", r: "<<rate<<std::endl;
 
     ModelSetup(stockPrice, vol, rate, dt);
 
