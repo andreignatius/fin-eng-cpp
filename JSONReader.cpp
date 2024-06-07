@@ -22,9 +22,11 @@ void JSONReader::constructPortfolio() {
     bool buildReady = false;
 
     // common vars
+    std::string uuid;
     std::string name;
 
     // common regex
+    std::regex getUUID(R"(\"uuid\":\"(.*?)\")");
     std::regex getInstrument(R"(\"instrument\":\"(.*?)\")");
     std::regex getName(R"(\"name\":\"(.*?)\")");
     std::regex getStartDate(R"(\"start_date\":\"(.*?)\")");
@@ -87,7 +89,7 @@ void JSONReader::constructPortfolio() {
                 std::cout << "building BOND" ;
                 thePortfolio.push_back(new Bond(startDate, endDate, notional,
                                                 bondPrice, bondCouponRate,
-                                                name));
+                                                name, uuid));
                 std::cout << " ---> build complete" << std::endl;
 
                 break;
@@ -99,7 +101,7 @@ void JSONReader::constructPortfolio() {
                 std::cout << "building SWAP";
                 thePortfolio.push_back(new Swap(startDate, endDate, notional,
                                                 fixedRate, frequency,
-                                                fixed_for_float, theMarket, curveName));
+                                                fixed_for_float, theMarket, curveName, uuid));
                 std::cout << " ---> build complete" << std::endl;
                 break;
 
@@ -108,7 +110,7 @@ void JSONReader::constructPortfolio() {
                           << expiryDate << " " << underlying << std::endl;
                 std::cout << "building EURO_OPTION";
                 thePortfolio.push_back(new EuropeanOption(
-                    option_type, strike, expiryDate, underlying));
+                    option_type, strike, expiryDate, underlying, uuid));
                 std::cout << " ---> build complete" << std::endl;
                 break;
 
@@ -117,7 +119,7 @@ void JSONReader::constructPortfolio() {
                           << expiryDate << " " << underlying << std::endl;
                 std::cout << "building AMERICAN_OPTION";
                 thePortfolio.push_back(new AmericanOption(
-                    option_type, strike, expiryDate, underlying));
+                    option_type, strike, expiryDate, underlying, uuid));
                 std::cout << " ---> build complete" << std::endl;
                 break;
 
@@ -145,6 +147,10 @@ void JSONReader::constructPortfolio() {
             // get the name next
             else if (std::regex_search(lineText, match, getName)) {
                 name = match.str(1);
+            }
+            // get the uuid next
+            else if (std::regex_search(lineText, match, getUUID)) {
+                uuid = match.str(1);
             }
             /*
                 it is product specific after this

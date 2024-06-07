@@ -1,6 +1,7 @@
 #include "Swap.h"
 #include <cmath>
 #include <stdexcept>
+#include <sstream>
 
 double Swap::Payoff(double marketPrice) const { // TODO marketPrice is redundant
     double annuity = getAnnuity(); // Use internal market data
@@ -50,6 +51,14 @@ double Swap::Payoff(double marketPrice) const { // TODO marketPrice is redundant
     // std::cout << "fix PV: " << fixedLegPV << ", float PV:
     // "<<floatLegPV<<std::endl;
     return pv;
+}
+
+std::string Swap::toString() const {
+    std::ostringstream oss;
+    oss << "Type: " << getType() << ", Start Date: " << startDate.toString()
+        << ", End Date: " << maturityDate.toString() << ", Notional: $" << notional
+        << ", Underlying: " << curveName << ", UUID: " << uuid;
+    return oss.str();
 }
 
 // annuity = DV01*notional

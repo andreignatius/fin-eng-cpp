@@ -15,6 +15,7 @@
 #include "Pricer.h"
 #include "Swap.h"
 #include "Logger.h"
+#include "Utils.h"
 
 /*
 Comments: when using new, pls remember to use delete for ptr
@@ -68,20 +69,13 @@ struct SecurityHash {
     }
 };
 
-std::map<OptionType, std::string> optionTypeNames = {
-    {Call, "Call"},
-    {Put, "Put"},
-    {BinaryCall, "BinaryCall"},
-    {BinaryPut, "BinaryPut"}
-};
+// std::map<OptionType, std::string> optionTypeNames = {
+//     {Call, "Call"},
+//     {Put, "Put"},
+//     {BinaryCall, "BinaryCall"},
+//     {BinaryPut, "BinaryPut"}
+// };
 
-std::string OptionTypeToString(OptionType type) {
-    auto it = optionTypeNames.find(type);
-    if (it != optionTypeNames.end()) {
-        return it->second;
-    }
-    return "Unknown";
-}
 
 int main() {
     // task 1, create an market data object, and update the market data from
@@ -179,12 +173,28 @@ int main() {
     for (auto trade : myPortfolio) {
         double pv = treePricer->Price(mkt, trade);
         pricingResults.push_back(pv);
+        std::string tradeInfo = "";
  
         std::cout << "*****Priced trade with PV*****: " << pv << std::endl;
         // log pv details out in a file
         //  Optionally write to a file or store results
         // please output trade info such as id, trade type, notional, start/end/traded price and PV into a txt or csv file
-        logger.info("trade: " + trade->getType() + " " + trade->getUnderlying() + " PV : " + std::to_string(pv));
+        // logger.info("trade: " + trade->getUUID() + " " + trade->getType() + " " + trade->getUnderlying() + " PV : " + std::to_string(pv));
+    	// logger.info("trade: " + trade->toString());
+    	if (auto* bond = dynamic_cast<Bond*>(trade)) {
+	        tradeInfo = bond->toString();
+	        
+	    } else if (auto* swap = dynamic_cast<Swap*>(trade)) {
+	        tradeInfo = swap->toString();
+	        
+	    } else if (auto* amerOption = dynamic_cast<AmericanOption*>(trade)) {
+	        tradeInfo = amerOption->toString();
+	        
+	    } else if (auto* euroOption = dynamic_cast<EuropeanOption*>(trade)) {
+	        tradeInfo = euroOption->toString();
+	    }
+	    std::cout << "trade: " << tradeInfo << " " << ", PV: " << pv << std::endl;
+	    logger.info("trade: " + tradeInfo + " , PV: " + std::to_string(pv));
     }
 
     std::cout << "===========end of Part 3============" << std::endl;
@@ -214,9 +224,11 @@ int main() {
             double bsPrice = BlackScholesPricer::Price(mkt, *euroOption);
             double crrPrice = treePricer->Price(mkt, euroOption);
             std::cout << "Comparing European Option: " << std::endl;
+            std::cout << "European Option Details: " << euroOption->toString() << std::endl;
             std::cout << "Black-Scholes Price: " << bsPrice << std::endl;
             std::cout << "CRR Binomial Tree Price: " << crrPrice << std::endl;
             logger.info("Comparing European Option BS vs CRR Tree: ");
+            logger.info("European Option Details: " + euroOption->toString());
             logger.info("Black-Scholes Price: " + std::to_string(bsPrice));
             logger.info("CRR Binomial Tree Price: " + std::to_string(crrPrice));
         }
