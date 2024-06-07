@@ -11,6 +11,7 @@
 #include <sstream>
 #include "TenorMap.h"
 #include <cmath>
+#include "Constants.h"
 
 using namespace std;
 
@@ -81,7 +82,7 @@ class Market {
     unordered_map<string, RateCurve> rateCurves;
     unordered_map<string, double> bondPrices;
     unordered_map<string, double> stockPrices;
-    double riskFreeRate = 0.02;
+    double riskFreeRate = Constants::RISK_FREE_RATE;
 };
 
 std::ostream &operator<<(std::ostream &os, const Market &obj);

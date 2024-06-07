@@ -1,4 +1,5 @@
 #include "Swap.h"
+#include "Constants.h"
 #include <cmath>
 #include <stdexcept>
 #include <sstream>
@@ -27,7 +28,7 @@ double Swap::Payoff(double marketPrice) const { // TODO marketPrice is redundant
                   << std::endl;
     }
     long daysBetween    = maturityDate.differenceInDays(startDate);
-    double yearsBetween = static_cast<double>(daysBetween) / 365.25; // Convert days to years
+    double yearsBetween = static_cast<double>(daysBetween) / Constants::NUM_DAYS_IN_YEAR; // Convert days to years
     int numPeriods      = static_cast<int>(yearsBetween * frequency); // Calculate the total number of periods
     for (int i = 1; i <= numPeriods; ++i) {
         paymentDate.addMonths(static_cast<int>(
@@ -35,7 +36,7 @@ double Swap::Payoff(double marketPrice) const { // TODO marketPrice is redundant
             frequency)); // Adjust the payment date according to the frequency
         yearsSinceStart =
             static_cast<double>(paymentDate.differenceInDays(startDate)) /
-            365.25; // Convert days to years
+            Constants::NUM_DAYS_IN_YEAR; // Convert days to years
         rate = market.getCurve(curveName).getRate(paymentDate);
         double discountFactor = exp(-rate * yearsSinceStart);
     }
@@ -69,7 +70,7 @@ double Swap::getAnnuity() const {
     // Using differenceInDays to calculate the total number of periods
     long daysBetween = maturityDate.differenceInDays(startDate);
     double yearsBetween =
-        static_cast<double>(daysBetween) / 365.25; // Convert days to years
+        static_cast<double>(daysBetween) / Constants::NUM_DAYS_IN_YEAR; // Convert days to years
     int numPeriods = static_cast<int>(
         yearsBetween * frequency); // Calculate the total number of periods
 
@@ -84,7 +85,7 @@ double Swap::getAnnuity() const {
             frequency)); // Adjust the payment date according to the frequency
         double yearsSinceStart =
             static_cast<double>(paymentDate.differenceInDays(startDate)) /
-            365.25; // Convert days to years
+            Constants::NUM_DAYS_IN_YEAR; // Convert days to years
         double disc_rate = 0.0;
         try {
             disc_rate = market.getCurve(curveName).getRate(paymentDate);

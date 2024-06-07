@@ -2,69 +2,95 @@
 #include "AmericanTrade.h"
 #include "EuropeanTrade.h"
 #include "Market.h"
+#include "Constants.h"
 #include <cmath>
 
 double Pricer::Price(const Market &mkt, Trade *trade) {
-    double pv;
-    // std::cout<< "mkt: " << mkt << " trade!!!: " << trade->getType() << std::endl;
-    if (trade->getType() == "AmericanOption" || trade->getType() == "EuropeanOption") {
-        std::string opt_type_str = "";
-        std::string underlying = "";
-        Date expiry ;
-        double strike= 0 ;
-        // std::cout << "tree product" << " " << trade << std::endl;
-        if (trade->getType() == "AmericanOption"){
-            AmericanOption *tempptr = dynamic_cast<AmericanOption *>(trade);
-            OptionType opt_type = tempptr->getOptionType();
-            if (opt_type == Call){
-                opt_type_str = "CALL";
-            } else if (opt_type == Put){
-                opt_type_str = "PUT";
-            }            
-            strike = tempptr ->getStrike();
-            underlying = tempptr->getUnderlying();
-            expiry = tempptr->GetExpiry();
+    double pv = 0.0;
 
-        } else if (trade->getType() == "EuropeanOption"){
-            EuropeanOption *tempptr = dynamic_cast<EuropeanOption *>(trade);
-            OptionType opt_type = tempptr->getOptionType();
-            if (opt_type == Call){
-                opt_type_str = "CALL";
-            } else if (opt_type == Put){
-                opt_type_str = "PUT";
-            }
-            strike = tempptr ->getStrike();
-            underlying = tempptr->getUnderlying();
-            expiry = tempptr->GetExpiry();
-        }
-        TreeProduct *treePtr = dynamic_cast<TreeProduct *>(trade);
-        if (treePtr) { // check if cast is sucessful
-            pv = PriceTree(mkt, *treePtr);
-        }
+    if (auto *option = dynamic_cast<TreeProduct*>(trade)) {
+        // Simplifies handling for both American and European options as both are TreeProduct.
+        // verbose logic below for reference / trace of code for debugging purposes
+        pv = PriceTree(mkt, *option);
     } else {
-        double price; // get from market data
+        double marketPrice = 0.0;
         if (trade->getType() == "BondTrade") {
-            // std::cout << "check bond name : " << trade->getUnderlying() << std::endl;
-            price = mkt.getBondPrice(trade->getUnderlying());
-        }
-        else if (trade->getType() == "SwapTrade"){
-            std::cout<<"This is a SWAP TRADE"<<std::endl;
-            price = 0;
+            marketPrice = mkt.getBondPrice(trade->getUnderlying());
+        } else if (trade->getType() == "SwapTrade") {
+            std::cout << "Processing swap trade with no relevant market price." << std::endl;
+            marketPrice = 0.0;
         } else {
-            price = mkt.getSpotPrice(trade->getUnderlying());
+            marketPrice = mkt.getSpotPrice(trade->getUnderlying());
         }
-        
-        // std::cout << "not tree product, where spot price : " << price << " for underlying : " << trade->getUnderlying() << endl;
-        pv = trade->Payoff(price); // should be noted that for Swap , market price input is irrelevant
+        pv = trade->Payoff(marketPrice);
     }
+
     return pv;
 }
+
+// 
+// double Pricer::Price(const Market &mkt, Trade *trade) {
+//     double pv;
+//     // std::cout<< "mkt: " << mkt << " trade!!!: " << trade->getType() << std::endl;
+//     if (trade->getType() == "AmericanOption" || trade->getType() == "EuropeanOption") {
+//         std::string opt_type_str = "";
+//         std::string underlying = "";
+//         Date expiry ;
+//         double strike= 0 ;
+//         // std::cout << "tree product" << " " << trade << std::endl;
+//         if (trade->getType() == "AmericanOption"){
+//             AmericanOption *tempptr = dynamic_cast<AmericanOption *>(trade);
+//             OptionType opt_type = tempptr->getOptionType();
+//             if (opt_type == Call){
+//                 opt_type_str = "CALL";
+//             } else if (opt_type == Put){
+//                 opt_type_str = "PUT";
+//             }            
+//             strike = tempptr ->getStrike();
+//             underlying = tempptr->getUnderlying();
+//             expiry = tempptr->GetExpiry();
+
+//         } else if (trade->getType() == "EuropeanOption"){
+//             EuropeanOption *tempptr = dynamic_cast<EuropeanOption *>(trade);
+//             OptionType opt_type = tempptr->getOptionType();
+//             if (opt_type == Call){
+//                 opt_type_str = "CALL";
+//             } else if (opt_type == Put){
+//                 opt_type_str = "PUT";
+//             }
+//             strike = tempptr ->getStrike();
+//             underlying = tempptr->getUnderlying();
+//             expiry = tempptr->GetExpiry();
+//         }
+//         TreeProduct *treePtr = dynamic_cast<TreeProduct *>(trade);
+//         if (treePtr) { // check if cast is sucessful
+//             pv = PriceTree(mkt, *treePtr);
+//         }
+//     } else {
+//         double price; // get from market data
+//         if (trade->getType() == "BondTrade") {
+//             // std::cout << "check bond name : " << trade->getUnderlying() << std::endl;
+//             price = mkt.getBondPrice(trade->getUnderlying());
+//         }
+//         else if (trade->getType() == "SwapTrade"){
+//             std::cout<<"This is a SWAP TRADE"<<std::endl;
+//             price = 0;
+//         } else {
+//             price = mkt.getSpotPrice(trade->getUnderlying());
+//         }
+        
+//         // std::cout << "not tree product, where spot price : " << price << " for underlying : " << trade->getUnderlying() << endl;
+//         pv = trade->Payoff(price); // should be noted that for Swap , market price input is irrelevant
+//     }
+//     return pv;
+// }
+
 
 double BinomialTreePricer::PriceTree(const Market &mkt,
                                      const TreeProduct &trade) {
     // model setup
     // double T = trade.GetExpiry() - mkt.asOf;
-    double T = trade.GetExpiry().differenceInDays(mkt.asOf) / 365.25;
+    double T = trade.GetExpiry().differenceInDays(mkt.asOf) / Constants::NUM_DAYS_IN_YEAR;
     double dt = T / nTimeSteps;
     /*
     get these data for the deal from market object
