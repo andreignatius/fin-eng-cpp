@@ -193,8 +193,8 @@ int main() {
 	    } else if (auto* euroOption = dynamic_cast<EuropeanOption*>(trade)) {
 	        tradeInfo = euroOption->toString();
 	    }
-	    std::cout << "trade: " << tradeInfo << std::endl;
-	    logger.info("trade: " + tradeInfo);
+	    std::cout << "trade: " << tradeInfo << " " << ", PV: " << pv << std::endl;
+	    logger.info("trade: " + tradeInfo + " , PV: " + std::to_string(pv));
     }
 
     std::cout << "===========end of Part 3============" << std::endl;
