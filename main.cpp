@@ -224,9 +224,11 @@ int main() {
             double bsPrice = BlackScholesPricer::Price(mkt, *euroOption);
             double crrPrice = treePricer->Price(mkt, euroOption);
             std::cout << "Comparing European Option: " << std::endl;
+            std::cout << "European Option Details: " << euroOption->toString() << std::endl;
             std::cout << "Black-Scholes Price: " << bsPrice << std::endl;
             std::cout << "CRR Binomial Tree Price: " << crrPrice << std::endl;
             logger.info("Comparing European Option BS vs CRR Tree: ");
+            logger.info("European Option Details: " + euroOption->toString());
             logger.info("Black-Scholes Price: " + std::to_string(bsPrice));
             logger.info("CRR Binomial Tree Price: " + std::to_string(crrPrice));
         }
