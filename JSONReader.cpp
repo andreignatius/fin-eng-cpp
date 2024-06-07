@@ -14,6 +14,14 @@ Market JSONReader::getMarketObject() const { return theMarket; };
 void JSONReader::setPortfolio(vector<Trade *> &portfolioVec) {
     thePortfolio = portfolioVec;
 }
+
+JSONReader::~JSONReader() {
+    for (Trade* trade : thePortfolio) {
+        delete trade;
+    }
+    thePortfolio.clear();
+}
+
 vector<Trade *> JSONReader::getPortfolio() { return thePortfolio; };
 
 void JSONReader::constructPortfolio() {

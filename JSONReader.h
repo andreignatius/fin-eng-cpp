@@ -33,6 +33,9 @@ class JSONReader {
         std::cout << "Start JSONReader constructor" << std::endl;
     };
 
+    // Destructor
+    ~JSONReader();
+
     // setter getters
     void setFileName(const std::string &filename);
     std::string getFileName() const;
