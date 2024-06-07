@@ -47,7 +47,7 @@ The project takes in market data in .txt or .csv or .json format, as well as use
 - Time between maturity and start date is annualized using the following formula: (Maturity Date - Start Date)/ 365.25
 - Start date refers to the start date of the swap
 - Assume no forward start
-- Linear interpolation of discount factor
+- Linear interpolation of discount factor, where the rate curve is assumed to be zero coupons rates
 - Fixed rate given is annual rate,
 - FixedLegPV = annuity * (fixedRate / frequency)
 - FloatLegPV = notional * (1 - DF_last), where DF_last refers to the discount factor at the time of the final cashflow exchange
