@@ -139,7 +139,6 @@ int main() {
     vector<Trade *> myPortfolio;
     JSONReader myJSONReader((DATA_PATH / "portfolio.json").string(), mkt,
                             myPortfolio);
-    std::cout << "porfolio from JSON" << std::endl;
     myJSONReader.constructPortfolio();
     myJSONReader.getMarketObject().Print();
 
@@ -172,17 +171,15 @@ int main() {
     logger.info("Starting the application.");
     // Log data path
     logger.info("Ouput path: " + OUTPUT_PATH.string());
-    std::cout << "============Start of Part 3============" << std::endl;
+    std::cout << "\n============Start of Part 3============" << std::endl;
 
     Pricer *treePricer = new CRRBinomialTreePricer(100);
 
     std::vector<double> pricingResults;
     for (auto trade : myPortfolio) {
-        std::cout << "trade: " << trade->getType() << ", underlying: " << trade->getUnderlying() << std::endl;
         double pv = treePricer->Price(mkt, trade);
         pricingResults.push_back(pv);
-        std::cout << "trade: " << trade->getType() << " "
-                  << trade->getUnderlying() << std::endl;
+ 
         std::cout << "*****Priced trade with PV*****: " << pv << std::endl;
         // log pv details out in a file
         //  Optionally write to a file or store results
@@ -200,15 +197,26 @@ int main() {
     // task 4, analyzing pricing result
     // a) compare CRR binomial tree result for a European option vs
     // Black-Scholes model results should converge over time
+    std::cout << "\n============Start of Part 4============" << std::endl;
+    std::cout << "a) Comparing European Option pricing methods" << std::endl;
+
     for (auto trade : myPortfolio) {
         EuropeanOption *euroOption = dynamic_cast<EuropeanOption *>(trade);
         if (euroOption) {
+            std::string opt_type_str = "";
+            OptionType opt_type = euroOption->getOptionType();
+            if (opt_type == Call){
+                opt_type_str = "CALL";
+            } else if (opt_type == Put){
+                opt_type_str = "PUT";
+            }                  
+            std::cout<<"\nUnderlying: " << trade->getUnderlying()<<", Instrument : "<< euroOption->getType() <<", Option type : "<<opt_type_str<< ", Strike : " << euroOption->getStrike()<<std::endl; 
             double bsPrice = BlackScholesPricer::Price(mkt, *euroOption);
             double crrPrice = treePricer->Price(mkt, euroOption);
             std::cout << "Comparing European Option: " << std::endl;
             std::cout << "Black-Scholes Price: " << bsPrice << std::endl;
             std::cout << "CRR Binomial Tree Price: " << crrPrice << std::endl;
-            logger.info("Comparing European Option: ");
+            logger.info("Comparing European Option BS vs CRR Tree: ");
             logger.info("Black-Scholes Price: " + std::to_string(bsPrice));
             logger.info("CRR Binomial Tree Price: " + std::to_string(crrPrice));
         }
@@ -220,15 +228,15 @@ int main() {
     // (1) option type ( call / put )
     // (2) strike price
     // (3) expiration date
+    std::cout << "\nb) Comparing pricing results between Amer vs Euro, Call vs Put" << std::endl;
+
     for (const auto& entry : securityMap) {
 	    const SecurityKey& key = entry.first;
 	    const std::vector<Trade*>& trades = entry.second;
 
 	    std::vector<AmericanOption*> americanOptions;
 	    std::vector<EuropeanOption*> europeanOptions;
-
-	    std::cout << "Key - OptionType: " << key.optionType << " Strike: " << key.strike << ", Expiry: " << key.expiry.toString() << std::endl;
-        
+                
 
 	    // Separate American and European options
 	    for (auto* trade : trades) {
@@ -239,26 +247,26 @@ int main() {
 	        }
 	    }
 
-	    std::cout << "American options size: " << americanOptions.size() << std::endl;
-        std::cout << "European options size: " << europeanOptions.size() << std::endl;
-
+	    // std::cout << "American options size: " << americanOptions.size() << std::endl;
+        // std::cout << "European options size: " << europeanOptions.size() << std::endl;
+        std::cout << "\nComparing American and European Options for Type: " << OptionTypeToString(key.optionType)
+	                          << ", Strike: " << key.strike << ", Expiry: " << key.expiry << std::endl;
 	    // Compare options if both types are present
 	    if (!americanOptions.empty() && !europeanOptions.empty()) {
 	        for (auto* amerOption : americanOptions) {
 	            double amerPrice = treePricer->Price(mkt, amerOption);
+                logger.info("Comparing American Option with European Option: ");
 	            logger.info("Processing American Option. Underlying= " + amerOption->getUnderlying() +", Type= " + OptionTypeToString(amerOption->getOptionType()) + ", Strike= " + std::to_string(amerOption->getStrike()) +
                     ", Expiry= " + amerOption->GetExpiry().toString()); // !!!
 	            for (auto* euroOption : europeanOptions) {
 	                double euroPrice = treePricer->Price(mkt, euroOption);
 	                logger.info("Processing European Option. Underlying= " + euroOption->getUnderlying() +", Type= " + OptionTypeToString(euroOption->getOptionType()) + ", Strike= " + std::to_string(euroOption->getStrike()) +
                     ", Expiry= " + euroOption->GetExpiry().toString()); // !!!
-	                std::cout << "Comparing American and European Options for Type: " << OptionTypeToString(key.optionType)
-	                          << ", Strike: " << key.strike << ", Expiry: " << key.expiry << std::endl;
+	                
 	                // Log or further process the comparison as needed
 	                std::cout << "Comparing American Option with European Option: " << std::endl;
 		            std::cout << "*****American Option Price*****: " << amerPrice << std::endl;
 		            std::cout << "*****European Option Price*****: " << euroPrice << std::endl;
-		            logger.info("Comparing American Option with European Option: ");
 		            logger.info("*****American Option Price*****: " + std::to_string(amerPrice));
 		            logger.info("*****European Option Price*****: " + std::to_string(euroPrice));
 	            }
@@ -267,6 +275,8 @@ int main() {
 	}
 
     // final
-    cout << "Project build successfully!" << endl;
+    std::cout << "\nProject build successfully!" << std::endl;
+    logger.info("Ending the application.");
+
     return 0;
 }
