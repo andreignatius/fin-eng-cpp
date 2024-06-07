@@ -1,5 +1,6 @@
 #include "EuropeanTrade.h"
 #include <algorithm>
+#include <sstream>
 
 EuropeanOption::EuropeanOption()
     : TreeProduct("EuropeanOption", Date(), "") {}
@@ -12,6 +13,13 @@ EuropeanOption::EuropeanOption(OptionType optType, double strike, const Date &ex
 
 double EuropeanOption::Payoff(double S) const {
     return PAYOFF::VanillaOption(optType, strike, S);
+}
+
+std::string EuropeanOption::toString() const {
+    std::ostringstream oss;
+    oss << "Type: " << OptionTypeToString(optType) << ", Expiry Date: " << expiryDate.toString()
+        << ", Underlying: " << underlying << ", UUID: " << uuid;
+    return oss.str();
 }
 
 const Date& EuropeanOption::GetExpiry() const {

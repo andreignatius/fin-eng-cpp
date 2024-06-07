@@ -13,6 +13,7 @@ public:
         startDate(start), maturityDate(end), couponRate(_couponRate), underlying(_underlying), uuid(_uuid) {}
 
     double Payoff(double marketPrice) const override;
+    std::string toString() const;
 
 private:
     double notional;

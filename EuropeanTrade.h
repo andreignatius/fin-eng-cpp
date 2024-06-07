@@ -4,6 +4,7 @@
 #include <cassert>
 #include "TreeProduct.h"
 #include "Types.h"
+#include "Utils.h"
 #include "Payoff.h" // Include if PAYOFF namespace functions are defined here
 
 class EuropeanOption : public TreeProduct {
@@ -17,6 +18,7 @@ public:
     double getStrike() const;
     OptionType getOptionType() const;
     virtual double ValueAtNode(double S, double t, double continuation) const override;
+    std::string toString() const;
 
 protected:
     OptionType optType;
