@@ -1,7 +1,8 @@
 [
     {
+        "uuid":"001",
         "instrument":"BOND",
-        "name":"SGD-GOV",
+        "name":"SGD-GOV-01",
         "start_date":"2024-1-1",
         "end_date":"2034-01-01",
         "price":103.5,
@@ -9,8 +10,9 @@
         "coupon_rate_pct":2.5
     },
     {
+        "uuid":"002",
         "instrument":"BOND",
-        "name":"SGD-GOV",
+        "name":"SGD-GOV-02",
         "start_date":"2024-1-1",
         "end_date":"2029-1-1",
         "price":103.5,
@@ -18,8 +20,9 @@
         "coupon_rate_pct":2.5
     },
     {
+        "uuid":"003",
         "instrument":"BOND",
-        "name":"USD-GOV",
+        "name":"USD-GOV-01",
         "start_date":"2024-1-1",
         "end_date":"2034-01-01",
         "price":110,
@@ -27,8 +30,9 @@
         "coupon_rate_pct":2.5
     },
     {
+        "uuid":"004",
         "instrument":"BOND",
-        "name":"USD-GOV",
+        "name":"USD-GOV-02",
         "start_date":"2024-1-1",
         "end_date":"2029-1-1",
         "price":110,
@@ -36,6 +40,7 @@
         "coupon_rate_pct":2.5
     },
     {
+        "uuid":"005",
         "instrument":"SWAP",
         "name":"SWAP_1A",
         "start_date":"2024-1-1",
@@ -47,6 +52,7 @@
         "curve_name":"USD-SOFR"
     },
     {
+        "uuid":"006",
         "instrument":"SWAP",
         "name":"SWAP_1B",
         "start_date":"2024-1-1",
@@ -58,6 +64,7 @@
         "curve_name":"USD-SOFR"
     },
     {
+        "uuid":"007",
         "instrument":"SWAP",
         "name":"SWAP_2A",
         "start_date":"2024-1-1",
@@ -69,6 +76,7 @@
         "curve_name":"USD-SOFR"
     },
     {
+        "uuid":"008",
         "instrument":"SWAP",
         "name":"SWAP_2B",
         "start_date":"2024-1-1",
@@ -80,6 +88,7 @@
         "curve_name":"USD-SOFR"
     },
     {
+        "uuid":"009",
         "instrument":"EURO_OPTION",
         "type":"CALL",
         "name":"EURO_OPTION_ITM_1",
@@ -88,6 +97,7 @@
         "underlying":"AAPL"
     },
     {
+        "uuid":"010",
         "instrument":"EURO_OPTION",
         "type":"PUT",
         "name":"EURO_OPTION_ITM_2",
@@ -96,6 +106,7 @@
         "underlying":"AAPL"
     },
     {
+        "uuid":"011",
         "instrument":"EURO_OPTION",
         "type":"CALL",
         "name":"EURO_OPTION_OTM_1",
@@ -104,6 +115,7 @@
         "underlying":"AAPL"
     },
     {
+        "uuid":"012",
         "instrument":"EURO_OPTION",
         "type":"PUT",
         "name":"EURO_OPTION_2_OTM_2",
@@ -112,6 +124,7 @@
         "underlying":"AAPL"
     },
     {
+        "uuid":"013",
         "instrument":"AMERICAN_OPTION",
         "type":"CALL",
         "name":"AMERICAN_OPTION_ITM_1",
@@ -120,6 +133,7 @@
         "underlying":"AAPL"
     },
     {
+        "uuid":"014",
         "instrument":"AMERICAN_OPTION",
         "type":"PUT",
         "name":"AMERICAN_OPTION_ITM_2",
@@ -128,6 +142,7 @@
         "underlying":"AAPL"
     },
     {
+        "uuid":"015",
         "instrument":"AMERICAN_OPTION",
         "type":"CALL",
         "name":"AMERICAN_OPTION_OTM_1",
@@ -136,6 +151,7 @@
         "underlying":"AAPL"
     },
     {
+        "uuid":"016",
         "instrument":"AMERICAN_OPTION",
         "type":"PUT",
         "name":"AMERICAN_OPTION_OTM_2",
