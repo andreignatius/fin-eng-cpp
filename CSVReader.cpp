@@ -1,11 +1,46 @@
 #include "CSVReader.h"
 
+// void CSVReader::setFileName(const std::string &filename) {
+//     myfilename = filename;
+// }
+
+// std::string CSVReader::getFileName() {
+//     return myfilename;
+// }
+
+// Market CSVReader::getMarketObject() const { return theMarket; };
+
 void CSVReader::setFileName(const std::string &filename) {
     myfilename = filename;
 }
-std::string CSVReader::getFileName(const std::string &filename) {
+
+std::string CSVReader::getFileName() const {
     return myfilename;
 }
+
+void CSVReader::setMarketObject(const Market &marketObj) {
+    theMarket = marketObj;
+}
+
+Market CSVReader::getMarketObject() const {
+    return theMarket;
+}
+
+void CSVReader::setPortfolio(vector<Trade *> &portfolioVec) {
+    thePortfolio = portfolioVec;
+}
+
+CSVReader::~CSVReader() {
+    for (Trade* trade : thePortfolio) {
+        delete trade;
+    }
+    thePortfolio.clear();
+}
+
+vector<Trade *> CSVReader::getPortfolio() {
+    return thePortfolio;
+}
+
 std::unordered_map<std::string, std::vector<std::string>>
 CSVReader::parseFile() {
     std::string lineText;
@@ -36,6 +71,7 @@ CSVReader::parseFile() {
     MyReadFile.close();
     return myMap;
 }
+
 std::vector<std::string> CSVReader::parseRow(const std::string &row,
                                              const char &delim) {
     std::vector<std::string> result;
@@ -46,6 +82,77 @@ std::vector<std::string> CSVReader::parseRow(const std::string &row,
     }
     return result;
 }
+
+void CSVReader::constructPortfolio() {
+    std::ifstream MyReadFile(myfilename);
+    std::string lineText;
+    std::vector<std::string> headers;
+    int lineCount = 0;
+
+    if (!MyReadFile.is_open()) {
+        throw std::runtime_error("Could not open file: " + myfilename);
+    }
+
+    while (getline(MyReadFile, lineText)) {
+        std::vector<std::string> rowData = parseRow(lineText, ';');
+
+        if (lineCount == 0) {
+            headers = rowData;
+        } else {
+            std::map<std::string, std::string> dataMap;
+            for (size_t i = 0; i < headers.size(); ++i) {
+                dataMap[headers[i]] = i < rowData.size() ? rowData[i] : "";
+            }
+
+            if (dataMap["type"] == "bond") {
+                auto bond = new Bond(
+                    Date::FromString(dataMap["start"]),
+                    Date::FromString(dataMap["end"]),
+                    std::stod(dataMap["notional"]),
+                    std::stod(dataMap["strike"]), // Assuming 'strike' here represents coupon rate for bonds
+                    dataMap["underlying"],
+                    dataMap["Id"]);
+                thePortfolio.push_back(bond);
+            } else if (dataMap["type"] == "swap") {
+                auto swap = new Swap(
+                    Date::FromString(dataMap["start"]),
+                    Date::FromString(dataMap["end"]),
+                    std::stod(dataMap["notional"]),
+                    std::stod(dataMap["strike"]), // Assuming 'strike' is used for the fixed rate in swaps
+                    std::stod(dataMap["freq"]),
+                    dataMap["fixed_for_float"] == "true",
+                    theMarket, // Use the member Market object
+                    dataMap["curveName"],
+                    dataMap["Id"]);
+                thePortfolio.push_back(swap);
+            } else if (dataMap["type"].find("opt") != std::string::npos) {
+                // Differentiate between European and American options
+                Option* option;
+                if (dataMap["type"].substr(0, 3) == "eur") {
+                    option = new EuropeanOption(
+                        dataMap["underlying"],
+                        Date::FromString(dataMap["end"]),
+                        std::stod(dataMap["strike"]),
+                        dataMap["opt"],
+                        std::stoi(dataMap["notional"]),
+                        dataMap["Id"]);
+                } else {
+                    option = new AmericanOption(
+                        dataMap["underlying"],
+                        Date::FromString(dataMap["end"]),
+                        std::stod(dataMap["strike"]),
+                        dataMap["opt"],
+                        std::stoi(dataMap["notional"]),
+                        dataMap["Id"]);
+                }
+                thePortfolio.push_back(option);
+            }
+        }
+        ++lineCount;
+    }
+}
+
+
 
 /*
 int main() {

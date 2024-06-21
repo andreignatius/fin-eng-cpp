@@ -11,6 +11,7 @@
 #include "Bond.h"
 #include "EuropeanTrade.h"
 #include "JSONReader.h"
+#include "CSVReader.h"
 #include "Market.h"
 #include "Pricer.h"
 #include "Swap.h"
@@ -75,6 +76,10 @@ int main() {
     // from txt file
     std::filesystem::path DATA_PATH =
         std::filesystem::current_path() / "../../data";
+
+    std::filesystem::path MKT_DATA_PATH =
+        std::filesystem::current_path() / "../../market_data";
+
     std::time_t t = std::time(0);
     auto now_ = std::localtime(&t);
     Date valueDate;
@@ -128,8 +133,14 @@ int main() {
                             myPortfolio);
     myJSONReader.constructPortfolio();
     myJSONReader.getMarketObject().Print();
+    // vector<Trade *> myPortfolio;
+    // CSVReader myCSVReader((MKT_DATA_PATH / "portfolio.txt").string(), mkt,
+    //                         myPortfolio);
+    // CSVReader.constructPortfolio();
+    // CSVReader.getMarketObject().Print();
 
     // why do i need to re-set myPortfolio?
+    // myPortfolio = CSVReader.getPortfolio();
     myPortfolio = myJSONReader.getPortfolio();
     std::unordered_map<SecurityKey, std::vector<Trade*>, SecurityHash> securityMap;
 	
