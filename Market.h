@@ -5,7 +5,7 @@
 #include <vector>
 #include <unordered_map>
 #include "Date.h"
-
+#include "Factory.h"
 #include <string>
 
 using namespace std;
