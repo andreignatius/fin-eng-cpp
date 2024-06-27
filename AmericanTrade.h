@@ -4,6 +4,7 @@
 #include <cassert> 
 
 #include "TreeProduct.h"
+#include "Factory.h"
 #include "Types.h"
 #include "Payoff.h"
 
