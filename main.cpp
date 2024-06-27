@@ -6,7 +6,7 @@
 #include <string>
 #include <sstream>
 #include <map>
-
+#include "Factory.h"
 #include "Market.h"
 #include "Pricer.h"
 #include "EuropeanTrade.h"
