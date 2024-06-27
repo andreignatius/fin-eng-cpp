@@ -1,6 +1,6 @@
 #ifndef _BLACK_SCHOLES_PRICER_H
 #define _BLACK_SCHOLES_PRICER_H
-
+#include "Factory.h"
 #include "Market.h"
 #include "EuropeanTrade.h"
 #include <cmath>
