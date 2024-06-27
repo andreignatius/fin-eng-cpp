@@ -1,3 +1,4 @@
+#include "Factory.h"
 #include "Market.h"
 
 using namespace std;
