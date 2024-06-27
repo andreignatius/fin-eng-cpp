@@ -1,0 +1,73 @@
+#
+Bond Holdings: SGD-GOV, Present Value: -100000#
+#
+Bond Holdings: USD-GOV, Present Value: -190000#
+#
+Bond Holdings: NoDataBond, Present Value: 1.035e+07#
+#
+Swap Holdings: USD-SOFR, Present Value: -74609.7#
+#
+Swap Holdings: NoSwap, Present Value: 183715#
+#
+Swap Holdings: wrongfrequency, Present Value: 0#
+#
+EuroOption 0: APPL, Present Value: 11.9068#
+extracted info: Asset=APPL, expiry=2024 7 20
+, strike=690, OptType=0, r=0.0552155, vol=0.230308, T=0.161187#
+Option Value by Black-Scholes is 11.8969#
+#
+AmericanOption 0: APPL, Present Value: 11.7788#
+#
+EuroOption 1: SP500, Present Value: 146.583#
+extracted info: Asset=SP500, expiry=2024 7 19
+, strike=5000, OptType=1, r=0.0552222, vol=0.231212, T=0.158447#
+Option Value by Black-Scholes is 146.461#
+#
+AmericanOption 1: SP500, Present Value: 149.666#
+#
+EuroOption 2: STI, Present Value: 0.463647#
+extracted info: Asset=STI, expiry=2024 9 19
+, strike=3500, OptType=2, r=0.0548498, vol=0.196794, T=0.325114#
+Option Value by Black-Scholes is 0.450772#
+#
+AmericanOption 2: STI, Present Value: 0.834143#
+#
+EuroOption 3: STI, Present Value: 0.341572#
+extracted info: Asset=STI, expiry=2024 9 19
+, strike=3300, OptType=3, r=0.0548498, vol=0.196794, T=0.325114#
+Option Value by Black-Scholes is 0.330876#
+#
+AmericanOption 3: STI, Present Value: 0.700159#
+#
+EuroCallSpread: SP500, Present Value: 68.3035#
+#
+AmerCallSpread: SP500, Present Value: 68.3035#
+#
+EuroOption 0: NoName, Present Value: 0#
+extracted info: Asset=NoName, expiry=2024 8 19
+, strike=690, OptType=0, r=0.0550199, vol=0.203712, T=0.241781#
+Option Value by Black-Scholes is 0#
+#
+AmerCallSpread: NoName2, Present Value: 0#
+#
+Bond Holdings: SGD-GOV, Present Value: -100000#
+#
+Bond Holdings: SGD-GOV, Present Value: 50000#
+#
+Swap Holdings: USD-SOFR, Present Value: 311105#
+#
+Swap Holdings: USD-SOFR, Present Value: -223276#
+#
+EuroOption 0: APPL, Present Value: 53.3152#
+extracted info: Asset=APPL, expiry=2025 12 31
+, strike=700, OptType=0, r=0.0541448, vol=0.146648, T=1.60799#
+Option Value by Black-Scholes is 53.2774#
+#
+EuroOption 1: APPL, Present Value: 42.9479#
+extracted info: Asset=APPL, expiry=2025 12 31
+, strike=700, OptType=1, r=0.0541448, vol=0.146648, T=1.60799#
+Option Value by Black-Scholes is 42.91#
+#
+AmericanOption 0: APPL, Present Value: 53.3152#
+#
+AmericanOption 1: APPL, Present Value: 56.671#

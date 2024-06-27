@@ -1,0 +1,16 @@
+Id;type;underlying;start;end;notional;freq;strike;opt;
+1;bond;usd-gov;2024-06-01;2034-06-01;1000000;0.5;0.025;null;
+2;bond;usd-gov;2024-06-01;2044-06-01;-500000;0.5;0.02;null;
+3;swap;usd-sofr;2024-06-01;2034-06-01;-1000000;1.0;0.0375;null;
+4;swap;usd-sofr;2024-06-01;2030-06-01;2000000;0.5;0.043;null;
+5;swap;usd-sofr;2025-06-01;2030-06-01;5000000;1.0;0.032;null;
+6;swap;usd-sofr;2024-06-01;2032-06-01;1000000;0.5;0.04;null;
+7;eur-opt;appl;null;2026-06-01;200;null;655;call;
+8;eur-opt;sp500;null;2026-06-01;100;null;5020;call;
+9;eur-opt;sti;null;2026-06-01;400;null;3400;call;
+10;eur-opt;usd-sofr;2029-06-01;10000000;null;0.034;call;
+11;eur-opt;usd-sofr;2034-06-01;10000000;null;0.03;put;
+12;am-opt;appl;null;2026-06-01;200;null;645;put;
+13;am-opt;sp500;null;2027-06-01;100;null;5000;put;
+14;am-opt;sti;null;2028-06-01;1000;null;3500;put;
+15;am-opt;usd-sofr;null;2030-06-01;100000000;1.0;0.0375;call;
