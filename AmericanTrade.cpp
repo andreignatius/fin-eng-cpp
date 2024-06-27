@@ -1,4 +1,5 @@
 #include "AmericanTrade.h"
+#include "Factory.h"
 #include <algorithm>
 
 AmericanOption::AmericanOption(OptionType optType, double strike, const Date& expiry, const string& underlying)
