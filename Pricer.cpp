@@ -1,7 +1,7 @@
 #include "Pricer.h"
 #include <cmath>
 #include <iostream>
-
+#include "Factory.h"
 #include "Types.h"
 #include <ctime>
 
