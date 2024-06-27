@@ -1,4 +1,5 @@
 #include "BlackScholesPricer.h"
+#include "Factory.h"
 #include <random>
 
 double BlackScholesPricer::normcdf(double value) {
