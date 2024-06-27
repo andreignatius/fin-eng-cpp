@@ -2,7 +2,7 @@
 #define DATE_H
 
 #include <iostream>
-
+#include "Factory.h"
 #include <sstream>
 
 class Date
