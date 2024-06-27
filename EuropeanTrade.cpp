@@ -1,6 +1,6 @@
 #include "EuropeanTrade.h"
 #include <algorithm>
-
+#include "Factory.h"
 EuropeanOption::EuropeanOption()
     : TreeProduct("EuropeanOption", Date(), "") {}
 
