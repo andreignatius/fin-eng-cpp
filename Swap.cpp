@@ -2,7 +2,7 @@
 #include "Market.h"
 #include "Date.h"
 #include "Swap.h"
-
+#include "Factory.h"
 // Implement getAnnuity method
 double Swap::getAnnuity(const RateCurve& rates) const {
     time_t t = time(0);
