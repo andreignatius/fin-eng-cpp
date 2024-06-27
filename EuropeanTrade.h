@@ -2,7 +2,7 @@
 #define _EUROPEAN_TRADE
 
 #include <cassert> 
-
+#include "Factory.h"
 #include "TreeProduct.h"
 #include "Payoff.h"
 #include "Types.h"
