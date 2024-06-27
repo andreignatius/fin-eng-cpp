@@ -7,7 +7,7 @@
 #include "Trade.h"
 #include "TreeProduct.h"
 #include "Market.h"
-
+#include "Factory.h"
 #include "Bond.h"
 #include "Swap.h"
 
