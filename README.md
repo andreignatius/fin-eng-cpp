@@ -1,6 +1,12 @@
-FULL set of QF633 part1 project
+FULL set of QF633 part2 project
 developed in Windows Visual Studio
 NOT TO DIRECT MERGE with main (which is from apple VS code)
+Revision notes:
+1. tree pricer for Amer options using step interest interpolated from curve
+2. new pricer for BS analytical price, rather just raw functions
+3. try to adopt on factory style of trade creation
+4. calibration of tree pricer will first use a flat rate same as Euro options
+5. Re-construct on pricer logics as according to lastest portoflio input format
 
 
 # file adding list as per windows visual studio sequence:
