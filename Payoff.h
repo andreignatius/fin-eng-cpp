@@ -1,7 +1,7 @@
 #ifndef PAYOFF_H
 #define PAYOFF_H
 #include "Types.h"
-
+#include "Factory.h"
 namespace PAYOFF
 {
   double VanillaOption(OptionType optType, double strike, double S)
