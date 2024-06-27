@@ -1,7 +1,7 @@
 #pragma once
 #include<string>
 #include "Date.h"
-
+#include "Factory.h"
 using namespace std;
 
 class Trade {
