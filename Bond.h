@@ -1,6 +1,6 @@
 #pragma once
 #include "Trade.h"
-
+#include "Factory.h"
 
 class Bond : public Trade {
 public:
