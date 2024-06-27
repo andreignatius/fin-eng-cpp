@@ -1,5 +1,5 @@
 #include "Bond.h"
-
+#include "Factory.h"
 double Bond::Payoff(double marketPrice) const {
 	std::cout << "*bondPrice: " << marketPrice << std::endl;
 	double priceDifference = (marketPrice - tradePrice) / 100;  // Adjusted for bond pricing
