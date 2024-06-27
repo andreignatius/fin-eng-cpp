@@ -2,7 +2,7 @@
 #define _TREE_PRODUCT_H
 #include "Date.h"
 #include "Trade.h"
-
+#include "Factory.h"
 //option type of trade, will be priced using tree model
 class TreeProduct: public Trade
 {
