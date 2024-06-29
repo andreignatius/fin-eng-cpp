@@ -186,13 +186,25 @@ void Market::addStockPrice(const std::string &stockName, double price) {
     stockPrices[stockName] = price;
 }
 
-RateCurve Market::getCurve(const string& name) const {
-    auto defaultIt = this->rateCurves.find(name);
-    if (defaultIt != this->rateCurves.end()) {
-        return defaultIt->second;
-    } else{
-        throw std::invalid_argument("invalid rate curve name supplied");
+// RateCurve Market::getCurve(const string& name) const {
+//     auto defaultIt = this->rateCurves.find(name);
+//     if (defaultIt != this->rateCurves.end()) {
+//         return defaultIt->second;
+//     } else{
+//         throw std::invalid_argument("invalid rate curve name supplied");
+//     }
+// }
+
+// Retrieve curve or price information
+RateCurve Market::getCurve(const Date& date, const string& curveName) const {
+    auto itDate = dailyCurves.find(date);
+    if (itDate != dailyCurves.end()) {
+        auto itCurve = itDate->second.find(curveName);
+        if (itCurve != itDate->second.end()) {
+            return itCurve->second;
+        }
     }
+    throw runtime_error("Curve not found for given date and name.");
 }
 
 VolCurve Market::getVolCurve(const string& name) const {
@@ -359,31 +371,98 @@ void Market::updateMarketFromStockFile(const std::string &filePath) {
     }
 }
 
-// JOS : assumes input csv contains 2 columns : tenor | rate
-void Market::updateMarketFromCurveFile(const std::string &filePath,
-                                       const std::string &curveName) {
+// // JOS : assumes input csv contains 2 columns : tenor | rate
+// void Market::updateMarketFromCurveFile(const std::string &filePath,
+//                                        const std::string &curveName) {
 
-    RateCurve rateCurve(curveName, this->asOf);
+//     RateCurve rateCurve(curveName, this->asOf);
+
+//     if (filePath.find(".csv") != std::string::npos) {
+//         std::unordered_map<std::string, std::vector<std::string>> curveMap;
+//         CSVReader myCSVReader = CSVReader(filePath);
+//         curveMap = myCSVReader.parseFile();
+
+//         // further processing after parsing the csv file
+//         for (int i = 0; i < curveMap["tenor"].size(); i++) {
+//             double rateToDecimal = std::stod(curveMap["rate"][i].substr(
+//                                        0, curveMap["rate"][i].size() - 1)) /
+//                                    100;
+//             double mappedTenorMonths = tenorMap[curveMap["tenor"][i]];
+//             Date tenorDate = this->asOf; // Use the market's current date
+//             tenorDate.addMonths(
+//                 mappedTenorMonths); // our Date class uses TM which takes
+//                                     // integer for year and month, so we work
+//                                     // with months
+//             rateCurve.addRate(tenorDate, rateToDecimal);
+//         }
+
+//     } else {
+//         std::ifstream file(filePath);
+//         if (!file.is_open()) {
+//             std::cerr << "Failed to open file: " << filePath << std::endl;
+//             return;
+//         }
+//         std::string line;
+//         getline(file, line); // skip header line of curve.txt
+
+//         while (getline(file, line)) {
+//             std::istringstream iss(line);
+//             double rate;
+//             char delimiter;
+
+//             // Find the position of the colon
+//             size_t colonPos = line.find(':');
+//             if (colonPos == std::string::npos) {
+//                 std::cout << "Failed to find colon in line: " << line << std::endl;
+//                 continue; // Skip this line if no colon found
+//             }
+
+//             // Split the line into tenorStr and rateStr assuming a space after the colon
+//             std::string tenor = line.substr(0, colonPos);
+//             std::string rateStr = line.substr(colonPos + 2); // +2 to skip ": "
+//             rateStr.pop_back();
+//             rate=std::stod(rateStr)/100.0; // Convert percentage to decimal
+//             // Remove last character ('M' or 'Y') and calculate months
+//             int numMonths;
+//             if (tenor == "ON") {
+//                 numMonths = 0;  // Overnight doesn't add months
+//             } else {
+//                 numMonths = std::stoi(tenor.substr(0, tenor.size() - 1));
+//                 if (tenor.back() == 'Y') {
+//                     numMonths *= 12;
+//                 }
+//             }
+//             Date tenorDate = this->asOf; // Use the market's current date
+//             tenorDate.addMonths(numMonths);
+//             rateCurve.addRate(tenorDate, rate);
+//         }
+//         file.close();
+//     }
+//     this->addCurve(
+//         curveName,
+//         rateCurve); // Use the existing method to add the curve to the market
+// }
+
+void Market::updateMarketFromCurveFile(const std::string &filePath,
+                                       const std::string &curveName,
+                                       const Date &specificDate) { // Add Date parameter to specify which day's data is being updated
+
+    RateCurve rateCurve(curveName, specificDate); // Use specificDate instead of this->asOf
 
     if (filePath.find(".csv") != std::string::npos) {
         std::unordered_map<std::string, std::vector<std::string>> curveMap;
         CSVReader myCSVReader = CSVReader(filePath);
         curveMap = myCSVReader.parseFile();
 
-        // further processing after parsing the csv file
         for (int i = 0; i < curveMap["tenor"].size(); i++) {
             double rateToDecimal = std::stod(curveMap["rate"][i].substr(
                                        0, curveMap["rate"][i].size() - 1)) /
                                    100;
             double mappedTenorMonths = tenorMap[curveMap["tenor"][i]];
-            Date tenorDate = this->asOf; // Use the market's current date
-            tenorDate.addMonths(
-                mappedTenorMonths); // our Date class uses TM which takes
-                                    // integer for year and month, so we work
-                                    // with months
+            Date tenorDate = specificDate;
+            tenorDate.addMonths(mappedTenorMonths);
             rateCurve.addRate(tenorDate, rateToDecimal);
         }
-
     } else {
         std::ifstream file(filePath);
         if (!file.is_open()) {
@@ -391,45 +470,41 @@ void Market::updateMarketFromCurveFile(const std::string &filePath,
             return;
         }
         std::string line;
-        getline(file, line); // skip header line of curve.txt
+        getline(file, line); // skip header line
 
         while (getline(file, line)) {
             std::istringstream iss(line);
+            std::string tenor;
             double rate;
             char delimiter;
 
-            // Find the position of the colon
             size_t colonPos = line.find(':');
             if (colonPos == std::string::npos) {
-                std::cout << "Failed to find colon in line: " << line << std::endl;
-                continue; // Skip this line if no colon found
+                std::cerr << "Failed to find colon in line: " << line << std::endl;
+                continue;
             }
 
-            // Split the line into tenorStr and rateStr assuming a space after the colon
-            std::string tenor = line.substr(0, colonPos);
-            std::string rateStr = line.substr(colonPos + 2); // +2 to skip ": "
-            rateStr.pop_back();
-            rate=std::stod(rateStr)/100.0; // Convert percentage to decimal
-            // Remove last character ('M' or 'Y') and calculate months
-            int numMonths;
-            if (tenor == "ON") {
-                numMonths = 0;  // Overnight doesn't add months
-            } else {
-                numMonths = std::stoi(tenor.substr(0, tenor.size() - 1));
-                if (tenor.back() == 'Y') {
-                    numMonths *= 12;
-                }
+            std::string tenorStr = line.substr(0, colonPos);
+            std::string rateStr = line.substr(colonPos + 2); // Skip ": "
+            rateStr.pop_back(); // Remove the '%' or any trailing character
+            rate = std::stod(rateStr) / 100.0; // Convert percentage to decimal
+
+            int numMonths = tenorStr == "ON" ? 0 : std::stoi(tenorStr.substr(0, tenorStr.size() - 1));
+            if (tenorStr.back() == 'Y') {
+                numMonths *= 12; // Convert years to months
             }
-            Date tenorDate = this->asOf; // Use the market's current date
+
+            Date tenorDate = specificDate;
             tenorDate.addMonths(numMonths);
             rateCurve.addRate(tenorDate, rate);
         }
         file.close();
     }
-    this->addCurve(
-        curveName,
-        rateCurve); // Use the existing method to add the curve to the market
+
+    // Ensure the map for the specific date exists and then add or update the rate curve
+    dailyCurves[specificDate][curveName] = rateCurve;
 }
+
 
 // TODO : get spot price, get vol and get rate implementation needs to be
 // refactored JOS: Get spot looks ok

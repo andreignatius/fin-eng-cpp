@@ -69,7 +69,7 @@ class Market {
     void updateMarketFromVolFile(const std::string &filePath, const std::string& curveName); // Add this method
     void updateMarketFromBondFile(const std::string& filePath); // Method to load bond prices from a file
     void updateMarketFromStockFile(const std::string& filePath);  // Method to load stock prices from a file
-    void updateMarketFromCurveFile(const std::string& filePath, const std::string& curveName);
+    void updateMarketFromCurveFile(const std::string& filePath, const std::string& curveName, const Date &specificDate);
     
     double getSpotPrice(const std::string &assetName) const;
     double getBondPrice(const std::string &assetName) const;
@@ -85,6 +85,7 @@ class Market {
   private:
     unordered_map<string, VolCurve> volCurves;
     unordered_map<string, RateCurve> rateCurves;
+    unordered_map<Date, unordered_map<string, RateCurve>> dailyCurves; // Stores curves by date
     unordered_map<string, double> bondPrices;
     unordered_map<string, double> stockPrices;
     double riskFreeRate = Constants::RISK_FREE_RATE;

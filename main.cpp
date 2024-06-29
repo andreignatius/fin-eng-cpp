@@ -89,30 +89,39 @@ int main() {
     load data from file and update market object with data
     */
 
-    std::cout << DATA_PATH / "vol_bond.csv111" << std::endl;
-    mkt.updateMarketFromVolFile((DATA_PATH / "vol_bond.csv").string(),
-                                "BondTrade"); // Update market data from file
-    mkt.updateMarketFromVolFile((DATA_PATH / "vol_swap.csv").string(),
-                                "SwapTrade"); // Update market data from file
-    mkt.updateMarketFromVolFile(
-        (DATA_PATH / "vol_amer.csv").string(),
-        "AmericanOption"); // Update market data from file
-    mkt.updateMarketFromVolFile(
-        (DATA_PATH / "vol_euro.csv").string(),
-        "EuropeanOption"); // Update market data from file
-    // mkt.updateMarketFromVolFile("../../voldummycurve.csv", "vol");
+    mkt.updateMarketFromCurveFile((MKT_DATA_PATH / "usd_sofr_20240601.csv").string(),
+                                  "USD-SOFR", Date(2024, 6, 1));
+    mkt.updateMarketFromCurveFile((MKT_DATA_PATH / "usd_sofr_20240602.csv").string(),
+                                  "USD-SOFR", Date(2024, 6, 2));
+    // ### OLD DATA ###
+    // std::cout << DATA_PATH / "vol_bond.csv111" << std::endl;
+    // mkt.updateMarketFromVolFile((DATA_PATH / "vol_bond.csv").string(),
+    //                             "BondTrade"); // Update market data from file
+    // mkt.updateMarketFromVolFile((DATA_PATH / "vol_swap.csv").string(),
+    //                             "SwapTrade"); // Update market data from file
+    // mkt.updateMarketFromVolFile(
+    //     (DATA_PATH / "vol_amer.csv").string(),
+    //     "AmericanOption"); // Update market data from file
+    // mkt.updateMarketFromVolFile(
+    //     (DATA_PATH / "vol_euro.csv").string(),
+    //     "EuropeanOption"); // Update market data from file
+    // // mkt.updateMarketFromVolFile("../../voldummycurve.csv", "vol");
 
-    // mkt.updateMarketFromVolFile("../../data/vol.txt", "vol");
+    // // mkt.updateMarketFromVolFile("../../data/vol.txt", "vol");
 
-    mkt.updateMarketFromBondFile(
-        (DATA_PATH / "bondPrice.txt").string()); // Load bond prices
+    // mkt.updateMarketFromBondFile(
+    //     (DATA_PATH / "bondPrice.txt").string()); // Load bond prices
 
-    mkt.updateMarketFromStockFile(
-        (DATA_PATH / "stockPrice.csv").string()); // Load stock prices
-    // mkt.updateMarketFromCurveFile("../../data/curve.txt", "USD-SOFR");
-    mkt.updateMarketFromCurveFile((DATA_PATH / "sofrdummycurve.csv").string(),
-                                  "USD-SOFR");
-    mkt.Print(); // Check loaded data
+    // mkt.updateMarketFromStockFile(
+    //     (DATA_PATH / "stockPrice.csv").string()); // Load stock prices
+    // // mkt.updateMarketFromCurveFile("../../data/curve.txt", "USD-SOFR");
+    // mkt.updateMarketFromCurveFile((DATA_PATH / "sofrdummycurve.csv").string(),
+    //                               "USD-SOFR");
+    // mkt.Print(); // Check loaded data
+    // ######
+
+
+
 
     // TODO : create more bonds / swaps/ european option / american options
     // task 2, create a portfolio of bond, swap, european option, american
