@@ -5,6 +5,7 @@
 #include <iostream>
 #include <string>
 #include <mutex>
+#include "RiskPortfolio.h"
 
 #include "AmericanTrade.h"
 #include "BlackScholesPricer.h"
@@ -16,6 +17,8 @@
 #include "Swap.h"
 #include "Logger.h"
 #include "Utils.h"
+
+// using namespace Eigen;
 
 /*
 Comments: when using new, pls remember to use delete for ptr
@@ -288,6 +291,37 @@ int main() {
     // final
     std::cout << "\nProject build successfully!" << std::endl;
     logger.info("Ending the application.");
+
+
+    // Project 2
+
+    // Part 4 a: risk-off
+    // testing code
+            // Define DV01 and Vega coefficients for each trade
+    // Example data
+    Eigen::VectorXd dv01(3);
+    dv01 << 1000, -500, 200;
+
+    Eigen::VectorXd vega(3);
+    vega << 50, 70, -30;
+
+    Eigen::VectorXd price(3);
+    price << 100, 200, 150;
+
+    double capitalLimit = 100000;
+
+    // Create an instance of the RiskPortfolio class
+    RiskPortfolio riskPortfolio(dv01, vega, price, capitalLimit);
+
+    // Compute the optimal weights
+    Eigen::VectorXd weights = riskPortfolio.createRiskPortfolio();
+
+    // Output the results
+    std::cout << "Optimized weights to neutralize DV01 and Vega within capital limit:" << std::endl;
+    for (int i = 0; i < weights.size(); ++i) {
+        std::cout << "Weight for Trade " << i + 1 << ": " << weights[i] << std::endl;
+    }
+
 
     return 0;
 }
