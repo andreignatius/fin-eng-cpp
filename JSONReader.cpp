@@ -12,9 +12,6 @@ void JSONReader::setMarketObject(const Market &marketObj) {
 }
 Market JSONReader::getMarketObject() const { return theMarket; };
 
-// void JSONReader::setPortfolio(vector<Trade *> &portfolioVec) {
-//     thePortfolio = portfolioVec;
-// }
 void JSONReader::setPortfolio(std::vector<std::unique_ptr<Trade>>& portfolioVec) {
     thePortfolio = std::move(portfolioVec);
 }

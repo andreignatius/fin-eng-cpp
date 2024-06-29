@@ -131,11 +131,10 @@ int main() {
     myJSONReader.constructPortfolio();
     myJSONReader.getMarketObject().Print();
 
-    // // why do i need to re-set myPortfolio?
-    // myPortfolio = myJSONReader.getPortfolio();
+    // why do i need to re-set myPortfolio?
     // Move the portfolio
     myPortfolio = std::move(myJSONReader.getPortfolio());
-    
+
     std::unordered_map<SecurityKey, std::vector<Trade*>, SecurityHash> securityMap;
 	
 	for (auto& trade : myPortfolio) {
@@ -168,32 +167,6 @@ int main() {
     Pricer *treePricer = new CRRBinomialTreePricer(700);
 
     std::vector<double> pricingResults;
-    // for (auto trade : myPortfolio) {
-    //     double pv = treePricer->Price(mkt, trade);
-    //     pricingResults.push_back(pv);
-    //     std::string tradeInfo = "";
- 
-    //     std::cout << "*****Priced trade with PV*****: " << pv << std::endl;
-    //     // log pv details out in a file
-    //     //  Optionally write to a file or store results
-    //     // please output trade info such as id, trade type, notional, start/end/traded price and PV into a txt or csv file
-    //     // logger.info("trade: " + trade->getUUID() + " " + trade->getType() + " " + trade->getUnderlying() + " PV : " + std::to_string(pv));
-    // 	// logger.info("trade: " + trade->toString());
-    // 	if (auto* bond = dynamic_cast<Bond*>(trade.get())) {
-	   //      tradeInfo = bond->toString();
-	        
-	   //  } else if (auto* swap = dynamic_cast<Swap*>(trade.get())) {
-	   //      tradeInfo = swap->toString();
-	        
-	   //  } else if (auto* amerOption = dynamic_cast<AmericanOption*>(trade.get())) {
-	   //      tradeInfo = amerOption->toString();
-	        
-	   //  } else if (auto* euroOption = dynamic_cast<EuropeanOption*>(trade.get())) {
-	   //      tradeInfo = euroOption->toString();
-	   //  }
-	   //  std::cout << "trade: " << tradeInfo << " " << ", PV: " << pv << std::endl;
-	   //  logger.info("trade: " + tradeInfo + " , PV: " + std::to_string(pv));
-    // }
 
     for (auto& trade : myPortfolio) {
 	    double pv = treePricer->Price(mkt, trade.get()); // Assuming Price() accepts a raw pointer

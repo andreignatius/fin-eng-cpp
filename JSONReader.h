@@ -26,38 +26,13 @@ class JSONReader {
     Market theMarket;
     std::vector<std::unique_ptr<Trade>> thePortfolio; // Use smart pointers
 
-    // // constructors
-    // JSONReader(const std::string &filename, const Market &marketObj,
-    //            vector<std::unique_ptr<Trade>> &portfolioVec)
-    //     : theFilename(filename), theMarket(marketObj),
-    //       thePortfolio(portfolioVec) {
-    //     std::cout << "Start JSONReader constructor" << std::endl;
-    // };
-
-    // JSONReader(const std::string &filename, const Market& marketObj, std::vector<std::unique_ptr<Trade>>& portfolioVec)
-    //     : theFilename(filename), theMarket(marketObj), thePortfolio(portfolioVec) {
-    //     std::cout << "Start JSONReader constructor with reference" << std::endl;
-    // };
+    // constructors
 
     JSONReader(const std::string &filename, const Market& marketObj, std::vector<std::unique_ptr<Trade>>& portfolioVec)
         : theFilename(filename), theMarket(marketObj), thePortfolio(std::move(portfolioVec)) {
         std::cout << "Start JSONReader constructor with reference" << std::endl;
     };
-
-
-    // Ensure there is no copying or moving of the JSONReader that might attempt to copy thePortfolio
-    JSONReader(const JSONReader&) = delete;  // Delete copy constructor
-    JSONReader& operator=(const JSONReader&) = delete;  // Delete copy assignment
-
-    JSONReader(JSONReader&&) = default;  // Allow move constructor
-    JSONReader& operator=(JSONReader&&) = default;  // Allow move assignment
-
-    // // Constructor that takes a vector of unique_ptr by value and moves it
-    // JSONReader(const std::string &filename, const Market &marketObj, vector<std::unique_ptr<Trade>> portfolioVec)
-    //     : theFilename(filename), theMarket(marketObj), thePortfolio(std::move(portfolioVec)) {
-    //     std::cout << "Start JSONReader constructor with move semantics" << std::endl;
-    // };
-
+    
     // Destructor
     ~JSONReader();
 
