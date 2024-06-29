@@ -16,6 +16,7 @@ double Pricer::Price(const Market &mkt, Trade *trade) {
         double marketPrice = 0.0;
         if (trade->getType() == "BondTrade") {
             marketPrice = mkt.getBondPrice(trade->getUnderlying());
+            std::cout << "bond px: " << marketPrice << std::endl;
         } else if (trade->getType() == "SwapTrade") {
             std::cout << "Processing swap trade with no relevant market price." << std::endl;
             marketPrice = 0.0;
