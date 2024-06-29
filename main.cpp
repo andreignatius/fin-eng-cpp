@@ -5,6 +5,7 @@
 #include <iostream>
 #include <string>
 #include <mutex>
+#include "RiskPortfolio.h"
 
 #include "AmericanTrade.h"
 #include "BlackScholesPricer.h"
@@ -16,6 +17,8 @@
 #include "Swap.h"
 #include "Logger.h"
 #include "Utils.h"
+
+// using namespace Eigen;
 
 /*
 Comments: when using new, pls remember to use delete for ptr
@@ -284,6 +287,49 @@ int main() {
     // Just before returning from main, clean up the dynamic memory.
     delete treePricer;
     treePricer = nullptr;
+
+
+
+
+    // Project 2
+    // Part 1: create portfolio without raw pointers (integrated above?)
+
+    // Part 2: creaset 2-days market data (integrated above?)
+
+    // Part 3: price portfolio & output PV and Risk
+
+
+
+    // Part 4 a: risk-off
+    // Define DV01 and Vega coefficients for each trade
+    // Example data until part 3 is ready
+    Eigen::VectorXd dv01(3);
+    dv01 << 1000, -500, 200;
+
+    Eigen::VectorXd vega(3);
+    vega << 50, 70, -30;
+
+    Eigen::VectorXd price(3);
+    price << 100, 200, 150;
+
+    double capitalLimit = 100000;
+
+    // Create an instance of the RiskPortfolio class
+    RiskPortfolio riskPortfolio(dv01, vega, price, capitalLimit);
+
+    // Compute the optimal weights
+    Eigen::VectorXd weights = riskPortfolio.createRiskPortfolio();
+
+    // Output the results
+    std::cout << "Optimized weights to neutralize DV01 and Vega within capital limit:" << std::endl;
+    for (int i = 0; i < weights.size(); ++i) {
+        std::cout << "Weight for Trade " << i + 1 << ": " << weights[i] << std::endl;
+    }
+
+
+
+    // end of part 4
+
 
     // final
     std::cout << "\nProject build successfully!" << std::endl;
