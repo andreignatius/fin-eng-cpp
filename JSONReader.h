@@ -13,6 +13,7 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <memory> // Include for std::unique_ptr
 #include <regex>
 #include <sstream>
 #include <string>
@@ -23,16 +24,15 @@ class JSONReader {
   public:
     std::string theFilename;
     Market theMarket;
-    vector<Trade *> thePortfolio;
+    std::vector<std::unique_ptr<Trade>> thePortfolio; // Use smart pointers
 
     // constructors
-    JSONReader(const std::string &filename, const Market &marketObj,
-               vector<Trade *> &portfolioVec)
-        : theFilename(filename), theMarket(marketObj),
-          thePortfolio(portfolioVec) {
-        std::cout << "Start JSONReader constructor" << std::endl;
-    };
 
+    JSONReader(const std::string &filename, const Market& marketObj, std::vector<std::unique_ptr<Trade>>& portfolioVec)
+        : theFilename(filename), theMarket(marketObj), thePortfolio(std::move(portfolioVec)) {
+        std::cout << "Start JSONReader constructor with reference" << std::endl;
+    };
+    
     // Destructor
     ~JSONReader();
 
@@ -44,8 +44,8 @@ class JSONReader {
     Market getMarketObject() const;
 
     // no const because we will be modifying god willing
-    void setPortfolio(vector<Trade *> &portfolioVec);
-    vector<Trade *> getPortfolio();
+    void setPortfolio(vector<std::unique_ptr<Trade>> &portfolioVec);
+    vector<std::unique_ptr<Trade>>& getPortfolio();
 
     // methods
     std::vector<std::string> parseRow(const std::string &row,
