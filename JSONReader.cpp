@@ -59,7 +59,7 @@ void JSONReader::constructPortfolio() {
     std::regex getCurveName(R"(\"curve_name\":\"(.*?)\")");
     double fixedRate;
     bool fixed_for_float;
-    int frequency;
+    double frequency;
     std::string curveName;
 
     // OPTION specific
@@ -278,7 +278,7 @@ void JSONReader::constructPortfolio() {
                 }
 
                 if (std::regex_search(lineText, match, getFrequency)) {
-                    frequency = std::stoi(match.str(1));
+                    frequency = std::stod(match.str(1));
                 } else {
                     frequency = frequency;
                 }
