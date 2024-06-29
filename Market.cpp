@@ -66,7 +66,7 @@ double RateCurve::getRate(Date tenor) const {
     return 0;
 }
 
-vector<double> RateCurve::getRates() const {
+std::vector<double>& RateCurve::getRates() {
     return this->rates;
 }
 
@@ -472,7 +472,14 @@ double Market::getRiskFreeRate() const {
 void Market::adjustInterestRates(double delta) {
     for (auto& [key, curve] : rateCurves) {
         for (auto& rate : curve.getRates()) {
+            std::cout << "111rate before: " << rate << std::endl;
             rate += delta;
+        }
+    }
+
+    for (auto& [key, curve] : rateCurves) {
+        for (auto& rate : curve.getRates()) {
+            std::cout << "111rate after: " << rate << std::endl;
         }
     }
 }

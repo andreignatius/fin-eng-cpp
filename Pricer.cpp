@@ -33,6 +33,8 @@ double Pricer::CalculateDV01(const Market& market, Trade* trade) {
     perturbedMarket.adjustInterestRates(0.0001);  // Increase all rates by 1 bps
     double priceOriginal = Price(market, trade);
     double pricePerturbed = Price(perturbedMarket, trade);
+    std::cout << std::fixed << std::setprecision(10);  // Set precision for better visibility of small changes
+    std::cout << "price original: " << priceOriginal << ", pricePerturbed: " << pricePerturbed << std::endl;
     return pricePerturbed - priceOriginal;
 }
 

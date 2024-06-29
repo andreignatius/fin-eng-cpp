@@ -22,7 +22,7 @@ class RateCurve {
     RateCurve(const string &_name, const Date& _startDate) : name(_name), startDate(_startDate) {};
     void addRate(const Date& tenor, double rate);
     double getRate(Date tenor) const; // implement this function using linear interpolation
-    vector<double> getRates() const;
+    std::vector<double>& getRates();
     void display() const;
 
   private:
