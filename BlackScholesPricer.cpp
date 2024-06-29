@@ -14,7 +14,7 @@ double BlackScholesPricer::Price(const Market& market, const EuropeanOption& opt
     std::cout << "Diff in days: " << option.GetExpiry().differenceInDays(market.asOf) << std::endl;
     double T = option.GetExpiry().differenceInDays(market.asOf) / Constants::NUM_DAYS_IN_YEAR;
     double r = market.getRiskFreeRate();
-    double sigma = market.getVolCurve("EuropeanOption").getVol(option.GetExpiry());
+    double sigma = market.getVolCurve(Date(2024, 6, 1), "EuropeanOption").getVol(option.GetExpiry());
     std::cout << "BS pricer parameters "<<std::endl;
     std::cout << "S: " << S << " K: " << K << " T: " << T << " r: " << r << std::endl;
 

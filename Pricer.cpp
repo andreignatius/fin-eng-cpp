@@ -134,7 +134,7 @@ double BinomialTreePricer::PriceTree(const Market &mkt,
     } else {
       stockPrice = mkt.getSpotPrice(trade.getType(), Date(2024, 6, 1));
     }
-    double vol= mkt.getVolCurve("EuropeanOption").getVol(trade.GetExpiry()); 
+    double vol= mkt.getVolCurve(Date(2024, 6, 1), "EuropeanOption").getVol(trade.GetExpiry()); 
     double rate = mkt.getRiskFreeRate();
 
     std::cout << "Tree pricer parameters "<<std::endl;

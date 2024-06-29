@@ -80,7 +80,7 @@ class Market {
     void adjustVolatility(const std::string& underlying, double delta);
 
     RateCurve getCurve(const Date& date, const string& name) const;
-    VolCurve getVolCurve(const string& name) const;
+    VolCurve getVolCurve(const Date& date, const string& name) const;
 
   private:
     unordered_map<string, VolCurve> volCurves;

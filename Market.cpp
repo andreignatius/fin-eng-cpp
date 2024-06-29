@@ -220,14 +220,25 @@ RateCurve Market::getCurve(const Date& date, const string& curveName) const {
     throw runtime_error("Curve not found for given date and name.");
 }
 
-VolCurve Market::getVolCurve(const string& name) const {
+// VolCurve Market::getVolCurve(const string& name) const {
 
-    auto defaultIt = this->volCurves.find(name);
-    if (defaultIt != this->volCurves.end()) {
-        return defaultIt->second;
-    } else{
-        throw std::invalid_argument("invalid vol curve supplied");
+//     auto defaultIt = this->volCurves.find(name);
+//     if (defaultIt != this->volCurves.end()) {
+//         return defaultIt->second;
+//     } else{
+//         throw std::invalid_argument("invalid vol curve supplied");
+//     }
+// }
+
+VolCurve Market::getVolCurve(const Date& date, const string& curveName) const {
+    auto itDate = dailyVolCurves.find(date);
+    if (itDate != dailyVolCurves.end()) {
+        auto itCurve = itDate->second.find(curveName);
+        if (itCurve != itDate->second.end()) {
+            return itCurve->second;
+        }
     }
+    throw runtime_error("Curve not found for given date and name.");
 }
 
 //*******************
