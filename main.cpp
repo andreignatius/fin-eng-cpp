@@ -114,6 +114,8 @@ int main() {
     mkt.updateMarketFromVolFile((MKT_DATA_PATH / "vol_20240602.csv").string(),
                                   "EuropeanOption", Date(2024, 6, 2));
 
+    mkt.updateMarketFromBondFile((DATA_PATH / "bondPrice.txt").string()); // Load bond prices
+
     mkt.updateMarketFromStockFile((MKT_DATA_PATH / "stock_price_20240601.csv").string(),
     								Date(2024, 6, 1)); // Load stock prices
     mkt.updateMarketFromStockFile((MKT_DATA_PATH / "stock_price_20240602.csv").string(),
