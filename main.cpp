@@ -288,16 +288,20 @@ int main() {
     delete treePricer;
     treePricer = nullptr;
 
-    // final
-    std::cout << "\nProject build successfully!" << std::endl;
-    logger.info("Ending the application.");
+
 
 
     // Project 2
+    // Part 1: create portfolio without raw pointers (integrated above?)
+
+    // Part 2: creaset 2-days market data (integrated above?)
+
+    // Part 3: price portfolio & output PV and Risk
+
+
 
     // Part 4 a: risk-off
-    // testing code
-            // Define DV01 and Vega coefficients for each trade
+    // Define DV01 and Vega coefficients for each trade
     // Example data
     Eigen::VectorXd dv01(3);
     dv01 << 1000, -500, 200;
@@ -322,6 +326,12 @@ int main() {
         std::cout << "Weight for Trade " << i + 1 << ": " << weights[i] << std::endl;
     }
 
+    // end of part 4
+
+
+    // final
+    std::cout << "\nProject build successfully!" << std::endl;
+    logger.info("Ending the application.");
 
     return 0;
 }
