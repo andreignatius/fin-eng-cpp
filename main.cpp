@@ -113,7 +113,12 @@ int main() {
                                   "EuropeanOption", Date(2024, 6, 1));
     mkt.updateMarketFromVolFile((MKT_DATA_PATH / "vol_20240602.csv").string(),
                                   "EuropeanOption", Date(2024, 6, 2));
-    
+
+    mkt.updateMarketFromStockFile((MKT_DATA_PATH / "stockPrice.csv").string(),
+    								Date(2024, 6, 1)); // Load stock prices
+    mkt.updateMarketFromStockFile((MKT_DATA_PATH / "stockPrice.csv").string(),
+    								Date(2024, 6, 2)); // Load stock prices
+
     // ### OLD DATA ###
     // std::cout << DATA_PATH / "vol_bond.csv111" << std::endl;
     // mkt.updateMarketFromVolFile((DATA_PATH / "vol_bond.csv").string(),

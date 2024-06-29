@@ -59,8 +59,8 @@ class Market {
                      const VolCurve &curve); // implement this
     void addBondPrice(const std::string &bondName,
                       double price); // implement this
-    void addStockPrice(const std::string &bondName,
-                       double price); // implement this
+    // void addStockPrice(const std::string &bondName,
+    //                    double price); // implement this
     void addVolCurve(const std::string &stockName,
                      double price); // implement this
     
@@ -68,10 +68,10 @@ class Market {
 
     void updateMarketFromVolFile(const std::string &filePath, const std::string& curveName, const Date &specificDate); // Add this method
     void updateMarketFromBondFile(const std::string& filePath); // Method to load bond prices from a file
-    void updateMarketFromStockFile(const std::string& filePath);  // Method to load stock prices from a file
+    void updateMarketFromStockFile(const std::string& filePath, const Date &specificDate);  // Method to load stock prices from a file
     void updateMarketFromCurveFile(const std::string& filePath, const std::string& curveName, const Date &specificDate);
     
-    double getSpotPrice(const std::string &assetName) const;
+    double getSpotPrice(const std::string &assetName, const Date &specificDate) const;
     double getBondPrice(const std::string &assetName) const;
     double getVolatility(const std::string &assetName) const;
     double getRiskFreeRate() const; // Assuming a single risk-free rate for simplicity
@@ -88,7 +88,7 @@ class Market {
     unordered_map<Date, unordered_map<string, RateCurve>, DateHash> dailyCurves; // Stores curves by date
     unordered_map<Date, unordered_map<string, VolCurve>, DateHash> dailyVolCurves; // Stores volatility curves by date
     unordered_map<string, double> bondPrices;
-    unordered_map<string, double> stockPrices;
+    unordered_map<Date, unordered_map<string, double>, DateHash> dailyStockPrices; // Stores daily stock prices by date
     double riskFreeRate = Constants::RISK_FREE_RATE;
 };
 

@@ -160,10 +160,23 @@ void Market::Print() const {
                   << std::endl;
     }
     std::cout << "Stock Prices:" << std::endl;
-    for (const auto &stock : stockPrices) {
-        std::cout << "Stock: " << stock.first << " Price: " << stock.second
-                  << std::endl;
+    // for (const auto &stock : stockPrices) {
+    //     std::cout << "Stock: " << stock.first << " Price: " << stock.second
+    //               << std::endl;
+    // }
+    // Outer loop iterates over each date
+    for (const auto &dateEntry : dailyStockPrices) {
+        const Date &date = dateEntry.first;  // This gets the date
+        const auto &stocks = dateEntry.second;  // This gets the map of stocks and their prices for that date
+
+        std::cout << "Date: " << date.toString() << std::endl;
+
+        // Inner loop iterates over each stock and its price for the given date
+        for (const auto &stock : stocks) {
+            std::cout << "  Stock: " << stock.first << " Price: " << stock.second << std::endl;
+        }
     }
+
     std::cout << "============= PRINT MARKET END =============" << std::endl;
     std::cout<<std::endl;
 }
@@ -182,9 +195,9 @@ void Market::addBondPrice(const std::string &bondName, double price) {
     bondPrices[bondName] = price;
 }
 
-void Market::addStockPrice(const std::string &stockName, double price) {
-    stockPrices[stockName] = price;
-}
+// void Market::addStockPrice(const std::string &stockName, double price) {
+//     stockPrices[stockName] = price;
+// }
 
 // RateCurve Market::getCurve(const string& name) const {
 //     auto defaultIt = this->rateCurves.find(name);
@@ -377,7 +390,59 @@ void Market::updateMarketFromBondFile(const std::string &filePath) {
 }
 
 // JOS : assumes input csv contains 2 columns : stock | price
-void Market::updateMarketFromStockFile(const std::string &filePath) {
+// void Market::updateMarketFromStockFile(const std::string &filePath) {
+
+//     // if user supplies CSV File
+//     if (filePath.find(".csv") != std::string::npos) {
+//         std::unordered_map<std::string, std::vector<std::string>> stockMap;
+//         CSVReader myCSVReader = CSVReader(filePath);
+//         stockMap = myCSVReader.parseFile();
+//         for (int i = 0; i < stockMap["stock"].size(); i++) {
+//             std::cout << "adding stock : " << stockMap["stock"][i] << std::endl;
+//             addStockPrice(stockMap["stock"][i],
+//                           std::stod(stockMap["price"][i]));
+//         }
+//         // if user supplies TXT File
+//     } else {
+//         std::ifstream file(filePath);
+//         if (!file.is_open()) {
+//             std::cerr << "Failed to open stock price file: " << filePath
+//                       << std::endl;
+//             return;
+//         }
+
+//         std::string line;
+//         while (getline(file, line)) {
+//             // Remove spaces around the line if needed
+//             line.erase(std::remove_if(line.begin(), line.end(), ::isspace),
+//                        line.end());
+
+//             size_t colonPos = line.find(':');
+//             if (colonPos == std::string::npos) {
+//                 std::cerr << "Malformed line (no colon found): " << line
+//                           << std::endl;
+//                 continue; // Skip malformed lines
+//             }
+
+//             std::string assetName = line.substr(0, colonPos);
+//             std::string priceStr = line.substr(colonPos + 1);
+
+//             double price;
+//             try {
+//                 price = std::stod(priceStr);
+//             } catch (const std::exception &e) {
+//                 std::cerr << "Failed to convert price to double: " << priceStr
+//                           << " in line: " << line << std::endl;
+//                 continue; // Skip lines with conversion errors
+//             }
+
+//             addStockPrice(assetName, price);
+//         }
+//         file.close();
+//     }
+// }
+
+void Market::updateMarketFromStockFile(const std::string &filePath, const Date &specificDate) {
 
     // if user supplies CSV File
     if (filePath.find(".csv") != std::string::npos) {
@@ -386,28 +451,23 @@ void Market::updateMarketFromStockFile(const std::string &filePath) {
         stockMap = myCSVReader.parseFile();
         for (int i = 0; i < stockMap["stock"].size(); i++) {
             std::cout << "adding stock : " << stockMap["stock"][i] << std::endl;
-            addStockPrice(stockMap["stock"][i],
-                          std::stod(stockMap["price"][i]));
+            // Add stock price for the specific date
+            dailyStockPrices[specificDate][stockMap["stock"][i]] = std::stod(stockMap["price"][i]);
         }
-        // if user supplies TXT File
-    } else {
+    } else { // if user supplies TXT File
         std::ifstream file(filePath);
         if (!file.is_open()) {
-            std::cerr << "Failed to open stock price file: " << filePath
-                      << std::endl;
+            std::cerr << "Failed to open stock price file: " << filePath << std::endl;
             return;
         }
 
         std::string line;
         while (getline(file, line)) {
-            // Remove spaces around the line if needed
-            line.erase(std::remove_if(line.begin(), line.end(), ::isspace),
-                       line.end());
+            line.erase(std::remove_if(line.begin(), line.end(), ::isspace), line.end());
 
             size_t colonPos = line.find(':');
             if (colonPos == std::string::npos) {
-                std::cerr << "Malformed line (no colon found): " << line
-                          << std::endl;
+                std::cerr << "Malformed line (no colon found): " << line << std::endl;
                 continue; // Skip malformed lines
             }
 
@@ -418,16 +478,17 @@ void Market::updateMarketFromStockFile(const std::string &filePath) {
             try {
                 price = std::stod(priceStr);
             } catch (const std::exception &e) {
-                std::cerr << "Failed to convert price to double: " << priceStr
-                          << " in line: " << line << std::endl;
+                std::cerr << "Failed to convert price to double: " << priceStr << " in line: " << line << std::endl;
                 continue; // Skip lines with conversion errors
             }
 
-            addStockPrice(assetName, price);
+            // Add stock price for the specific date
+            dailyStockPrices[specificDate][assetName] = price;
         }
         file.close();
     }
 }
+
 
 // // JOS : assumes input csv contains 2 columns : tenor | rate
 // void Market::updateMarketFromCurveFile(const std::string &filePath,
@@ -566,15 +627,34 @@ void Market::updateMarketFromCurveFile(const std::string &filePath,
 
 // TODO : get spot price, get vol and get rate implementation needs to be
 // refactored JOS: Get spot looks ok
-double Market::getSpotPrice(const std::string &assetName) const {
-    auto it = stockPrices.find(assetName);
-    if (it != stockPrices.end()) {
-        return it->second;
+// double Market::getSpotPrice(const std::string &assetName) const {
+//     auto it = stockPrices.find(assetName);
+//     if (it != stockPrices.end()) {
+//         return it->second;
+//     }
+//     std::cerr << "Asset not found: " << assetName
+//               << ", returning default price 0." << std::endl;
+//     return 0; // Return a default price or handle as needed
+// }
+double Market::getSpotPrice(const std::string &assetName, const Date &specificDate) const {
+    // First, find the date entry in the dailyStockPrices
+    auto dateIt = dailyStockPrices.find(specificDate);
+    if (dateIt != dailyStockPrices.end()) {
+        // Now find the asset in the map of stock prices for this date
+        auto stockIt = dateIt->second.find(assetName);
+        if (stockIt != dateIt->second.end()) {
+            return stockIt->second;  // Return the found price
+        } else {
+            std::cerr << "Asset not found: " << assetName << " on " << specificDate.toString()
+                      << ", returning default price 0." << std::endl;
+        }
+    } else {
+        std::cerr << "Date not found: " << specificDate.toString() 
+                  << ", returning default price 0." << std::endl;
     }
-    std::cerr << "Asset not found: " << assetName
-              << ", returning default price 0." << std::endl;
     return 0; // Return a default price or handle as needed
 }
+
 
 double Market::getBondPrice(const std::string &assetName) const {
     auto it = bondPrices.find(assetName);

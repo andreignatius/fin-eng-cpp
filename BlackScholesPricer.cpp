@@ -1,5 +1,6 @@
 #include "BlackScholesPricer.h"
 #include "Constants.h"
+#include "Date.h"
 #include <random>
 
 double BlackScholesPricer::normcdf(double value) {
@@ -7,7 +8,7 @@ double BlackScholesPricer::normcdf(double value) {
 }
 
 double BlackScholesPricer::Price(const Market& market, const EuropeanOption& option) {
-    double S = market.getSpotPrice(option.getUnderlying());
+    double S = market.getSpotPrice(option.getUnderlying(), Date(2024, 6, 1));
     double K = option.getStrike();
     std::cout << "Expiry: " << option.GetExpiry() << ", Market as of: " << market.asOf << std::endl;
     std::cout << "Diff in days: " << option.GetExpiry().differenceInDays(market.asOf) << std::endl;
