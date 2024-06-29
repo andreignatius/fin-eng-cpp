@@ -170,6 +170,8 @@ int main() {
 
     for (auto& trade : myPortfolio) {
 	    double pv = treePricer->Price(mkt, trade.get()); // Assuming Price() accepts a raw pointer
+	    double dv01 = treePricer->CalculateDV01(mkt, trade.get());
+	    double vega = 0;
 	    pricingResults.push_back(pv);
 	    std::string tradeInfo = "";
 
@@ -183,11 +185,15 @@ int main() {
 	        tradeInfo = swap->toString();
 	    } else if (auto* amerOption = dynamic_cast<AmericanOption*>(trade.get())) {
 	        tradeInfo = amerOption->toString();
+	        vega = treePricer->CalculateVega(mkt, amerOption);
 	    } else if (auto* euroOption = dynamic_cast<EuropeanOption*>(trade.get())) {
 	        tradeInfo = euroOption->toString();
+	        vega = treePricer->CalculateVega(mkt, euroOption);
 	    }
-	    std::cout << "trade: " << tradeInfo << ", PV: " << pv << std::endl;
-	    logger.info("trade: " + tradeInfo + ", PV: " + std::to_string(pv));
+	    // std::cout << "trade: " << tradeInfo << ", PV: " << pv << std::endl;
+	    // logger.info("trade: " + tradeInfo + ", PV: " + std::to_string(pv));
+        std::cout << "Trade PV: " << pv << ", DV01: " << dv01 << ", Vega: " << vega << std::endl;
+        logger.info("Trade PV: " + std::to_string(pv) + ", DV01: " + std::to_string(dv01) + ", Vega: " + std::to_string(vega));
 	}
 
     std::cout << "===========end of Part 3============" << std::endl;

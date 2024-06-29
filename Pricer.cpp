@@ -28,6 +28,35 @@ double Pricer::Price(const Market &mkt, Trade *trade) {
     return pv;
 }
 
+double Pricer::CalculateDV01(const Market& market, Trade* trade) {
+    Market perturbedMarket = market;
+    perturbedMarket.adjustInterestRates(0.0001);  // Increase all rates by 1 bps
+    double priceOriginal = Price(market, trade);
+    double pricePerturbed = Price(perturbedMarket, trade);
+    return pricePerturbed - priceOriginal;
+}
+
+double Pricer::CalculateVega(const Market& market, Trade* trade) {
+    double vega = 0.0;
+    Market perturbedMarket = market;
+
+    if (auto* amerOption = dynamic_cast<AmericanOption*>(trade)) {
+        perturbedMarket.adjustVolatility(amerOption->getUnderlying(), 0.01);  // Increase vol by 1%
+        double priceOriginal = Price(market, amerOption);
+        double pricePerturbed = Price(perturbedMarket, amerOption);
+        vega = pricePerturbed - priceOriginal;
+    } else if (auto* euroOption = dynamic_cast<EuropeanOption*>(trade)) {
+        perturbedMarket.adjustVolatility(euroOption->getUnderlying(), 0.01);  // Increase vol by 1%
+        double priceOriginal = Price(market, euroOption);
+        double pricePerturbed = Price(perturbedMarket, euroOption);
+        vega = pricePerturbed - priceOriginal;
+    }
+    
+    return vega;
+}
+
+
+
 // REFERENCE : VERBOSE LOGIC FOR DEBUGGING PURPOSES
 // double Pricer::Price(const Market &mkt, Trade *trade) {
 //     double pv;

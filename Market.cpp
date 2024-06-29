@@ -66,6 +66,10 @@ double RateCurve::getRate(Date tenor) const {
     return 0;
 }
 
+vector<double> RateCurve::getRates() const {
+    return this->rates;
+}
+
 void VolCurve::addVol(Date tenor, double volInDecimal) {
     // consider to check if tenor already exist
     // Search for the tenor in the existing list of tenors
@@ -113,6 +117,10 @@ double VolCurve::getVol(Date tenor) const {
         }
     }
     return 0;
+}
+
+vector<double> VolCurve::getVols() const {
+    return this->vols;
 }
 
 double VolCurve::getLatestVol() const {
@@ -460,6 +468,25 @@ double Market::getRiskFreeRate() const {
     // accordingly
     return riskFreeRate;
 }
+
+void Market::adjustInterestRates(double delta) {
+    for (auto& [key, curve] : rateCurves) {
+        for (auto& rate : curve.getRates()) {
+            rate += delta;
+        }
+    }
+}
+
+void Market::adjustVolatility(const std::string& underlying, double delta) {
+    for (auto& [key, volCurve] : volCurves) {
+        if (key == underlying) {
+            for (auto& vol : volCurve.getVols()) {
+                vol += delta;
+            }
+        }
+    }
+}
+
 
 std::ostream &operator<<(std::ostream &os, const Market &mkt) {
     os << mkt.asOf << std::endl;

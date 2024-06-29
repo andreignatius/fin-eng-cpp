@@ -22,6 +22,7 @@ class RateCurve {
     RateCurve(const string &_name, const Date& _startDate) : name(_name), startDate(_startDate) {};
     void addRate(const Date& tenor, double rate);
     double getRate(Date tenor) const; // implement this function using linear interpolation
+    vector<double> getRates() const;
     void display() const;
 
   private:
@@ -37,6 +38,7 @@ class VolCurve { // atm vol curve without smile
     VolCurve(const string &_name, const Date& _startDate) : name(_name), startDate(_startDate) {};
     void addVol(Date tenor, double volInDecimal); // implement this
     double getVol(Date tenor) const; // implement using linear interpolation
+    vector<double> getVols() const;
     double getLatestVol() const; // Method to get the latest volatility
     void display() const;        // implement this
 
@@ -73,6 +75,9 @@ class Market {
     double getBondPrice(const std::string &assetName) const;
     double getVolatility(const std::string &assetName) const;
     double getRiskFreeRate() const; // Assuming a single risk-free rate for simplicity
+
+    void adjustInterestRates(double delta);
+    void adjustVolatility(const std::string& underlying, double delta);
 
     RateCurve getCurve(const string& name) const;
     VolCurve getVolCurve(const string& name) const;

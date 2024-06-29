@@ -13,6 +13,8 @@ class Pricer {
 public:
   // virtual double Price(const Market& mkt, std::unique_ptr<Trade>& trade);
   virtual double Price(const Market& mkt, Trade* trade);
+  virtual double CalculateDV01(const Market& market, Trade* trade);
+  virtual double CalculateVega(const Market& market, Trade* trade);
 
 private:
   virtual double PriceTree(const Market& mkt, const TreeProduct& trade) { return 0; };
