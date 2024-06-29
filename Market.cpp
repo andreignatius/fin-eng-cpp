@@ -219,37 +219,95 @@ VolCurve Market::getVolCurve(const string& name) const {
 
 //*******************
 
+// void Market::updateMarketFromVolFile(const std::string &filePath,
+//                                      const std::string &volName) {
+//     VolCurve volCurve(volName, this->asOf); // You can dynamically name it based
+//                                             // on some criteria if needed
+
+//     if (filePath.find(".csv") != std::string::npos) {
+//         std::unordered_map<std::string, std::vector<std::string>> volMap;
+//         CSVReader myCSVReader = CSVReader(filePath);
+//         volMap = myCSVReader.parseFile();
+
+//         // further processing after parsing the csv file
+//         for (int i = 0; i < volMap["tenor"].size(); i++) {
+//             double rateToDecimal = std::stod(volMap["vol"][i].substr(
+//                                        0, volMap["vol"][i].size() - 1)) /
+//                                    100;
+//             double mappedTenorMonths = tenorMap[volMap["tenor"][i]];
+//             Date tenorDate = this->asOf; // Use the market's current date
+//             tenorDate.addMonths(
+//                 mappedTenorMonths); // our Date class uses TM which takes
+//                                     // integer for year and month, so we work
+//                                     // with months
+//             volCurve.addVol(tenorDate, rateToDecimal);
+//         }
+//     } else {
+
+//         std::ifstream file(filePath);
+//         if (!file.is_open()) {
+//             std::cerr << "Failed to open file: " << filePath << std::endl;
+//             return;
+//         }
+
+//         std::string line;
+
+//         while (getline(file, line)) {
+//             std::istringstream iss(line);
+//             std::string tenor;
+//             double vol;
+//             char colon;
+//             char percent;
+
+//             if (!(iss >> tenor >> colon >> vol >> percent)) {
+//                 std::cerr << "Failed to parse line: " << line << std::endl;
+//                 continue; // Skip malformed lines
+//             }
+
+//             tenor.pop_back(); // Remove last character ('M' or 'Y')
+//             int numMonths = std::stoi(tenor);
+//             if (line.back() == 'Y') {
+//                 numMonths *= 12; // Convert years to months if necessary
+//             }
+
+//             Date tenorDate = asOf;
+//             tenorDate.addMonths(numMonths); // Method to add months to Date
+
+//             volCurve.addVol(tenorDate,
+//                             vol / 100.0); // Convert percentage to decimal and
+//                                           // add to vol curve
+//         }
+//         file.close();
+//     }
+
+//     this->addVolCurve(volName, volCurve); // Adding the vol curve to the market
+// }
+
 void Market::updateMarketFromVolFile(const std::string &filePath,
-                                     const std::string &volName) {
-    VolCurve volCurve(volName, this->asOf); // You can dynamically name it based
-                                            // on some criteria if needed
+                                     const std::string &volName,
+                                     const Date &specificDate) {
+    VolCurve volCurve(volName, specificDate); // Use specificDate instead of this->asOf
 
     if (filePath.find(".csv") != std::string::npos) {
         std::unordered_map<std::string, std::vector<std::string>> volMap;
         CSVReader myCSVReader = CSVReader(filePath);
         volMap = myCSVReader.parseFile();
 
-        // further processing after parsing the csv file
         for (int i = 0; i < volMap["tenor"].size(); i++) {
-            double rateToDecimal = std::stod(volMap["vol"][i].substr(
+            double volToDecimal = std::stod(volMap["vol"][i].substr(
                                        0, volMap["vol"][i].size() - 1)) /
                                    100;
             double mappedTenorMonths = tenorMap[volMap["tenor"][i]];
-            Date tenorDate = this->asOf; // Use the market's current date
-            tenorDate.addMonths(
-                mappedTenorMonths); // our Date class uses TM which takes
-                                    // integer for year and month, so we work
-                                    // with months
-            volCurve.addVol(tenorDate, rateToDecimal);
+            Date tenorDate = specificDate;
+            tenorDate.addMonths(mappedTenorMonths);
+            volCurve.addVol(tenorDate, volToDecimal);
         }
     } else {
-
         std::ifstream file(filePath);
         if (!file.is_open()) {
             std::cerr << "Failed to open file: " << filePath << std::endl;
             return;
         }
-
         std::string line;
 
         while (getline(file, line)) {
@@ -270,18 +328,18 @@ void Market::updateMarketFromVolFile(const std::string &filePath,
                 numMonths *= 12; // Convert years to months if necessary
             }
 
-            Date tenorDate = asOf;
+            Date tenorDate = specificDate;
             tenorDate.addMonths(numMonths); // Method to add months to Date
 
-            volCurve.addVol(tenorDate,
-                            vol / 100.0); // Convert percentage to decimal and
-                                          // add to vol curve
+            volCurve.addVol(tenorDate, vol / 100.0); // Convert percentage to decimal and add to vol curve
         }
         file.close();
     }
 
-    this->addVolCurve(volName, volCurve); // Adding the vol curve to the market
+    // Ensure the map for the specific date exists and then add or update the vol curve
+    dailyVolCurves[specificDate][volName] = volCurve;
 }
+
 
 
 void Market::updateMarketFromBondFile(const std::string &filePath) {

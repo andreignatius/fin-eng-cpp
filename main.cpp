@@ -93,6 +93,27 @@ int main() {
                                   "USD-SOFR", Date(2024, 6, 1));
     mkt.updateMarketFromCurveFile((MKT_DATA_PATH / "usd_sofr_20240602.csv").string(),
                                   "USD-SOFR", Date(2024, 6, 2));
+
+    mkt.updateMarketFromVolFile((MKT_DATA_PATH / "vol_20240601.csv").string(),
+                                  "BondTrade", Date(2024, 6, 1));
+    mkt.updateMarketFromVolFile((MKT_DATA_PATH / "vol_20240602.csv").string(),
+                                  "BondTrade", Date(2024, 6, 2));
+
+    mkt.updateMarketFromVolFile((MKT_DATA_PATH / "vol_20240601.csv").string(),
+                                  "SwapTrade", Date(2024, 6, 1));
+    mkt.updateMarketFromVolFile((MKT_DATA_PATH / "vol_20240602.csv").string(),
+                                  "SwapTrade", Date(2024, 6, 2));
+
+    mkt.updateMarketFromVolFile((MKT_DATA_PATH / "vol_20240601.csv").string(),
+                                  "AmericanOption", Date(2024, 6, 1));
+    mkt.updateMarketFromVolFile((MKT_DATA_PATH / "vol_20240602.csv").string(),
+                                  "AmericanOption", Date(2024, 6, 2));
+
+    mkt.updateMarketFromVolFile((MKT_DATA_PATH / "vol_20240601.csv").string(),
+                                  "EuropeanOption", Date(2024, 6, 1));
+    mkt.updateMarketFromVolFile((MKT_DATA_PATH / "vol_20240602.csv").string(),
+                                  "EuropeanOption", Date(2024, 6, 2));
+    
     // ### OLD DATA ###
     // std::cout << DATA_PATH / "vol_bond.csv111" << std::endl;
     // mkt.updateMarketFromVolFile((DATA_PATH / "vol_bond.csv").string(),

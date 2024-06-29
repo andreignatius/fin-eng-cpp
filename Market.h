@@ -66,7 +66,7 @@ class Market {
     
     void setRiskFreeRate(double rate);
 
-    void updateMarketFromVolFile(const std::string &filePath, const std::string& curveName); // Add this method
+    void updateMarketFromVolFile(const std::string &filePath, const std::string& curveName, const Date &specificDate); // Add this method
     void updateMarketFromBondFile(const std::string& filePath); // Method to load bond prices from a file
     void updateMarketFromStockFile(const std::string& filePath);  // Method to load stock prices from a file
     void updateMarketFromCurveFile(const std::string& filePath, const std::string& curveName, const Date &specificDate);
@@ -86,6 +86,7 @@ class Market {
     unordered_map<string, VolCurve> volCurves;
     unordered_map<string, RateCurve> rateCurves;
     unordered_map<Date, unordered_map<string, RateCurve>, DateHash> dailyCurves; // Stores curves by date
+    unordered_map<Date, unordered_map<string, VolCurve>, DateHash> dailyVolCurves; // Stores volatility curves by date
     unordered_map<string, double> bondPrices;
     unordered_map<string, double> stockPrices;
     double riskFreeRate = Constants::RISK_FREE_RATE;
