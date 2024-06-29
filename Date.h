@@ -14,6 +14,7 @@ public:
   Date(int y, int m, int d);
   Date();
   long differenceInDays(const Date &other) const;
+  int monthsUntil(const Date &other) const;
   std::string toString() const;
   void addMonths(int months);
   std::chrono::system_clock::time_point timePoint;

@@ -177,6 +177,11 @@ void Market::Print() const {
         }
     }
 
+    std::cout << "Asset Mapping:" << std::endl;
+    for (const auto& item : assetTypes) {
+        std::cout << "Asset Name: " << item.first << ", Asset Type: " << this->assetTypeToString(item.second) << std::endl;
+    }
+
     std::cout << "============= PRINT MARKET END =============" << std::endl;
     std::cout<<std::endl;
 }
@@ -190,6 +195,10 @@ void Market::addVolCurve(const std::string &curveName, const VolCurve &curve) {
 }
 
 void Market::setRiskFreeRate(double rate) { riskFreeRate = rate; }
+
+void Market::addAssetType(const std::string &assetName, AssetType type) {
+    assetTypes[assetName] = type;
+}
 
 void Market::addBondPrice(const std::string &bondName, double price) {
     bondPrices[bondName] = price;
@@ -463,6 +472,7 @@ void Market::updateMarketFromStockFile(const std::string &filePath, const Date &
         for (int i = 0; i < stockMap["stock"].size(); i++) {
             std::cout << "adding stock : " << stockMap["stock"][i] << std::endl;
             // Add stock price for the specific date
+            addAssetType(stockMap["stock"][i], AssetType::Stock);  // Add type information when adding stock
             dailyStockPrices[specificDate][stockMap["stock"][i]] = std::stod(stockMap["price"][i]);
         }
     } else { // if user supplies TXT File
@@ -494,6 +504,7 @@ void Market::updateMarketFromStockFile(const std::string &filePath, const Date &
             }
 
             // Add stock price for the specific date
+            addAssetType(assetName, AssetType::Stock);  // Add type information when adding stock
             dailyStockPrices[specificDate][assetName] = price;
         }
         file.close();
@@ -630,7 +641,7 @@ void Market::updateMarketFromCurveFile(const std::string &filePath,
         }
         file.close();
     }
-
+    addAssetType(curveName, AssetType::Rate);  // Add type information when adding curves
     // Ensure the map for the specific date exists and then add or update the rate curve
     dailyCurves[specificDate][curveName] = rateCurve;
 }
@@ -656,7 +667,7 @@ double Market::getSpotPrice(const std::string &assetName, const Date &specificDa
         if (stockIt != dateIt->second.end()) {
             return stockIt->second;  // Return the found price
         } else {
-            std::cerr << "Asset not found: " << assetName << " on " << specificDate.toString()
+            std::cerr << "Stock Asset not found: " << assetName << " on " << specificDate.toString()
                       << ", returning default price 0." << std::endl;
         }
     } else {
@@ -664,6 +675,74 @@ double Market::getSpotPrice(const std::string &assetName, const Date &specificDa
                   << ", returning default price 0." << std::endl;
     }
     return 0; // Return a default price or handle as needed
+}
+
+std::string Market::dateToTenor(const Date &startDate, const Date &endDate) const {
+    int monthsDiff = startDate.monthsUntil(endDate);  // You need to implement monthsUntil
+    if (monthsDiff % 12 == 0) {
+        // If the total months difference is exactly in years
+        return std::to_string(monthsDiff / 12) + "Y";
+    } else {
+        return std::to_string(monthsDiff) + "M";
+    }
+}
+
+// double Market::getCurveRate(const std::string &assetName, const Date &specificDate) const {
+//     // First, find the date entry in the dailyStockPrices
+//     auto dateIt = dailyCurves.find(specificDate);
+//     if (dateIt != dailyCurves.end()) {
+//         // Now find the asset in the map of stock prices for this date
+//         auto stockIt = dateIt->second.find(assetName);
+//         if (stockIt != dateIt->second.end()) {
+//             return stockIt->second;  // Return the found price
+//         } else {
+//             std::cerr << "Asset not found: " << assetName << " on " << specificDate.toString()
+//                       << ", returning default price 0." << std::endl;
+//         }
+//     } else {
+//         std::cerr << "Date not found: " << specificDate.toString() 
+//                   << ", returning default price 0." << std::endl;
+//     }
+//     return 0; // Return a default price or handle as needed
+// }
+
+double Market::getCurveRate(const std::string &assetName, const Date &specificDate) const {
+    auto dateIt = dailyCurves.find(Date(2024, 6, 1));
+    if (dateIt != dailyCurves.end()) {
+        auto curveIt = dateIt->second.find(assetName);
+        if (curveIt != dateIt->second.end()) {
+            // // Assume you have a start date for the curve, which needs to be known or stored
+            // Date curveStartDate = curveIt->second.startDate;
+            // std::string tenor = dateToTenor(curveStartDate, specificDate);
+
+            try {
+                return curveIt->second.getRate(specificDate);
+            } catch (const std::exception& e) {
+                std::cerr << "Error getting rate for date: " << specificDate.toString() << " - " << e.what() << std::endl;
+            }
+        } else {
+            std::cerr << "Curve not found: " << assetName << " on " << specificDate.toString()
+                      << ", returning default price 0." << std::endl;
+        }
+    } else {
+        std::cerr << "Date not found: " << specificDate.toString() 
+                  << ", returning default price 0." << std::endl;
+    }
+    return 0; // Default price if no data found
+}
+
+double Market::getPriceOrRate(const std::string &assetName, const Date &date) const {
+    std::cout << "getPriceOrRate" << std::endl;
+    AssetType type = getAssetType(assetName); // Find out the type of the asset
+    std::cout << "checking if stock or rate: " << assetName << std::endl << "," << assetTypeToString(type) << std::endl;
+    switch (type) {
+        case AssetType::Rate:
+            return getCurveRate(assetName, date); // Implement this function to fetch curve data
+        case AssetType::Stock:
+            return getSpotPrice(assetName, date); // Use your existing function
+        default:
+            throw std::runtime_error("Unknown asset type for: " + assetName);
+    }
 }
 
 
@@ -691,6 +770,22 @@ double Market::getRiskFreeRate() const {
     // Assuming risk-free rate is a single value for simplicity; implement
     // accordingly
     return riskFreeRate;
+}
+
+AssetType Market::getAssetType(const std::string &assetName) const {
+    auto it = assetTypes.find(assetName);
+    if (it != assetTypes.end()) {
+        return it->second;
+    }
+    throw std::runtime_error("Asset type not found for: " + assetName);
+}
+
+std::string Market::assetTypeToString(AssetType type) const {
+    switch(type) {
+        case AssetType::Rate: return "Rate";
+        case AssetType::Stock: return "Stock";
+        default: return "Unknown";
+    }
 }
 
 void Market::adjustInterestRates(double delta) {

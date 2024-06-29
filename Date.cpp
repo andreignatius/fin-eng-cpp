@@ -40,6 +40,16 @@ long Date::differenceInDays(const Date &other) const
   return std::chrono::duration_cast<std::chrono::hours>(duration).count() / 24;
 }
 
+int Date::monthsUntil(const Date &other) const {
+    int months = (other.year - year) * 12 + (other.month - month);
+    // Adjust if day of other is less than this day, indicating not a full month
+    if (other.day < day) {
+        months--;
+    }
+    return months;
+}
+
+
 void addMonths(int months);
 
 bool Date::operator>=(const Date &rhs) const

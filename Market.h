@@ -12,6 +12,7 @@
 #include "TenorMap.h"
 #include <cmath>
 #include "Constants.h"
+#include "Types.h"
 
 using namespace std;
 
@@ -66,15 +67,23 @@ class Market {
     
     void setRiskFreeRate(double rate);
 
+    void addAssetType(const std::string &assetName, AssetType type);
+
+    std::string dateToTenor(const Date &startDate, const Date &endDate) const;
+
     void updateMarketFromVolFile(const std::string &filePath, const std::string& curveName, const Date &specificDate); // Add this method
     void updateMarketFromBondFile(const std::string& filePath); // Method to load bond prices from a file
     void updateMarketFromStockFile(const std::string& filePath, const Date &specificDate);  // Method to load stock prices from a file
     void updateMarketFromCurveFile(const std::string& filePath, const std::string& curveName, const Date &specificDate);
     
+    double getPriceOrRate(const std::string &assetName, const Date &specificDate) const;
+    double getCurveRate(const std::string &assetName, const Date &specificDate) const;
     double getSpotPrice(const std::string &assetName, const Date &specificDate) const;
     double getBondPrice(const std::string &assetName) const;
     double getVolatility(const std::string &assetName) const;
     double getRiskFreeRate() const; // Assuming a single risk-free rate for simplicity
+    AssetType getAssetType(const std::string &assetName) const;
+    std::string assetTypeToString(AssetType type) const;
 
     void adjustInterestRates(double delta);
     void adjustVolatility(const std::string& underlying, double delta);
@@ -90,6 +99,7 @@ class Market {
     unordered_map<string, double> bondPrices;
     unordered_map<Date, unordered_map<string, double>, DateHash> dailyStockPrices; // Stores daily stock prices by date
     double riskFreeRate = Constants::RISK_FREE_RATE;
+    std::unordered_map<std::string, AssetType> assetTypes;
 };
 
 std::ostream &operator<<(std::ostream &os, const Market &obj);

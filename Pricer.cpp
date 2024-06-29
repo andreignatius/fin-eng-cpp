@@ -21,7 +21,7 @@ double Pricer::Price(const Market &mkt, Trade *trade) {
             std::cout << "Processing swap trade with no relevant market price." << std::endl;
             marketPrice = 0.0;
         } else {
-            marketPrice = mkt.getSpotPrice(trade->getUnderlying(), Date(2024, 6, 1));
+            marketPrice = mkt.getPriceOrRate(trade->getUnderlying(), Date(2024, 6, 1));
         }
         pv = trade->Payoff(marketPrice);
     }
@@ -129,10 +129,11 @@ double BinomialTreePricer::PriceTree(const Market &mkt,
     */
     double stockPrice = 0;
     if (trade.getType() == "TreeProduct" || trade.getType() == "AmericanOption" || trade.getType() == "EuropeanOption") {
-      // std::cout << "underlying111: " << trade.getUnderlying() << std::endl;
-      stockPrice = mkt.getSpotPrice(trade.getUnderlying(), Date(2024, 6, 1));
+      std::cout << "underlying111: " << trade.getUnderlying() << std::endl;
+      stockPrice = mkt.getPriceOrRate(trade.getUnderlying(), Date(2024, 6, 1));
+      std::cout << "px output: " << stockPrice << std::endl;
     } else {
-      stockPrice = mkt.getSpotPrice(trade.getType(), Date(2024, 6, 1));
+      stockPrice = mkt.getPriceOrRate(trade.getType(), Date(2024, 6, 1));
     }
     double vol= mkt.getVolCurve(Date(2024, 6, 1), "EuropeanOption").getVol(trade.GetExpiry()); 
     double rate = mkt.getRiskFreeRate();
