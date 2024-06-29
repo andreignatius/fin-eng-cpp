@@ -29,5 +29,11 @@ double operator-(const Date &d1, const Date &d2);
 std::ostream &operator<<(std::ostream &os, const Date &date);
 std::istream &operator>>(std::istream &is, Date &date);
 
+struct DateHash {
+    size_t operator()(const Date& date) const {
+        std::time_t t = std::chrono::system_clock::to_time_t(date.timePoint);
+        return std::hash<std::time_t>()(t);
+    }
+};
 
 #endif

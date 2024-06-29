@@ -20,7 +20,7 @@ double Swap::Payoff(double marketPrice) const { // TODO marketPrice is redundant
     // find last discount rate for floating leg pv calculation
     // TODO may need clean up and checks
     try {
-        currentRate = market.getCurve(curveName).getRate(startDate);
+        currentRate = market.getCurve(Date(2024, 6, 1), curveName).getRate(startDate);
         std::cout<<"current rate is "<<currentRate<<std::endl;
     } catch (const std::out_of_range &e) {
         std::cerr << "specified curve not found in market data. - using "
@@ -37,7 +37,7 @@ double Swap::Payoff(double marketPrice) const { // TODO marketPrice is redundant
         yearsSinceStart =
             static_cast<double>(paymentDate.differenceInDays(startDate)) /
             Constants::NUM_DAYS_IN_YEAR; // Convert days to years
-        rate = market.getCurve(curveName).getRate(paymentDate);
+        rate = market.getCurve(Date(2024, 6, 1), curveName).getRate(paymentDate);
         double discountFactor = exp(-rate * yearsSinceStart);
     }
 
@@ -88,7 +88,7 @@ double Swap::getAnnuity() const {
             Constants::NUM_DAYS_IN_YEAR; // Convert days to years
         double disc_rate = 0.0;
         try {
-            disc_rate = market.getCurve(curveName).getRate(paymentDate);
+            disc_rate = market.getCurve(Date(2024, 6, 1), curveName).getRate(paymentDate);
         } catch (const std::out_of_range &e) {
             // Handle error appropriately, e.g., use a fallback rate
             std::cerr << "Failed to find rate for date: " << paymentDate

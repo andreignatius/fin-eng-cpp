@@ -128,84 +128,84 @@ int main() {
     // option for each time, at least should have long / short, different tenor
     // or expiry, different underlying totally no less than 16 trades
 
-    /*
-        JOS 2024/05/25
-            This utilizes the JSONReader functionality,
-            Users supply a JSON file containing the portfolio.
-            JSONReader will parse and construct the portfolio vector.
-    */
-    vector<std::unique_ptr<Trade>> myPortfolio;
-    JSONReader myJSONReader((MKT_DATA_PATH / "portfolio.json").string(), mkt,
-                            myPortfolio);
-    myJSONReader.constructPortfolio();
-    myJSONReader.getMarketObject().Print();
+ //    /*
+ //        JOS 2024/05/25
+ //            This utilizes the JSONReader functionality,
+ //            Users supply a JSON file containing the portfolio.
+ //            JSONReader will parse and construct the portfolio vector.
+ //    */
+ //    vector<std::unique_ptr<Trade>> myPortfolio;
+ //    JSONReader myJSONReader((MKT_DATA_PATH / "portfolio.json").string(), mkt,
+ //                            myPortfolio);
+ //    myJSONReader.constructPortfolio();
+ //    myJSONReader.getMarketObject().Print();
 
-    // why do i need to re-set myPortfolio?
-    // Move the portfolio
-    myPortfolio = std::move(myJSONReader.getPortfolio());
+ //    // why do i need to re-set myPortfolio?
+ //    // Move the portfolio
+ //    myPortfolio = std::move(myJSONReader.getPortfolio());
 
-    std::unordered_map<SecurityKey, std::vector<Trade*>, SecurityHash> securityMap;
+ //    std::unordered_map<SecurityKey, std::vector<Trade*>, SecurityHash> securityMap;
 	
-	for (auto& trade : myPortfolio) {
-	    // Check if the trade is an AmericanOption
-	    if (auto amerOption = dynamic_cast<AmericanOption*>(trade.get())) {
-	        SecurityKey key{amerOption->getOptionType(), amerOption->getStrike(), amerOption->GetExpiry()};
-	        std::cout << "Inserting amer option: " << key.optionType << ", " << key.strike << ", " << key.expiry << std::endl;
-	        securityMap[key].push_back(amerOption);
-	    }
-	    // Check if the trade is a EuropeanOption
-	    else if (auto euroOption = dynamic_cast<EuropeanOption*>(trade.get())) {
-	        SecurityKey key{euroOption->getOptionType(), euroOption->getStrike(), euroOption->GetExpiry()};
-	        std::cout << "Inserting euro option: " << key.optionType << ", " << key.strike << ", " << key.expiry << std::endl;
-	        securityMap[key].push_back(euroOption);
-	    }
-	}
+	// for (auto& trade : myPortfolio) {
+	//     // Check if the trade is an AmericanOption
+	//     if (auto amerOption = dynamic_cast<AmericanOption*>(trade.get())) {
+	//         SecurityKey key{amerOption->getOptionType(), amerOption->getStrike(), amerOption->GetExpiry()};
+	//         std::cout << "Inserting amer option: " << key.optionType << ", " << key.strike << ", " << key.expiry << std::endl;
+	//         securityMap[key].push_back(amerOption);
+	//     }
+	//     // Check if the trade is a EuropeanOption
+	//     else if (auto euroOption = dynamic_cast<EuropeanOption*>(trade.get())) {
+	//         SecurityKey key{euroOption->getOptionType(), euroOption->getStrike(), euroOption->GetExpiry()};
+	//         std::cout << "Inserting euro option: " << key.optionType << ", " << key.strike << ", " << key.expiry << std::endl;
+	//         securityMap[key].push_back(euroOption);
+	//     }
+	// }
 
-    // task 3, create a pricer and price the portfolio, output the pricing
-    // result of each deal.
-	std::filesystem::path OUTPUT_PATH =
-        std::filesystem::current_path() / "../../output";
-    std::string output_filename = generateDateTimeFilename();
-    Logger logger((OUTPUT_PATH / output_filename).string());  // Initialize the logger
-    // Example of using the logger
-    logger.info("Starting the application.");
-    // Log data path
-    logger.info("Ouput path: " + OUTPUT_PATH.string());
-    std::cout << "\n============Start of Part 3============" << std::endl;
+ //    // task 3, create a pricer and price the portfolio, output the pricing
+ //    // result of each deal.
+	// std::filesystem::path OUTPUT_PATH =
+ //        std::filesystem::current_path() / "../../output";
+ //    std::string output_filename = generateDateTimeFilename();
+ //    Logger logger((OUTPUT_PATH / output_filename).string());  // Initialize the logger
+ //    // Example of using the logger
+ //    logger.info("Starting the application.");
+ //    // Log data path
+ //    logger.info("Ouput path: " + OUTPUT_PATH.string());
+ //    std::cout << "\n============Start of Part 3============" << std::endl;
 
-    std::unique_ptr<Pricer> treePricer = std::make_unique<CRRBinomialTreePricer>(700);
+ //    std::unique_ptr<Pricer> treePricer = std::make_unique<CRRBinomialTreePricer>(700);
 
-    std::vector<double> pricingResults;
+ //    std::vector<double> pricingResults;
 
-    for (auto& trade : myPortfolio) {
-	    double pv = treePricer->Price(mkt, trade.get()); // Assuming Price() accepts a raw pointer
-	    double dv01 = treePricer->CalculateDV01(mkt, trade.get());
-	    double vega = 0;
-	    pricingResults.push_back(pv);
-	    std::string tradeInfo = "";
+ //    for (auto& trade : myPortfolio) {
+	//     double pv = treePricer->Price(mkt, trade.get()); // Assuming Price() accepts a raw pointer
+	//     double dv01 = treePricer->CalculateDV01(mkt, trade.get());
+	//     double vega = 0;
+	//     pricingResults.push_back(pv);
+	//     std::string tradeInfo = "";
 
-	    std::cout << "*****Priced trade with PV*****: " << pv << std::endl;
-	    // logger.info("trade: " + trade->getUUID() + " " + trade->getType() + " " + trade->getUnderlying() + " PV : " + std::to_string(pv));
-	    // logger.info("trade: " + trade->toString());
+	//     std::cout << "*****Priced trade with PV*****: " << pv << std::endl;
+	//     // logger.info("trade: " + trade->getUUID() + " " + trade->getType() + " " + trade->getUnderlying() + " PV : " + std::to_string(pv));
+	//     // logger.info("trade: " + trade->toString());
 
-	    if (auto* bond = dynamic_cast<Bond*>(trade.get())) {
-	        tradeInfo = bond->toString();
-	    } else if (auto* swap = dynamic_cast<Swap*>(trade.get())) {
-	        tradeInfo = swap->toString();
-	    } else if (auto* amerOption = dynamic_cast<AmericanOption*>(trade.get())) {
-	        tradeInfo = amerOption->toString();
-	        vega = treePricer->CalculateVega(mkt, amerOption);
-	    } else if (auto* euroOption = dynamic_cast<EuropeanOption*>(trade.get())) {
-	        tradeInfo = euroOption->toString();
-	        vega = treePricer->CalculateVega(mkt, euroOption);
-	    }
-	    // std::cout << "trade: " << tradeInfo << ", PV: " << pv << std::endl;
-	    // logger.info("trade: " + tradeInfo + ", PV: " + std::to_string(pv));
-        std::cout << "Trade PV: " << pv << ", DV01: " << dv01 << ", Vega: " << vega << std::endl;
-        logger.info("Trade PV: " + std::to_string(pv) + ", DV01: " + std::to_string(dv01) + ", Vega: " + std::to_string(vega));
-	}
+	//     if (auto* bond = dynamic_cast<Bond*>(trade.get())) {
+	//         tradeInfo = bond->toString();
+	//     } else if (auto* swap = dynamic_cast<Swap*>(trade.get())) {
+	//         tradeInfo = swap->toString();
+	//     } else if (auto* amerOption = dynamic_cast<AmericanOption*>(trade.get())) {
+	//         tradeInfo = amerOption->toString();
+	//         vega = treePricer->CalculateVega(mkt, amerOption);
+	//     } else if (auto* euroOption = dynamic_cast<EuropeanOption*>(trade.get())) {
+	//         tradeInfo = euroOption->toString();
+	//         vega = treePricer->CalculateVega(mkt, euroOption);
+	//     }
+	//     // std::cout << "trade: " << tradeInfo << ", PV: " << pv << std::endl;
+	//     // logger.info("trade: " + tradeInfo + ", PV: " + std::to_string(pv));
+ //        std::cout << "Trade PV: " << pv << ", DV01: " << dv01 << ", Vega: " << vega << std::endl;
+ //        logger.info("Trade PV: " + std::to_string(pv) + ", DV01: " + std::to_string(dv01) + ", Vega: " + std::to_string(vega));
+	// }
 
-    std::cout << "===========end of Part 3============" << std::endl;
+ //    std::cout << "===========end of Part 3============" << std::endl;
 
  //    // task 4, analyzing pricing result
  //    //  a) compare CRR binomial tree result for an european option vs Black
@@ -298,7 +298,7 @@ int main() {
 
     // final
     std::cout << "\nProject build successfully!" << std::endl;
-    logger.info("Ending the application.");
+    // logger.info("Ending the application.");
 
     return 0;
 }

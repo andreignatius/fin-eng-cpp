@@ -79,13 +79,13 @@ class Market {
     void adjustInterestRates(double delta);
     void adjustVolatility(const std::string& underlying, double delta);
 
-    RateCurve getCurve(const string& name) const;
+    RateCurve getCurve(const Date& date, const string& name) const;
     VolCurve getVolCurve(const string& name) const;
 
   private:
     unordered_map<string, VolCurve> volCurves;
     unordered_map<string, RateCurve> rateCurves;
-    unordered_map<Date, unordered_map<string, RateCurve>> dailyCurves; // Stores curves by date
+    unordered_map<Date, unordered_map<string, RateCurve>, DateHash> dailyCurves; // Stores curves by date
     unordered_map<string, double> bondPrices;
     unordered_map<string, double> stockPrices;
     double riskFreeRate = Constants::RISK_FREE_RATE;
