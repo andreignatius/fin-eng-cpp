@@ -187,6 +187,7 @@ void Market::addStockPrice(const std::string &stockName, double price) {
 }
 
 RateCurve Market::getCurve(const string& name) const {
+    std::cout << "111CHECKING RATE CURVE NAME: " << name << std::endl;
     auto defaultIt = this->rateCurves.find(name);
     if (defaultIt != this->rateCurves.end()) {
         return defaultIt->second;

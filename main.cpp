@@ -69,6 +69,17 @@ struct SecurityHash {
     }
 };
 
+// Function to print the contents of the unordered_map
+void printMap(
+    const std::unordered_map<std::string, std::vector<std::string>> &map) {
+    for (const auto &pair : map) {
+        std::cout << pair.first << ": ";
+        for (const auto &item : pair.second) {
+            std::cout << item << " ";
+        }
+        std::cout << std::endl;
+    }
+}
 
 int main() {
     // task 1, create an market data object, and update the market data from
@@ -85,55 +96,219 @@ int main() {
     valueDate.year = now_->tm_mday;
 
     Market mkt = Market(valueDate);
+
+    // JOS TEMP CODE
+
     /*
-    load data from file and update market object with data
+    TESTING IF PARSER WORKS
     */
+    std::unordered_map<std::string, std::vector<std::string>> testMap;
+    CSVReader myCSVReader =
+        CSVReader((MKT_DATA_PATH / "stock_price_20240601.csv").string());
+    testMap = myCSVReader.parseFile();
+    printMap(testMap);
 
-    std::cout << DATA_PATH / "vol_bond.csv111" << std::endl;
-    mkt.updateMarketFromVolFile((DATA_PATH / "vol_bond.csv").string(),
-                                "BondTrade"); // Update market data from file
-    mkt.updateMarketFromVolFile((DATA_PATH / "vol_swap.csv").string(),
-                                "SwapTrade"); // Update market data from file
-    mkt.updateMarketFromVolFile(
-        (DATA_PATH / "vol_amer.csv").string(),
-        "AmericanOption"); // Update market data from file
-    mkt.updateMarketFromVolFile(
-        (DATA_PATH / "vol_euro.csv").string(),
-        "EuropeanOption"); // Update market data from file
-    // mkt.updateMarketFromVolFile("../../voldummycurve.csv", "vol");
+    myCSVReader =
+        CSVReader((MKT_DATA_PATH / "stock_price_20240602.csv").string());
+    testMap = myCSVReader.parseFile();
+    printMap(testMap);
 
-    // mkt.updateMarketFromVolFile("../../data/vol.txt", "vol");
+    myCSVReader = CSVReader((MKT_DATA_PATH / "usd_sofr_20240601.csv").string());
+    testMap = myCSVReader.parseFile();
+    printMap(testMap);
+
+    myCSVReader = CSVReader((MKT_DATA_PATH / "usd_sofr_20240602.csv").string());
+    testMap = myCSVReader.parseFile();
+    printMap(testMap);
+
+    myCSVReader = CSVReader((MKT_DATA_PATH / "vol_20240601.csv").string());
+    testMap = myCSVReader.parseFile();
+    printMap(testMap);
+
+    myCSVReader = CSVReader((MKT_DATA_PATH / "vol_20240602.csv").string());
+    testMap = myCSVReader.parseFile();
+    printMap(testMap);
+
+    std::cout << "********************** TRY IT ON THE PORTFOLIO " << std::endl;
+    myCSVReader = CSVReader((MKT_DATA_PATH / "portfolio.csv").string());
+    testMap = myCSVReader.parseFile();
+    printMap(testMap);
+
+    // construct portfolio here
+    std::string type;
+    std::string underlying;
+    std::string start;
+    std::string end;
+    std::string opt;
+    double notional;
+    double freq;
+    double strike;
+    Date startDate;
+    Date endDate;
+    Date expiryDate;
+    std::vector<std::string> temp_parse;
+    // vector<Trade *> myPortfolio;
+    std::vector<std::unique_ptr<Trade>> myPortfolio;
+
+    for (int i = 0; i < testMap["Id"].size(); i++) {
+        std::cout << i << std::endl;
+        type = testMap["type"][i];
+        underlying = testMap["underlying"][i];
+
+        if (type == "bond") {
+            notional = std::stod(testMap["notional"][i]);
+            strike = std::stod(testMap["strike"][i]);
+            freq = std::stod(testMap["freq"][i]);
+            std::cout << "building BOND" << std::endl;
+            temp_parse = myCSVReader.parseRow(testMap["start"][i], '/');
+            startDate = Date(std::stoi(temp_parse[0]), std::stoi(temp_parse[1]),
+                             std::stoi(temp_parse[2]));
+            temp_parse = myCSVReader.parseRow(testMap["end"][i], '/');
+            endDate = Date(std::stoi(temp_parse[0]), std::stoi(temp_parse[1]),
+                           std::stoi(temp_parse[2]));
+            myPortfolio.push_back(std::make_unique<Bond>(startDate, endDate, notional, 
+                                                              notional, strike, 
+                                                              testMap["underlying"][i], "x"));
+
+        } else if (type == "swap") {
+            notional = std::stod(testMap["notional"][i]);
+            strike = std::stod(testMap["strike"][i]);
+            freq = std::stod(testMap["freq"][i]);
+            std::cout << "building SWAP" << std::endl;
+            temp_parse = myCSVReader.parseRow(testMap["start"][i], '/');
+            startDate = Date(std::stoi(temp_parse[0]), std::stoi(temp_parse[1]),
+                             std::stoi(temp_parse[2]));
+            temp_parse = myCSVReader.parseRow(testMap["end"][i], '/');
+            endDate = Date(std::stoi(temp_parse[0]), std::stoi(temp_parse[1]),
+                           std::stoi(temp_parse[2]));
+            std::cout << startDate << " " << endDate << " " << notional << " "
+                      << strike << " " << freq << std::endl;
+            myPortfolio.push_back(std::make_unique<Swap>(startDate, endDate, notional,
+                                            strike, freq, true, mkt,
+                                            testMap["underlying"][i], "x"));
+        } else if (type == "eur-opt") {
+            std::cout << "building EURO OPT" << std::endl;
+            temp_parse = myCSVReader.parseRow(testMap["end"][i], '/');
+            endDate = Date(std::stoi(temp_parse[0]), std::stoi(temp_parse[1]),
+                           std::stoi(temp_parse[2]));
+            std::cout << startDate << " " << endDate << " " << testMap["opt"][i]
+                      << " " << strike << " " << freq << std::endl;
+            if (testMap["opt"][i] == "call") {
+                myPortfolio.push_back(
+                    std::make_unique<EuropeanOption>(Call, stod(testMap["strike"][i]),
+                                       endDate, underlying, "x"));
+            } else if (testMap["opt"][i] == "put") {
+                myPortfolio.push_back(std::make_unique<EuropeanOption>(
+                    Put, stod(testMap["strike"][i]), endDate, underlying, "x"));
+            } else {
+                std::cout << "THIS IS NOT VALID OPTION TYPE" << std::endl;
+            }
+        } else if (type == "am-opt") {
+            std::cout << "building AMERICAN OPT" << std::endl;
+            temp_parse = myCSVReader.parseRow(testMap["end"][i], '/');
+            endDate = Date(std::stoi(temp_parse[0]), std::stoi(temp_parse[1]),
+                           std::stoi(temp_parse[2]));
+            std::cout << startDate << " " << endDate << " " << testMap["opt"][i]
+                      << " " << strike << " " << freq << std::endl;
+            if (testMap["opt"][i] == "call") {
+                myPortfolio.push_back(
+                    std::make_unique<AmericanOption>(Call, std::stof(testMap["strike"][i]),
+                                       endDate, underlying, "x"));
+            } else if (testMap["opt"][i] == "put") {
+                myPortfolio.push_back(
+                    std::make_unique<AmericanOption>(Put, std::stof(testMap["strike"][i]),
+                                       endDate, underlying, "x"));
+            } else {
+                std::cout << "THIS IS NOT VALID OPTION TYPE" << std::endl;
+            }
+
+        } else {
+            std::cout << "THIS IS NOT VALID PRODUCT" << std::endl;
+        }
+    }
+
+ //    std::vector<std::unique_ptr<Trade>> myPortfolio;
+
+	// for (int i = 0; i < testMap["Id"].size(); i++) {
+	//     std::string type = testMap["type"][i];
+	//     std::string underlying = testMap["underlying"][i];
+	//     double notional = std::stod(testMap["notional"][i]);
+	//     double strike = std::stod(testMap["strike"][i]);
+	//     double freq = std::stod(testMap["freq"][i]);
+
+	//     std::vector<std::string> temp_parse;
+	//     Date startDate, endDate, expiryDate;
+
+	//     if (type == "bond") {
+	//         std::cout << "building BOND" << std::endl;
+	//         // Parse dates etc., same as your code
+	//         myPortfolio.push_back(std::make_unique<Bond>(startDate, endDate, notional, strike, freq, true, mkt, underlying, "x"));
+	//     } else if (type == "swap") {
+	//         std::cout << "building SWAP" << std::endl;
+	//         // Parse dates etc., same as your code
+	//         myPortfolio.push_back(std::make_unique<Swap>(startDate, endDate, notional, strike, freq, true, mkt, underlying, "x"));
+	//     } else if (type == "eur-opt") {
+	//         std::cout << "building EURO OPT" << std::endl;
+	//         OptionType optType = (testMap["opt"][i] == "call") ? Call : Put;
+	//         myPortfolio.push_back(std::make_unique<EuropeanOption>(optType, strike, endDate, underlying, "x"));
+	//     } else if (type == "am-opt") {
+	//         std::cout << "building AMERICAN OPT" << std::endl;
+	//         OptionType optType = (testMap["opt"][i] == "call") ? Call : Put;
+	//         myPortfolio.push_back(std::make_unique<AmericanOption>(optType, strike, endDate, underlying, "x"));
+	//     } else {
+	//         std::cout << "THIS IS NOT VALID PRODUCT" << std::endl;
+	//     }
+	// }
+
+    // /*
+    // load data from file and update market object with data
+    // */
+
+    // std::cout << DATA_PATH / "vol_bond.csv111" << std::endl;
+    // mkt.updateMarketFromVolFile((DATA_PATH / "vol_bond.csv").string(),
+    //                             "BondTrade"); // Update market data from file
+    // mkt.updateMarketFromVolFile((DATA_PATH / "vol_swap.csv").string(),
+    //                             "SwapTrade"); // Update market data from file
+    // mkt.updateMarketFromVolFile(
+    //     (DATA_PATH / "vol_amer.csv").string(),
+    //     "AmericanOption"); // Update market data from file
+    // mkt.updateMarketFromVolFile(
+    //     (DATA_PATH / "vol_euro.csv").string(),
+    //     "EuropeanOption"); // Update market data from file
+    // // mkt.updateMarketFromVolFile("../../voldummycurve.csv", "vol");
+
+    // // mkt.updateMarketFromVolFile("../../data/vol.txt", "vol");
 
     mkt.updateMarketFromBondFile(
         (DATA_PATH / "bondPrice.txt").string()); // Load bond prices
 
     mkt.updateMarketFromStockFile(
         (DATA_PATH / "stockPrice.csv").string()); // Load stock prices
-    // mkt.updateMarketFromCurveFile("../../data/curve.txt", "USD-SOFR");
-    mkt.updateMarketFromCurveFile((DATA_PATH / "sofrdummycurve.csv").string(),
-                                  "USD-SOFR");
-    mkt.Print(); // Check loaded data
+    // // mkt.updateMarketFromCurveFile("../../data/curve.txt", "USD-SOFR");
+    // mkt.updateMarketFromCurveFile((DATA_PATH / "sofrdummycurve.csv").string(),
+    //                               "USD-SOFR");
+    // mkt.Print(); // Check loaded data
 
-    // TODO : create more bonds / swaps/ european option / american options
-    // task 2, create a portfolio of bond, swap, european option, american
-    // option for each time, at least should have long / short, different tenor
-    // or expiry, different underlying totally no less than 16 trades
+    // // TODO : create more bonds / swaps/ european option / american options
+    // // task 2, create a portfolio of bond, swap, european option, american
+    // // option for each time, at least should have long / short, different tenor
+    // // or expiry, different underlying totally no less than 16 trades
 
-    /*
-        JOS 2024/05/25
-            This utilizes the JSONReader functionality,
-            Users supply a JSON file containing the portfolio.
-            JSONReader will parse and construct the portfolio vector.
-    */
-    vector<std::unique_ptr<Trade>> myPortfolio;
-    JSONReader myJSONReader((MKT_DATA_PATH / "portfolio.json").string(), mkt,
-                            myPortfolio);
-    myJSONReader.constructPortfolio();
-    myJSONReader.getMarketObject().Print();
+    // /*
+    //     JOS 2024/05/25
+    //         This utilizes the JSONReader functionality,
+    //         Users supply a JSON file containing the portfolio.
+    //         JSONReader will parse and construct the portfolio vector.
+    // */
+    // vector<std::unique_ptr<Trade>> myPortfolio;
+    // JSONReader myJSONReader((MKT_DATA_PATH / "portfolio.json").string(), mkt,
+    //                         myPortfolio);
+    // myJSONReader.constructPortfolio();
+    // myJSONReader.getMarketObject().Print();
 
-    // why do i need to re-set myPortfolio?
-    // Move the portfolio
-    myPortfolio = std::move(myJSONReader.getPortfolio());
+    // // why do i need to re-set myPortfolio?
+    // // Move the portfolio
+    // myPortfolio = std::move(myJSONReader.getPortfolio());
 
     std::unordered_map<SecurityKey, std::vector<Trade*>, SecurityHash> securityMap;
 	

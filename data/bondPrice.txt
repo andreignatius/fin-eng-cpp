@@ -1,3 +1,3 @@
-SGD-GOV: 102.5
-USD-GOV: 105.4
-SGD-MAS-BILL: 98
+sgd-gov: 102.5
+usd-gov: 105.4
+sgd-mas-bill: 98
