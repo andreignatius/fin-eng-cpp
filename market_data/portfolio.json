@@ -1,4 +1,5 @@
 [
+    // 1;bond;usd-gov;2024-06-01;2034-06-01;1000000;0.5;0.025;null;
     {
         "uuid":"001",
         "instrument":"BOND",
@@ -10,6 +11,7 @@
         "notional":10000000,
         "coupon_rate_pct":2.5
     },
+    // 2;bond;usd-gov;2024-06-01;2044-06-01;-500000;0.5;0.02;null;
     {
         "uuid":"002",
         "instrument":"BOND",
@@ -21,6 +23,7 @@
         "notional":-500000,
         "coupon_rate_pct":2.0
     },
+    // 3;swap;usd-sofr;2024-06-01;2034-06-01;-1000000;1.0;0.0375;null;
     {
         "uuid":"003",
         "instrument":"SWAP",
@@ -33,6 +36,7 @@
         "frequency":1,
         "curve_name":"USD-SOFR"
     },
+    // 4;swap;usd-sofr;2024-06-01;2030-06-01;2000000;0.5;0.043;null;
     {
         "uuid":"004",
         "instrument":"SWAP",
@@ -45,6 +49,7 @@
         "frequency":0.5,
         "curve_name":"USD-SOFR"
     },
+    // 5;swap;usd-sofr;2025-06-01;2030-06-01;5000000;1.0;0.032;null;
     {
         "uuid":"005",
         "instrument":"SWAP",
@@ -57,6 +62,7 @@
         "frequency":1,
         "curve_name":"USD-SOFR"
     },
+    // 6;swap;usd-sofr;2024-06-01;2032-06-01;1000000;0.5;0.04;null;
     {
         "uuid":"006",
         "instrument":"SWAP",
