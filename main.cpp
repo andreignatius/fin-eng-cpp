@@ -75,6 +75,8 @@ int main() {
     // from txt file
     std::filesystem::path DATA_PATH =
         std::filesystem::current_path() / "../../data";
+    std::filesystem::path MKT_DATA_PATH =
+        std::filesystem::current_path() / "../../market_data";
     std::time_t t = std::time(0);
     auto now_ = std::localtime(&t);
     Date valueDate;
@@ -124,7 +126,7 @@ int main() {
             JSONReader will parse and construct the portfolio vector.
     */
     vector<Trade *> myPortfolio;
-    JSONReader myJSONReader((DATA_PATH / "portfolio.json").string(), mkt,
+    JSONReader myJSONReader((MKT_DATA_PATH / "portfolio.json").string(), mkt,
                             myPortfolio);
     myJSONReader.constructPortfolio();
     myJSONReader.getMarketObject().Print();
