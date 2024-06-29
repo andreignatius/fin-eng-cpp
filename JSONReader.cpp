@@ -1,4 +1,5 @@
 #include "JSONReader.h"
+#include <memory>
 
 void JSONReader::setFileName(const std::string &filename) {
     theFilename = filename;
@@ -11,18 +12,23 @@ void JSONReader::setMarketObject(const Market &marketObj) {
 }
 Market JSONReader::getMarketObject() const { return theMarket; };
 
-void JSONReader::setPortfolio(vector<Trade *> &portfolioVec) {
-    thePortfolio = portfolioVec;
+// void JSONReader::setPortfolio(vector<Trade *> &portfolioVec) {
+//     thePortfolio = portfolioVec;
+// }
+void JSONReader::setPortfolio(std::vector<std::unique_ptr<Trade>>& portfolioVec) {
+    thePortfolio = std::move(portfolioVec);
 }
 
+
 JSONReader::~JSONReader() {
-    for (Trade* trade : thePortfolio) {
-        delete trade;
-    }
+    // for (Trade* trade : thePortfolio) {
+    //     delete trade;
+    // }
     thePortfolio.clear();
 }
 
-vector<Trade *> JSONReader::getPortfolio() { return thePortfolio; };
+std::vector<std::unique_ptr<Trade>>& JSONReader::getPortfolio() { return thePortfolio; };
+
 
 void JSONReader::constructPortfolio() {
     std::string lineText;
@@ -95,9 +101,9 @@ void JSONReader::constructPortfolio() {
                           << bondPrice << " " << notional << " "
                           << bondCouponRate << std::endl;
                 std::cout << "building BOND" ;
-                thePortfolio.push_back(new Bond(startDate, endDate, notional,
-                                                bondPrice, bondCouponRate,
-                                                name, uuid));
+                thePortfolio.push_back(std::make_unique<Bond>(startDate, endDate, notional, 
+                                                              bondPrice, bondCouponRate, 
+                                                              name, uuid));
                 std::cout << " ---> build complete" << std::endl;
 
                 break;
@@ -107,9 +113,9 @@ void JSONReader::constructPortfolio() {
                           << fixed_for_float << " " << frequency << " "
                           << curveName << std::endl;
                 std::cout << "building SWAP";
-                thePortfolio.push_back(new Swap(startDate, endDate, notional,
-                                                fixedRate, frequency,
-                                                fixed_for_float, theMarket, curveName, uuid));
+                thePortfolio.push_back(std::make_unique<Swap>(startDate, endDate, notional,
+                                                              fixedRate, frequency,
+                                                              fixed_for_float, theMarket, curveName, uuid));
                 std::cout << " ---> build complete" << std::endl;
                 break;
 
@@ -117,8 +123,8 @@ void JSONReader::constructPortfolio() {
                 std::cout << name << " " << option_type << " " << strike << " "
                           << expiryDate << " " << underlying << std::endl;
                 std::cout << "building EURO_OPTION";
-                thePortfolio.push_back(new EuropeanOption(
-                    option_type, strike, expiryDate, underlying, uuid));
+                thePortfolio.push_back(std::make_unique<EuropeanOption>(
+                                                        option_type, strike, expiryDate, underlying, uuid));
                 std::cout << " ---> build complete" << std::endl;
                 break;
 
@@ -126,8 +132,8 @@ void JSONReader::constructPortfolio() {
                 std::cout << name << " " << option_type << " " << strike << " "
                           << expiryDate << " " << underlying << std::endl;
                 std::cout << "building AMERICAN_OPTION";
-                thePortfolio.push_back(new AmericanOption(
-                    option_type, strike, expiryDate, underlying, uuid));
+                thePortfolio.push_back(std::make_unique<AmericanOption>(
+                                                        option_type, strike, expiryDate, underlying, uuid));
                 std::cout << " ---> build complete" << std::endl;
                 break;
 

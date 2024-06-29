@@ -11,6 +11,7 @@
 //interface
 class Pricer {
 public:
+  // virtual double Price(const Market& mkt, std::unique_ptr<Trade>& trade);
   virtual double Price(const Market& mkt, Trade* trade);
 
 private:

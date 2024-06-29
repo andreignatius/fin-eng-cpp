@@ -125,25 +125,28 @@ int main() {
             Users supply a JSON file containing the portfolio.
             JSONReader will parse and construct the portfolio vector.
     */
-    vector<Trade *> myPortfolio;
+    vector<std::unique_ptr<Trade>> myPortfolio;
     JSONReader myJSONReader((MKT_DATA_PATH / "portfolio.json").string(), mkt,
                             myPortfolio);
     myJSONReader.constructPortfolio();
     myJSONReader.getMarketObject().Print();
 
-    // why do i need to re-set myPortfolio?
-    myPortfolio = myJSONReader.getPortfolio();
+    // // why do i need to re-set myPortfolio?
+    // myPortfolio = myJSONReader.getPortfolio();
+    // Move the portfolio
+    myPortfolio = std::move(myJSONReader.getPortfolio());
+    
     std::unordered_map<SecurityKey, std::vector<Trade*>, SecurityHash> securityMap;
 	
 	for (auto& trade : myPortfolio) {
 	    // Check if the trade is an AmericanOption
-	    if (auto amerOption = dynamic_cast<AmericanOption*>(trade)) {
+	    if (auto amerOption = dynamic_cast<AmericanOption*>(trade.get())) {
 	        SecurityKey key{amerOption->getOptionType(), amerOption->getStrike(), amerOption->GetExpiry()};
 	        std::cout << "Inserting amer option: " << key.optionType << ", " << key.strike << ", " << key.expiry << std::endl;
 	        securityMap[key].push_back(amerOption);
 	    }
 	    // Check if the trade is a EuropeanOption
-	    else if (auto euroOption = dynamic_cast<EuropeanOption*>(trade)) {
+	    else if (auto euroOption = dynamic_cast<EuropeanOption*>(trade.get())) {
 	        SecurityKey key{euroOption->getOptionType(), euroOption->getStrike(), euroOption->GetExpiry()};
 	        std::cout << "Inserting euro option: " << key.optionType << ", " << key.strike << ", " << key.expiry << std::endl;
 	        securityMap[key].push_back(euroOption);
@@ -165,32 +168,54 @@ int main() {
     Pricer *treePricer = new CRRBinomialTreePricer(700);
 
     std::vector<double> pricingResults;
-    for (auto trade : myPortfolio) {
-        double pv = treePricer->Price(mkt, trade);
-        pricingResults.push_back(pv);
-        std::string tradeInfo = "";
+    // for (auto trade : myPortfolio) {
+    //     double pv = treePricer->Price(mkt, trade);
+    //     pricingResults.push_back(pv);
+    //     std::string tradeInfo = "";
  
-        std::cout << "*****Priced trade with PV*****: " << pv << std::endl;
-        // log pv details out in a file
-        //  Optionally write to a file or store results
-        // please output trade info such as id, trade type, notional, start/end/traded price and PV into a txt or csv file
-        // logger.info("trade: " + trade->getUUID() + " " + trade->getType() + " " + trade->getUnderlying() + " PV : " + std::to_string(pv));
-    	// logger.info("trade: " + trade->toString());
-    	if (auto* bond = dynamic_cast<Bond*>(trade)) {
+    //     std::cout << "*****Priced trade with PV*****: " << pv << std::endl;
+    //     // log pv details out in a file
+    //     //  Optionally write to a file or store results
+    //     // please output trade info such as id, trade type, notional, start/end/traded price and PV into a txt or csv file
+    //     // logger.info("trade: " + trade->getUUID() + " " + trade->getType() + " " + trade->getUnderlying() + " PV : " + std::to_string(pv));
+    // 	// logger.info("trade: " + trade->toString());
+    // 	if (auto* bond = dynamic_cast<Bond*>(trade.get())) {
+	   //      tradeInfo = bond->toString();
+	        
+	   //  } else if (auto* swap = dynamic_cast<Swap*>(trade.get())) {
+	   //      tradeInfo = swap->toString();
+	        
+	   //  } else if (auto* amerOption = dynamic_cast<AmericanOption*>(trade.get())) {
+	   //      tradeInfo = amerOption->toString();
+	        
+	   //  } else if (auto* euroOption = dynamic_cast<EuropeanOption*>(trade.get())) {
+	   //      tradeInfo = euroOption->toString();
+	   //  }
+	   //  std::cout << "trade: " << tradeInfo << " " << ", PV: " << pv << std::endl;
+	   //  logger.info("trade: " + tradeInfo + " , PV: " + std::to_string(pv));
+    // }
+
+    for (auto& trade : myPortfolio) {
+	    double pv = treePricer->Price(mkt, trade.get()); // Assuming Price() accepts a raw pointer
+	    pricingResults.push_back(pv);
+	    std::string tradeInfo = "";
+
+	    std::cout << "*****Priced trade with PV*****: " << pv << std::endl;
+	    // logger.info("trade: " + trade->getUUID() + " " + trade->getType() + " " + trade->getUnderlying() + " PV : " + std::to_string(pv));
+	    // logger.info("trade: " + trade->toString());
+
+	    if (auto* bond = dynamic_cast<Bond*>(trade.get())) {
 	        tradeInfo = bond->toString();
-	        
-	    } else if (auto* swap = dynamic_cast<Swap*>(trade)) {
+	    } else if (auto* swap = dynamic_cast<Swap*>(trade.get())) {
 	        tradeInfo = swap->toString();
-	        
-	    } else if (auto* amerOption = dynamic_cast<AmericanOption*>(trade)) {
+	    } else if (auto* amerOption = dynamic_cast<AmericanOption*>(trade.get())) {
 	        tradeInfo = amerOption->toString();
-	        
-	    } else if (auto* euroOption = dynamic_cast<EuropeanOption*>(trade)) {
+	    } else if (auto* euroOption = dynamic_cast<EuropeanOption*>(trade.get())) {
 	        tradeInfo = euroOption->toString();
 	    }
-	    std::cout << "trade: " << tradeInfo << " " << ", PV: " << pv << std::endl;
-	    logger.info("trade: " + tradeInfo + " , PV: " + std::to_string(pv));
-    }
+	    std::cout << "trade: " << tradeInfo << ", PV: " << pv << std::endl;
+	    logger.info("trade: " + tradeInfo + ", PV: " + std::to_string(pv));
+	}
 
     std::cout << "===========end of Part 3============" << std::endl;
 
@@ -205,8 +230,8 @@ int main() {
     std::cout << "\n============Start of Part 4============" << std::endl;
     std::cout << "a) Comparing European Option pricing methods" << std::endl;
 
-    for (auto trade : myPortfolio) {
-        EuropeanOption *euroOption = dynamic_cast<EuropeanOption *>(trade);
+    for (auto& trade : myPortfolio) {
+        EuropeanOption *euroOption = dynamic_cast<EuropeanOption *>(trade.get());
         if (euroOption) {
             std::string opt_type_str = "";
             OptionType opt_type = euroOption->getOptionType();
