@@ -302,7 +302,7 @@ int main() {
 
     // Part 4 a: risk-off
     // Define DV01 and Vega coefficients for each trade
-    // Example data
+    // Example data until part 3 is ready
     Eigen::VectorXd dv01(3);
     dv01 << 1000, -500, 200;
 
@@ -325,6 +325,8 @@ int main() {
     for (int i = 0; i < weights.size(); ++i) {
         std::cout << "Weight for Trade " << i + 1 << ": " << weights[i] << std::endl;
     }
+
+
 
     // end of part 4
 
