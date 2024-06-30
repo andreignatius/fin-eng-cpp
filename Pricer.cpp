@@ -15,18 +15,51 @@ double Pricer::Price(const Market &mkt, Trade *trade) {
     } else {
         double marketPrice = 0.0;
         if (trade->getType() == "BondTrade") {
+            std::cout << "checking bond px for " << trade->getUnderlying() << std::endl;
             marketPrice = mkt.getBondPrice(trade->getUnderlying());
+            std::cout << "bond px: " << marketPrice << std::endl;
         } else if (trade->getType() == "SwapTrade") {
             std::cout << "Processing swap trade with no relevant market price." << std::endl;
             marketPrice = 0.0;
         } else {
-            marketPrice = mkt.getSpotPrice(trade->getUnderlying());
+            marketPrice = mkt.getPriceOrRate(trade->getUnderlying(), Date(2024, 6, 1));
         }
         pv = trade->Payoff(marketPrice);
     }
 
     return pv;
 }
+
+double Pricer::CalculateDV01(const Market& market, Trade* trade) {
+    Market perturbedMarket = market;
+    perturbedMarket.adjustInterestRates(0.0001);  // Increase all rates by 1 bps
+    double priceOriginal = Price(market, trade);
+    double pricePerturbed = Price(perturbedMarket, trade);
+    std::cout << std::fixed << std::setprecision(10);  // Set precision for better visibility of small changes
+    std::cout << "price original: " << priceOriginal << ", pricePerturbed: " << pricePerturbed << std::endl;
+    return pricePerturbed - priceOriginal;
+}
+
+double Pricer::CalculateVega(const Market& market, Trade* trade) {
+    double vega = 0.0;
+    Market perturbedMarket = market;
+
+    if (auto* amerOption = dynamic_cast<AmericanOption*>(trade)) {
+        perturbedMarket.adjustVolatility(amerOption->getUnderlying(), 0.01);  // Increase vol by 1%
+        double priceOriginal = Price(market, amerOption);
+        double pricePerturbed = Price(perturbedMarket, amerOption);
+        vega = pricePerturbed - priceOriginal;
+    } else if (auto* euroOption = dynamic_cast<EuropeanOption*>(trade)) {
+        perturbedMarket.adjustVolatility(euroOption->getUnderlying(), 0.01);  // Increase vol by 1%
+        double priceOriginal = Price(market, euroOption);
+        double pricePerturbed = Price(perturbedMarket, euroOption);
+        vega = pricePerturbed - priceOriginal;
+    }
+    
+    return vega;
+}
+
+
 
 // REFERENCE : VERBOSE LOGIC FOR DEBUGGING PURPOSES
 // double Pricer::Price(const Market &mkt, Trade *trade) {
@@ -97,12 +130,13 @@ double BinomialTreePricer::PriceTree(const Market &mkt,
     */
     double stockPrice = 0;
     if (trade.getType() == "TreeProduct" || trade.getType() == "AmericanOption" || trade.getType() == "EuropeanOption") {
-      // std::cout << "underlying111: " << trade.getUnderlying() << std::endl;
-      stockPrice = mkt.getSpotPrice(trade.getUnderlying());
+      std::cout << "underlying111: " << trade.getUnderlying() << std::endl;
+      stockPrice = mkt.getPriceOrRate(trade.getUnderlying(), Date(2024, 6, 1));
+      std::cout << "px output: " << stockPrice << std::endl;
     } else {
-      stockPrice = mkt.getSpotPrice(trade.getType());
+      stockPrice = mkt.getPriceOrRate(trade.getType(), Date(2024, 6, 1));
     }
-    double vol= mkt.getVolCurve("EuropeanOption").getVol(trade.GetExpiry()); 
+    double vol= mkt.getVolCurve(Date(2024, 6, 1), "EuropeanOption").getVol(trade.GetExpiry()); 
     double rate = mkt.getRiskFreeRate();
 
     std::cout << "Tree pricer parameters "<<std::endl;

@@ -1,11 +1,11 @@
 #include "Swap.h"
 #include "Constants.h"
 #include <cmath>
-#include <stdexcept>
 #include <sstream>
+#include <stdexcept>
 
 double Swap::Payoff(double marketPrice) const { // TODO marketPrice is redundant
-    double annuity = getAnnuity(); // Use internal market data
+    double annuity = getAnnuity();              // Use internal market data
     double currentRate = 0.0;
     double rate;
     double pv;
@@ -15,21 +15,25 @@ double Swap::Payoff(double marketPrice) const { // TODO marketPrice is redundant
     double floatLegPV;
     double DF_last;
 
-    fixedLegPV = annuity * (fixedRate / frequency); // assume fixedRate is annual rate
+    fixedLegPV =
+        annuity * (fixedRate * frequency); // assume fixedRate is annual rate
 
     // find last discount rate for floating leg pv calculation
     // TODO may need clean up and checks
     try {
-        currentRate = market.getCurve(curveName).getRate(startDate);
-        std::cout<<"current rate is "<<currentRate<<std::endl;
+        currentRate =
+            market.getCurve(Date(2024, 6, 1), curveName).getRate(startDate);
+        std::cout << "current rate is " << currentRate << std::endl;
     } catch (const std::out_of_range &e) {
         std::cerr << "specified curve not found in market data. - using "
                      "default rate 0."
                   << std::endl;
     }
-    long daysBetween    = maturityDate.differenceInDays(startDate);
-    double yearsBetween = static_cast<double>(daysBetween) / Constants::NUM_DAYS_IN_YEAR; // Convert days to years
-    int numPeriods      = static_cast<int>(yearsBetween * frequency); // Calculate the total number of periods
+    long daysBetween = maturityDate.differenceInDays(startDate);
+    double yearsBetween = static_cast<double>(daysBetween) /
+                          Constants::NUM_DAYS_IN_YEAR; // Convert days to years
+    int numPeriods = static_cast<int>(
+        yearsBetween * frequency); // Calculate the total number of periods
     for (int i = 1; i <= numPeriods; ++i) {
         paymentDate.addMonths(static_cast<int>(
             12 /
@@ -37,13 +41,13 @@ double Swap::Payoff(double marketPrice) const { // TODO marketPrice is redundant
         yearsSinceStart =
             static_cast<double>(paymentDate.differenceInDays(startDate)) /
             Constants::NUM_DAYS_IN_YEAR; // Convert days to years
-        rate = market.getCurve(curveName).getRate(paymentDate);
+        rate = market.getCurve(valueDate, curveName).getRate(paymentDate);
         double discountFactor = exp(-rate * yearsSinceStart);
     }
 
     DF_last = exp(-rate * yearsSinceStart);
     floatLegPV = notional * (1 - DF_last);
-    std::cout<<isFixedForFloating<<std::endl;
+    std::cout << isFixedForFloating << std::endl;
     if (isFixedForFloating) {
         pv = floatLegPV - fixedLegPV;
     } else {
@@ -57,8 +61,8 @@ double Swap::Payoff(double marketPrice) const { // TODO marketPrice is redundant
 std::string Swap::toString() const {
     std::ostringstream oss;
     oss << "Type: " << getType() << ", Start Date: " << startDate.toString()
-        << ", End Date: " << maturityDate.toString() << ", Notional: $" << notional
-        << ", Underlying: " << curveName << ", UUID: " << uuid;
+        << ", End Date: " << maturityDate.toString() << ", Notional: $"
+        << notional << ", Underlying: " << curveName << ", UUID: " << uuid;
     return oss.str();
 }
 
@@ -69,8 +73,8 @@ double Swap::getAnnuity() const {
 
     // Using differenceInDays to calculate the total number of periods
     long daysBetween = maturityDate.differenceInDays(startDate);
-    double yearsBetween =
-        static_cast<double>(daysBetween) / Constants::NUM_DAYS_IN_YEAR; // Convert days to years
+    double yearsBetween = static_cast<double>(daysBetween) /
+                          Constants::NUM_DAYS_IN_YEAR; // Convert days to years
     int numPeriods = static_cast<int>(
         yearsBetween * frequency); // Calculate the total number of periods
 
@@ -88,7 +92,8 @@ double Swap::getAnnuity() const {
             Constants::NUM_DAYS_IN_YEAR; // Convert days to years
         double disc_rate = 0.0;
         try {
-            disc_rate = market.getCurve(curveName).getRate(paymentDate);
+            disc_rate = market.getCurve(Date(2024, 6, 1), curveName)
+                            .getRate(paymentDate);
         } catch (const std::out_of_range &e) {
             // Handle error appropriately, e.g., use a fallback rate
             std::cerr << "Failed to find rate for date: " << paymentDate

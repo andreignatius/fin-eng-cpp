@@ -12,4 +12,10 @@ enum OptionType
     BinaryPut
 };
 
+enum class AssetType {
+    Rate,
+    Stock
+};
+
+
 #endif

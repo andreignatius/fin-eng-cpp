@@ -25,12 +25,14 @@ class JSONReader {
     std::string theFilename;
     Market theMarket;
     std::vector<std::unique_ptr<Trade>> thePortfolio; // Use smart pointers
+    Date referenceDate;
 
     // constructors
 
-    JSONReader(const std::string &filename, const Market& marketObj, std::vector<std::unique_ptr<Trade>>& portfolioVec)
-        : theFilename(filename), theMarket(marketObj), thePortfolio(std::move(portfolioVec)) {
-        std::cout << "Start JSONReader constructor with reference" << std::endl;
+    JSONReader(const std::string &filename, const Market& marketObj, std::vector<std::unique_ptr<Trade>>& portfolioVec,
+               const Date& date)
+        : theFilename(filename), theMarket(marketObj), thePortfolio(std::move(portfolioVec)), referenceDate(date) {
+        std::cout << "Start JSONReader constructor with reference date" << date.toString() << std::endl;
     };
     
     // Destructor

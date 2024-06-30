@@ -98,9 +98,8 @@ void JSONReader::constructPortfolio() {
                           << bondPrice << " " << notional << " "
                           << bondCouponRate << std::endl;
                 std::cout << "building BOND" ;
-                thePortfolio.push_back(std::make_unique<Bond>(startDate, endDate, notional, 
-                                                              bondPrice, bondCouponRate, 
-                                                              name, uuid));
+                thePortfolio.push_back(std::make_unique<Bond>(startDate, endDate, referenceDate, notional, 
+                                                              bondCouponRate, frequency, theMarket, name, uuid));
                 std::cout << " ---> build complete" << std::endl;
 
                 break;
@@ -110,7 +109,7 @@ void JSONReader::constructPortfolio() {
                           << fixed_for_float << " " << frequency << " "
                           << curveName << std::endl;
                 std::cout << "building SWAP";
-                thePortfolio.push_back(std::make_unique<Swap>(startDate, endDate, notional,
+                thePortfolio.push_back(std::make_unique<Swap>(startDate, endDate, referenceDate, notional,
                                                               fixedRate, frequency,
                                                               fixed_for_float, theMarket, curveName, uuid));
                 std::cout << " ---> build complete" << std::endl;
@@ -121,7 +120,7 @@ void JSONReader::constructPortfolio() {
                           << expiryDate << " " << underlying << std::endl;
                 std::cout << "building EURO_OPTION";
                 thePortfolio.push_back(std::make_unique<EuropeanOption>(
-                                                        option_type, strike, expiryDate, underlying, uuid));
+                                                        option_type, strike, expiryDate, referenceDate, underlying, uuid));
                 std::cout << " ---> build complete" << std::endl;
                 break;
 
@@ -130,7 +129,7 @@ void JSONReader::constructPortfolio() {
                           << expiryDate << " " << underlying << std::endl;
                 std::cout << "building AMERICAN_OPTION";
                 thePortfolio.push_back(std::make_unique<AmericanOption>(
-                                                        option_type, strike, expiryDate, underlying, uuid));
+                                                        option_type, strike, expiryDate, referenceDate, underlying, uuid));
                 std::cout << " ---> build complete" << std::endl;
                 break;
 
@@ -220,6 +219,12 @@ void JSONReader::constructPortfolio() {
                              std::stoi(temp_parse[2]));
                 } else {
                     endDate = endDate;
+                }
+
+                if (std::regex_search(lineText, match, getFrequency)) {
+                    frequency = std::stod(match.str(1));
+                } else {
+                    frequency = frequency;
                 }
 
             } else if (toBuild == SWAP) {

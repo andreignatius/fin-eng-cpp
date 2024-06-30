@@ -9,7 +9,7 @@
 
 class AmericanOption : public TreeProduct {
 public:
-    AmericanOption(OptionType optType, double strike, const Date& expiry, const string& underlying, const string& uuid);
+    AmericanOption(OptionType optType, double strike, const Date& expiry, const Date& date, const string& underlying, const string& uuid);
     virtual double Payoff(double S) const override;
     virtual const Date& GetExpiry() const override;
     double getStrike() const;
@@ -21,13 +21,14 @@ private:
     OptionType optType;
     double strike;
     Date expiryDate;
+    Date valueDate; // doubles as curve date selector
     string underlying;
     string uuid;
 };
 
 class AmerCallSpread : public TreeProduct {
 public:
-    AmerCallSpread(double k1, double k2, const Date& expiry, const string& uuid);
+    AmerCallSpread(double k1, double k2, const Date& expiry, const Date& date, const string& uuid);
     virtual double Payoff(double S) const override;
     virtual const Date& GetExpiry() const override;
 
@@ -35,6 +36,7 @@ private:
     double strike1;
     double strike2;
     Date expiryDate;
+    Date valueDate;
     string uuid;
 };
 
