@@ -25,6 +25,7 @@ std::vector<std::unique_ptr<Trade>> PortfolioMaker::constructPortfolio(
     std::string freq_str;
     std::string notional_str;
     std::string strike_str;
+    std::string id;
     double notional;
     double freq;
     double strike;
@@ -39,6 +40,7 @@ std::vector<std::unique_ptr<Trade>> PortfolioMaker::constructPortfolio(
     std::cout << portfolioMap.find("Id")->second.size() << std::endl;
     for (int i = 0; i < portfolioMap.find("Id")->second.size(); i++) {
         // 1. get the parameters
+        id = portfolioMap.at("Id")[i];
         type = portfolioMap.find("type")->second[i];
         underlying = portfolioMap.find("underlying")->second[i];
         start = portfolioMap.find("start")->second[i];
@@ -83,17 +85,17 @@ std::vector<std::unique_ptr<Trade>> PortfolioMaker::constructPortfolio(
             }
             thePortfolio.push_back(std::make_unique<Swap>(
                 startDate, endDate, valueDate, notional, strike, freq,
-                fixed_for_float, theMarket, underlying, "X"));
+                fixed_for_float, theMarket, underlying, id));
             std::cout << " ---> build complete" << std::endl;
 
         } else if (type == "eur-opt") {
             std::cout << "building EURO OPT" << std::endl;
             if (opt == "call") {
                 thePortfolio.push_back(std::make_unique<EuropeanOption>(
-                    Call, strike, expiryDate, valueDate, underlying, "X"));
+                    Call, strike, expiryDate, valueDate, underlying, id));
             } else if (opt == "put") {
                 thePortfolio.push_back(std::make_unique<EuropeanOption>(
-                    Put, strike, expiryDate, valueDate, underlying, "X"));
+                    Put, strike, expiryDate, valueDate, underlying, id));
             } else {
                 std::cout << "THIS IS NOT VALID OPTION TYPE" << std::endl;
             }
@@ -103,10 +105,10 @@ std::vector<std::unique_ptr<Trade>> PortfolioMaker::constructPortfolio(
             std::cout << "building AMERICAN OPT" << std::endl;
             if (opt == "call") {
                 thePortfolio.push_back(std::make_unique<AmericanOption>(
-                    Call, strike, expiryDate, valueDate, underlying, "X"));
+                    Call, strike, expiryDate, valueDate, underlying, id));
             } else if (opt == "put") {
                 thePortfolio.push_back(std::make_unique<AmericanOption>(
-                    Put, strike, expiryDate, valueDate, underlying, "X"));
+                    Put, strike, expiryDate, valueDate, underlying, id));
             } else {
                 std::cout << "THIS IS NOT VALID OPTION TYPE" << std::endl;
             }
