@@ -164,7 +164,7 @@ int main() {
     */
     vector<std::unique_ptr<Trade>> myPortfolio;
     JSONReader myJSONReader((MKT_DATA_PATH / "portfolio.json").string(), mkt,
-                            myPortfolio);
+                            myPortfolio, Date(2024, 6, 1));
     myJSONReader.constructPortfolio();
     myJSONReader.getMarketObject().Print();
 

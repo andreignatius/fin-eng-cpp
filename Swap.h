@@ -19,7 +19,7 @@ class Swap : public Trade {
     Swap(Date start, Date end, Date _valueDate, double _notional,
          double _fixedRate, double _frequency, bool _isFixedForFloating,
          const Market &_market, const string _curveName, const string _uuid)
-        : Trade("SwapTrade", start, _curveName, _uuid), startDate(start),
+        : Trade("SwapTrade", start, _valueDate, _curveName, _uuid), startDate(start),
           maturityDate(end), valueDate(_valueDate), notional(_notional),
           fixedRate(_fixedRate), frequency(_frequency),
           isFixedForFloating(_isFixedForFloating), market(_market),

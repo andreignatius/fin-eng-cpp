@@ -217,17 +217,52 @@ void Market::addBondPrice(const std::string &bondName, double price) {
 //     }
 // }
 
+// // Retrieve curve or price information
+// RateCurve Market::getCurve(const Date& date, const string& curveName) const {
+//     std::cout << "try to getCurve: " << date.toString() << ", " << curveName << std::endl;
+//     auto itDate = dailyCurves.find(date);
+//     if (itDate != dailyCurves.end()) {
+//         std::cout << "able to find " << date.toString() << " in dailyCurves" << std::endl;
+//         std::cout << "checking111" << itDate->first.toString() << std::endl;
+//         // "," << itDate->second.first.toString() << std::endl;
+//         for (const auto& curvePair : itDate->second) {
+//             std::cout << "  Asset: " << curvePair.first << std::endl;
+//             curvePair.second.display();
+//             // curvePair.second.display();  // Assuming RateCurve has a display() method
+//         }
+//         auto itCurve = itDate->second.find(curveName);
+//         if (itCurve != itDate->second.end()) {
+//             return itCurve->second;
+//         }
+//     }
+//     throw runtime_error("Rate Curve not found for given date and name.");
+// }
+
 // Retrieve curve or price information
 RateCurve Market::getCurve(const Date& date, const string& curveName) const {
+    std::cout << "try to getCurve: " << date.toString() << ", " << curveName << std::endl;
     auto itDate = dailyCurves.find(date);
     if (itDate != dailyCurves.end()) {
+        std::cout << "Found date: " << date.toString() << " in dailyCurves." << std::endl;
+        
+        // Display all curves available on this date
+        for (const auto& curvePair : itDate->second) {
+            std::cout << "  Available Asset: " << curvePair.first << std::endl;
+            curvePair.second.display();  // Assuming RateCurve has a display() method
+        }
+
         auto itCurve = itDate->second.find(curveName);
         if (itCurve != itDate->second.end()) {
             return itCurve->second;
+        } else {
+            std::cerr << "Curve not found: " << curveName << " on " << date.toString() << std::endl;
         }
+    } else {
+        std::cerr << "Date not found in dailyCurves: " << date.toString() << std::endl;
     }
-    throw runtime_error("Curve not found for given date and name.");
+    throw runtime_error("Rate Curve not found for given date and name: " + curveName + " on " + date.toString());
 }
+
 
 // VolCurve Market::getVolCurve(const string& name) const {
 
@@ -247,7 +282,7 @@ VolCurve Market::getVolCurve(const Date& date, const string& curveName) const {
             return itCurve->second;
         }
     }
-    throw runtime_error("Curve not found for given date and name.");
+    throw runtime_error("Vol Curve not found for given date and name.");
 }
 
 //*******************
