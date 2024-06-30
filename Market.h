@@ -38,7 +38,7 @@ class VolCurve { // atm vol curve without smile
     VolCurve() {}
     VolCurve(const string &_name, const Date& _startDate) : name(_name), startDate(_startDate) {};
     void addVol(Date tenor, double volInDecimal); // implement this
-    double getVol(Date tenor) const; // implement using linear interpolation
+    double getVol(const Date& tenor) const; // implement using linear interpolation
     vector<double> getVols() const;
     double getLatestVol() const; // Method to get the latest volatility
     void display() const;        // implement this

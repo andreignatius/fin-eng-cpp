@@ -231,6 +231,8 @@ int main() {
         std::make_unique<CRRBinomialTreePricer>(700);
 
     std::vector<double> pricingResults;
+    std::ofstream outputFile("portfolio_data.csv");
+	outputFile << "TradeID,DV01,Vega,PV\n";  // Column headers
 
     for (auto &trade : myPortfolio) {
         std::cout << "***** Start PV Pricing and Risk Test *****" << std::endl;
@@ -266,7 +268,11 @@ int main() {
                   << ", Vega: " << vega << std::endl;
         logger.info("Trade PV: " + std::to_string(pv) + ", DV01: " +
                     std::to_string(dv01) + ", Vega: " + std::to_string(vega));
+        // Assuming Trade has a method getID() that returns a unique identifier
+    	outputFile << trade->getUUID() << "," << dv01 << "," << vega << "," << pv << "\n";
     }
+    outputFile.close();
+
     std::cout << "===========end of Part 3============" << std::endl;
 
     //    // task 4, analyzing pricing result

@@ -101,32 +101,64 @@ void VolCurve::addVol(Date tenor, double volInDecimal) {
 }
 
 // TODO : What is this volatility even? Volatility curve like the smile?
-double VolCurve::getVol(Date tenor) const {
-    if (tenors.empty())
-        return 0; // No vols added
+// double VolCurve::getVol(Date tenor) const {
+//     if (tenors.empty())
+//         return 0; // No vols added
 
-    if (tenor <= tenors[0]) {
-        return vols[0]; // if tenor date is shorter than available tenors
-    } else if (tenor >= tenors[tenors.size() - 1]) {
-        return vols[vols.size() -
-                    1]; // if tenor date is longer than available tenors
+//     if (tenor <= tenors[0]) {
+//         return vols[0]; // if tenor date is shorter than available tenors
+//     } else if (tenor >= tenors[tenors.size() - 1]) {
+//         return vols[vols.size() -
+//                     1]; // if tenor date is longer than available tenors
+//     } else {
+//         // Linear interpolation
+//         // explore better way to do this than for loop maybe
+//         for (size_t i = 1; i < tenors.size(); ++i) {
+//             if (tenors[i] >= tenor) {
+//                 // Perform interpolation
+//                 double diffVol = vols[i] - vols[i - 1];
+//                 double tenorStep = tenors[i].differenceInDays(tenors[i - 1]);
+//                 double tenorDiff = tenor.differenceInDays(tenors[i - 1]);
+//                 double interpVol =
+//                     vols[i - 1] + diffVol * (tenorDiff / tenorStep);
+//                 return interpVol;
+//             }
+//         }
+//     }
+//     return 0;
+// }
+
+double VolCurve::getVol(const Date &expiry) const {
+    if (tenors.empty()) return 0; // No vols added
+    std::cout << "in VolCurve::getVol - " << expiry.toString() << std::endl;
+    // Calculate the time to maturity in days
+    int daysToMaturity = expiry.differenceInDays(startDate);
+    std::cout << "days to maturity: " << daysToMaturity << std::endl;
+    std::cout << "shortest available tenor: " << tenors[0].differenceInDays(startDate) << std::endl;
+    if (daysToMaturity <= tenors[0].differenceInDays(startDate)) {
+        std::cout << "tenor is shorter than available tenors: " << vols[0] << std::endl;
+        return vols[0]; // If tenor is shorter than available tenors
+    } else if (daysToMaturity >= tenors.back().differenceInDays(startDate)) {
+        std::cout << "tenor is shorter than available tenors: " << vols.back() << std::endl;
+        return vols.back(); // If tenor is longer than available tenors
     } else {
         // Linear interpolation
-        // explore better way to do this than for loop maybe
         for (size_t i = 1; i < tenors.size(); ++i) {
-            if (tenors[i] >= tenor) {
-                // Perform interpolation
-                double diffVol = vols[i] - vols[i - 1];
-                double tenorStep = tenors[i].differenceInDays(tenors[i - 1]);
-                double tenorDiff = tenor.differenceInDays(tenors[i - 1]);
-                double interpVol =
-                    vols[i - 1] + diffVol * (tenorDiff / tenorStep);
-                return interpVol;
+            int currentTenorDays = tenors[i].differenceInDays(startDate);
+            if (currentTenorDays >= daysToMaturity) {
+                int previousTenorDays = tenors[i - 1].differenceInDays(startDate);
+                double lowerVol = vols[i - 1];
+                double upperVol = vols[i];
+
+                // Interpolation formula
+                std::cout << "Interpolated value: " << lowerVol + (upperVol - lowerVol) * (daysToMaturity - previousTenorDays) / (currentTenorDays - previousTenorDays) << std::endl;
+                return lowerVol + (upperVol - lowerVol) * (daysToMaturity - previousTenorDays) / (currentTenorDays - previousTenorDays);
             }
         }
     }
-    return 0;
+    return 0; // Default
 }
+
 
 vector<double> VolCurve::getVols() const { return this->vols; }
 
