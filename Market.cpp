@@ -11,7 +11,6 @@ void RateCurve::display() const {
     }
     std::cout << std::endl;
 }
-
 void RateCurve::addRate(const Date &tenor, double rate) {
     // consider to check if tenor already exist
     // Search for the tenor in the existing list of tenors
@@ -75,6 +74,10 @@ double RateCurve::getRate(Date tenor) const {
 }
 
 std::vector<double> &RateCurve::getRates() { return this->rates; }
+std::vector<Date> &RateCurve::getTenors() { return this->tenors; }
+
+std::vector<double> &VolCurve::getRates() { return this->vols; }
+std::vector<Date> &VolCurve::getTenors() { return this->tenors; }
 
 void VolCurve::addVol(Date tenor, double volInDecimal) {
     // consider to check if tenor already exist
@@ -289,8 +292,6 @@ RateCurve Market::getCurve(const Date &date, const string &curveName) const {
     //           << std::endl;
     auto itDate = dailyCurves.find(date);
     if (itDate != dailyCurves.end()) {
-        // std::cout << "Found date: " << date.toString() << " in dailyCurves."
-        //           << std::endl;
 
         // Display all curves available on this date
         /*
@@ -301,6 +302,7 @@ RateCurve Market::getCurve(const Date &date, const string &curveName) const {
                   .display(); // Assuming RateCurve has a display() method
         }
         */
+
         auto itCurve = itDate->second.find(curveName);
         if (itCurve != itDate->second.end()) {
             return itCurve->second;

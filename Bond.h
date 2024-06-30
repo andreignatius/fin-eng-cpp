@@ -21,12 +21,14 @@ class Bond : public Trade {
     Bond(Date start, Date end, Date _valueDate, double _notional,
          double _couponRate, double _frequency, const Market &_market,
          const string _curveName, const string _uuid)
-        : Trade("BondTrade", start, _valueDate, _curveName, _uuid), startDate(start),
-          maturityDate(end), valueDate(_valueDate), notional(_notional),
-          couponRate(_couponRate), frequency(_frequency), market(_market),
-          curveName(_curveName), uuid(_uuid) {
-        std::cout << "init bond trade : " << start.toString() << "," << end.toString() << "," << _valueDate.toString()
-        << "," << _notional << "," << _couponRate << "," << _frequency << "," << _curveName << "," << _uuid << std::endl;
+        : Trade("BondTrade", start, _valueDate, _curveName, _uuid),
+          startDate(start), maturityDate(end), valueDate(_valueDate),
+          notional(_notional), couponRate(_couponRate), frequency(_frequency),
+          market(_market), curveName(_curveName), uuid(_uuid) {
+        std::cout << "init bond trade : " << start.toString() << ","
+                  << end.toString() << "," << _valueDate.toString() << ","
+                  << _notional << "," << _couponRate << "," << _frequency << ","
+                  << _curveName << "," << _uuid << std::endl;
         if (startDate >= maturityDate) {
             throw std::invalid_argument(
                 "Start date must be before the maturity date.");
@@ -41,6 +43,7 @@ class Bond : public Trade {
     }
 
     double Payoff(double marketPrice) const override;
+    double PayoffCurve(RateCurve theCurve) const;
     std::string toString() const;
 
   private:

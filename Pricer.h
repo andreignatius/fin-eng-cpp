@@ -20,7 +20,8 @@ class Pricer {
                                  const Date &valueDate);
 
   private:
-    virtual double PriceTree(const Market &mkt, const TreeProduct &trade) {
+    virtual double PriceTree(const Market &mkt, const TreeProduct &trade,
+                             const Date &valueDate) {
         return 0;
     };
 };
@@ -31,7 +32,8 @@ class BinomialTreePricer : public Pricer {
         nTimeSteps = N;
         states.resize(N + 1);
     }
-    double PriceTree(const Market &mkt, const TreeProduct &trade) override;
+    double PriceTree(const Market &mkt, const TreeProduct &trade,
+                     const Date &valueDate) override;
 
   protected:
     virtual void ModelSetup(double S0, double sigma, double rate,

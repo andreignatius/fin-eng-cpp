@@ -19,9 +19,9 @@ class Swap : public Trade {
     Swap(Date start, Date end, Date _valueDate, double _notional,
          double _fixedRate, double _frequency, bool _isFixedForFloating,
          const Market &_market, const string _curveName, const string _uuid)
-        : Trade("SwapTrade", start, _valueDate, _curveName, _uuid), startDate(start),
-          maturityDate(end), valueDate(_valueDate), notional(_notional),
-          fixedRate(_fixedRate), frequency(_frequency),
+        : Trade("SwapTrade", start, _valueDate, _curveName, _uuid),
+          startDate(start), maturityDate(end), valueDate(_valueDate),
+          notional(_notional), fixedRate(_fixedRate), frequency(_frequency),
           isFixedForFloating(_isFixedForFloating), market(_market),
           curveName(_curveName), uuid(_uuid) {
         if (startDate >= maturityDate) {
@@ -45,6 +45,8 @@ class Swap : public Trade {
     curve;
     */
     virtual double Payoff(double marketPrice) const override; // use Market data
+    double PayoffCurve(RateCurve theRate) const;              // use Market data
+
     std::string toString() const;
     double getAnnuity() const; // implement this in a cpp file
 
