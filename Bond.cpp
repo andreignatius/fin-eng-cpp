@@ -36,17 +36,22 @@ double Bond::Payoff(double marketPrice) const {
     */
 
     // 3. now do the calculation
-    std::cout << "VERIFY PAYMENT SCHEDULE" << std::endl;
-    for (auto it = paymentSchedule.begin(); it != paymentSchedule.end(); ++it) {
-        std::cout << *it << std::endl;
-    }
+
     // 4. Follow Swap a bit for PV calc
     long daysBetween = maturityDate.differenceInDays(startDate);
     double yearsBetween = static_cast<double>(daysBetween) /
                           Constants::NUM_DAYS_IN_YEAR; // Convert days to years
-    int numPeriods = static_cast<int>(
-        yearsBetween * frequency); // Calculate the total number of periods
-
+    int numPeriods = paymentSchedule.size();
+    std::cout << "numPeriods : " << numPeriods << " ; startDate : " << startDate
+              << " ; maturityDate : " << maturityDate
+              << " ; Notional : " << notional
+              << " ; Coupon Amt : " << couponAmount << " ; Freq : " << frequency
+              << std::endl;
+    // std::cout << "VERIFY PAYMENT SCHEDULE" << std::endl;
+    // for (auto it = paymentSchedule.begin(); it != paymentSchedule.end();
+    // ++it) {
+    //     std::cout << *it << std::endl;
+    // }
     for (int i = 0; i < numPeriods; ++i) {
         if (paymentSchedule[i] <= valueDate) {
             // coupon already disbursed
@@ -64,16 +69,17 @@ double Bond::Payoff(double marketPrice) const {
             if (i == paymentCount - 1) {
                 // on maturity coupon + notional
                 pv += discountFactor * (couponAmount + notional);
-                std::cout << "COUNT FINAL" << i << " PV : " << pv << std::endl;
+                std::cout << "COUNT FINAL " << i
+                          << " DATE : " << paymentSchedule[i] << " PV : " << pv
+                          << std::endl;
             } else {
                 // only coupon
                 pv += discountFactor * couponAmount;
-                std::cout << pv << std::endl;
-                std::cout << "COUNT " << i << " PV : " << pv << std::endl;
+                std::cout << "COUNT " << i << " DATE : " << paymentSchedule[i]
+                          << " PV : " << pv << std::endl;
             }
         }
     }
-
     return pv;
 }
 
