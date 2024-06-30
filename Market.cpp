@@ -250,8 +250,8 @@ RateCurve Market::getCurve(const Date& date, const string& curveName) const {
             std::cout << "  Available Asset: " << curvePair.first << std::endl;
             curvePair.second.display();  // Assuming RateCurve has a display() method
         }
-
-        auto itCurve = itDate->second.find(curveName);
+        // USD-SOFR is the main benchmark curve, no other benchmark and bond does not have its own curve
+        auto itCurve = itDate->second.find("USD-SOFR");
         if (itCurve != itDate->second.end()) {
             return itCurve->second;
         } else {
