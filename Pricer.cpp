@@ -1,28 +1,43 @@
 #include "Pricer.h"
 #include "AmericanTrade.h"
+#include "Constants.h"
 #include "EuropeanTrade.h"
 #include "Market.h"
-#include "Constants.h"
 #include <cmath>
 
-double Pricer::Price(const Market &mkt, Trade *trade) {
+double Pricer::Price(const Market &mkt, Trade *trade, const Date &valueDate) {
     double pv = 0.0;
 
-    if (auto *option = dynamic_cast<TreeProduct*>(trade)) {
-        // Simplifies handling for both American and European options as both are TreeProduct.
-        // verbose logic below for reference / trace of code for debugging purposes
+    if (auto *option = dynamic_cast<TreeProduct *>(trade)) {
+        // Simplifies handling for both American and European options as both
+        // are TreeProduct. verbose logic below for reference / trace of code
+        // for debugging purposes
         pv = PriceTree(mkt, *option);
+        // I NEED TO SEE THE STRIKE !
+        auto *americanOption = dynamic_cast<AmericanOption *>(trade);
+        auto *europeanOption = dynamic_cast<EuropeanOption *>(trade);
+        if (americanOption) {
+            std::cout << "AMERICAN STRIKE (K) = " << americanOption->getStrike()
+                      << std::endl;
+        } else if (europeanOption) {
+            std::cout << "EURO STRIKE (K) = " << europeanOption->getStrike()
+                      << std::endl;
+        } else {
+            std::cerr << "Cast failed to check OPTION STRIKE" << std::endl;
+        }
     } else {
         double marketPrice = 0.0;
         if (trade->getType() == "BondTrade") {
-            std::cout << "checking bond px for " << trade->getUnderlying() << std::endl;
+            std::cout << "checking bond px for " << trade->getUnderlying()
+                      << std::endl;
             marketPrice = mkt.getBondPrice(trade->getUnderlying());
             std::cout << "bond px: " << marketPrice << std::endl;
         } else if (trade->getType() == "SwapTrade") {
-            std::cout << "Processing swap trade with no relevant market price." << std::endl;
+            std::cout << "Processing swap trade with no relevant market price."
+                      << std::endl;
             marketPrice = 0.0;
         } else {
-            marketPrice = mkt.getPriceOrRate(trade->getUnderlying(), Date(2024, 6, 1));
+            marketPrice = mkt.getPriceOrRate(trade->getUnderlying(), valueDate);
         }
         pv = trade->Payoff(marketPrice);
     }
@@ -30,42 +45,49 @@ double Pricer::Price(const Market &mkt, Trade *trade) {
     return pv;
 }
 
-double Pricer::CalculateDV01(const Market& market, Trade* trade) {
+double Pricer::CalculateDV01(const Market &market, Trade *trade,
+                             const Date &valueDate) {
     Market perturbedMarket = market;
-    perturbedMarket.adjustInterestRates(0.0001);  // Increase all rates by 1 bps
-    double priceOriginal = Price(market, trade);
-    double pricePerturbed = Price(perturbedMarket, trade);
-    std::cout << std::fixed << std::setprecision(10);  // Set precision for better visibility of small changes
-    std::cout << "price original: " << priceOriginal << ", pricePerturbed: " << pricePerturbed << std::endl;
+    perturbedMarket.adjustInterestRates(0.0001); // Increase all rates by 1 bps
+    double priceOriginal = Price(market, trade, valueDate);
+    double pricePerturbed = Price(perturbedMarket, trade, valueDate);
+    std::cout
+        << std::fixed
+        << std::setprecision(
+               10); // Set precision for better visibility of small changes
+    std::cout << "price original: " << priceOriginal
+              << ", pricePerturbed: " << pricePerturbed << std::endl;
     return pricePerturbed - priceOriginal;
 }
 
-double Pricer::CalculateVega(const Market& market, Trade* trade) {
+double Pricer::CalculateVega(const Market &market, Trade *trade,
+                             const Date &valueDate) {
     double vega = 0.0;
     Market perturbedMarket = market;
 
-    if (auto* amerOption = dynamic_cast<AmericanOption*>(trade)) {
-        perturbedMarket.adjustVolatility(amerOption->getUnderlying(), 0.01);  // Increase vol by 1%
-        double priceOriginal = Price(market, amerOption);
-        double pricePerturbed = Price(perturbedMarket, amerOption);
+    if (auto *amerOption = dynamic_cast<AmericanOption *>(trade)) {
+        perturbedMarket.adjustVolatility(amerOption->getUnderlying(),
+                                         0.01); // Increase vol by 1%
+        double priceOriginal = Price(market, amerOption, valueDate);
+        double pricePerturbed = Price(perturbedMarket, amerOption, valueDate);
         vega = pricePerturbed - priceOriginal;
-    } else if (auto* euroOption = dynamic_cast<EuropeanOption*>(trade)) {
-        perturbedMarket.adjustVolatility(euroOption->getUnderlying(), 0.01);  // Increase vol by 1%
-        double priceOriginal = Price(market, euroOption);
-        double pricePerturbed = Price(perturbedMarket, euroOption);
+    } else if (auto *euroOption = dynamic_cast<EuropeanOption *>(trade)) {
+        perturbedMarket.adjustVolatility(euroOption->getUnderlying(),
+                                         0.01); // Increase vol by 1%
+        double priceOriginal = Price(market, euroOption, valueDate);
+        double pricePerturbed = Price(perturbedMarket, euroOption, valueDate);
         vega = pricePerturbed - priceOriginal;
     }
-    
+
     return vega;
 }
-
-
 
 // REFERENCE : VERBOSE LOGIC FOR DEBUGGING PURPOSES
 // double Pricer::Price(const Market &mkt, Trade *trade) {
 //     double pv;
-//     // std::cout<< "mkt: " << mkt << " trade!!!: " << trade->getType() << std::endl;
-//     if (trade->getType() == "AmericanOption" || trade->getType() == "EuropeanOption") {
+//     // std::cout<< "mkt: " << mkt << " trade!!!: " << trade->getType() <<
+//     std::endl; if (trade->getType() == "AmericanOption" || trade->getType()
+//     == "EuropeanOption") {
 //         std::string opt_type_str = "";
 //         std::string underlying = "";
 //         Date expiry ;
@@ -78,7 +100,7 @@ double Pricer::CalculateVega(const Market& market, Trade* trade) {
 //                 opt_type_str = "CALL";
 //             } else if (opt_type == Put){
 //                 opt_type_str = "PUT";
-//             }            
+//             }
 //             strike = tempptr ->getStrike();
 //             underlying = tempptr->getUnderlying();
 //             expiry = tempptr->GetExpiry();
@@ -102,8 +124,8 @@ double Pricer::CalculateVega(const Market& market, Trade* trade) {
 //     } else {
 //         double price; // get from market data
 //         if (trade->getType() == "BondTrade") {
-//             // std::cout << "check bond name : " << trade->getUnderlying() << std::endl;
-//             price = mkt.getBondPrice(trade->getUnderlying());
+//             // std::cout << "check bond name : " << trade->getUnderlying() <<
+//             std::endl; price = mkt.getBondPrice(trade->getUnderlying());
 //         }
 //         else if (trade->getType() == "SwapTrade"){
 //             std::cout<<"This is a SWAP TRADE"<<std::endl;
@@ -111,36 +133,44 @@ double Pricer::CalculateVega(const Market& market, Trade* trade) {
 //         } else {
 //             price = mkt.getSpotPrice(trade->getUnderlying());
 //         }
-        
-//         // std::cout << "not tree product, where spot price : " << price << " for underlying : " << trade->getUnderlying() << endl;
-//         pv = trade->Payoff(price); // should be noted that for Swap , market price input is irrelevant
+
+//         // std::cout << "not tree product, where spot price : " << price << "
+//         for underlying : " << trade->getUnderlying() << endl; pv =
+//         trade->Payoff(price); // should be noted that for Swap , market price
+//         input is irrelevant
 //     }
 //     return pv;
 // }
-
 
 double BinomialTreePricer::PriceTree(const Market &mkt,
                                      const TreeProduct &trade) {
     // model setup
     // double T = trade.GetExpiry() - mkt.asOf;
-    double T = trade.GetExpiry().differenceInDays(mkt.asOf) / Constants::NUM_DAYS_IN_YEAR;
+    double T = trade.GetExpiry().differenceInDays(mkt.asOf) /
+               Constants::NUM_DAYS_IN_YEAR;
     double dt = T / nTimeSteps;
     /*
     get these data for the deal from market object
     */
     double stockPrice = 0;
-    if (trade.getType() == "TreeProduct" || trade.getType() == "AmericanOption" || trade.getType() == "EuropeanOption") {
-      std::cout << "underlying111: " << trade.getUnderlying() << std::endl;
-      stockPrice = mkt.getPriceOrRate(trade.getUnderlying(), Date(2024, 6, 1));
-      std::cout << "px output: " << stockPrice << std::endl;
+    if (trade.getType() == "TreeProduct" ||
+        trade.getType() == "AmericanOption" ||
+        trade.getType() == "EuropeanOption") {
+        std::cout << "underlying111: " << trade.getUnderlying() << std::endl;
+        stockPrice =
+            mkt.getPriceOrRate(trade.getUnderlying(), Date(2024, 6, 1));
+        std::cout << "px output: " << stockPrice << std::endl;
+
     } else {
-      stockPrice = mkt.getPriceOrRate(trade.getType(), Date(2024, 6, 1));
+        stockPrice = mkt.getPriceOrRate(trade.getType(), Date(2024, 6, 1));
     }
-    double vol= mkt.getVolCurve(Date(2024, 6, 1), "EuropeanOption").getVol(trade.GetExpiry()); 
+    double vol = mkt.getVolCurve(Date(2024, 6, 1), "EuropeanOption")
+                     .getVol(trade.GetExpiry());
     double rate = mkt.getRiskFreeRate();
 
-    std::cout << "Tree pricer parameters "<<std::endl;
-    std::cout << "T: " << T <<", Price: "<< stockPrice  << ", Vol: "<< vol << ", r: "<<rate<<std::endl;
+    std::cout << "Tree pricer parameters " << std::endl;
+    std::cout << "T: " << T << ", Price: " << ", Strike " << stockPrice
+              << ", Vol: " << vol << ", r: " << rate << std::endl;
 
     ModelSetup(stockPrice, vol, rate, dt);
 
