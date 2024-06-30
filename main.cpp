@@ -102,6 +102,7 @@ int main() {
     mkt.updateMarketFromCurveFile(
         (MKT_DATA_PATH / "usd_sofr_20240602.csv").string(), "usd-gov",
         Date(2024, 6, 2));
+
     mkt.updateMarketFromVolFile((MKT_DATA_PATH / "vol_20240601.csv").string(),
                                 "BondTrade", Date(2024, 6, 1));
     mkt.updateMarketFromVolFile((MKT_DATA_PATH / "vol_20240602.csv").string(),
@@ -140,6 +141,7 @@ int main() {
     std::unordered_map<std::string, std::vector<std::string>> myMap;
     myMap = myCSVReader.parseFile();
     vector<std::unique_ptr<Trade>> myPortfolio;
+    myPortfolio = PortfolioMaker::constructPortfolio(valueDate, myMap, mkt);
     // JSONReader myJSONReader((MKT_DATA_PATH / "portfolio.json").string(), mkt,
     //                         myPortfolio, Date(2024, 6, 1));
     // myJSONReader.constructPortfolio();
@@ -152,6 +154,7 @@ int main() {
     // myJSONReaderDay2.getMarketObject().Print();
 
     // Create and construct portfolio for day 1
+    /*
     JSONReader myJSONReader((MKT_DATA_PATH / "portfolio.json").string(), mkt,
                             myPortfolio, Date(2024, 6, 1));
     myJSONReader.constructPortfolio();
@@ -179,8 +182,9 @@ int main() {
                        std::make_move_iterator(tempPortfolio2.begin()),
                        std::make_move_iterator(tempPortfolio2.end()));
     tempPortfolio2.clear(); // Clear the temporary portfolio
-
+    */
     // Optionally print or validate the combined portfolio
+    mkt.Print();
     std::cout << "Combined portfolio size: " << myPortfolio.size() << std::endl;
 
     // why do i need to re-set myPortfolio?
@@ -231,8 +235,10 @@ int main() {
     for (auto &trade : myPortfolio) {
         std::cout << "***** Start PV Pricing and Risk Test *****" << std::endl;
         double pv = treePricer->Price(
-            mkt, trade.get()); // Assuming Price() accepts a raw pointer
-        double dv01 = treePricer->CalculateDV01(mkt, trade.get());
+            mkt, trade.get(),
+            Date(2024, 6, 1)); // Assuming Price() accepts a raw pointer
+        double dv01 =
+            treePricer->CalculateDV01(mkt, trade.get(), Date(2024, 6, 1));
         double vega = 0;
         pricingResults.push_back(pv);
         std::string tradeInfo = "";
@@ -248,11 +254,11 @@ int main() {
         } else if (auto *amerOption =
                        dynamic_cast<AmericanOption *>(trade.get())) {
             tradeInfo = amerOption->toString();
-            vega = treePricer->CalculateVega(mkt, amerOption);
+            vega = treePricer->CalculateVega(mkt, amerOption, Date(2024, 6, 1));
         } else if (auto *euroOption =
                        dynamic_cast<EuropeanOption *>(trade.get())) {
             tradeInfo = euroOption->toString();
-            vega = treePricer->CalculateVega(mkt, euroOption);
+            vega = treePricer->CalculateVega(mkt, euroOption, Date(2024, 6, 1));
         }
         // std::cout << "trade: " << tradeInfo << ", PV: " << pv << std::endl;
         // logger.info("trade: " + tradeInfo + ", PV: " + std::to_string(pv));
@@ -261,7 +267,6 @@ int main() {
         logger.info("Trade PV: " + std::to_string(pv) + ", DV01: " +
                     std::to_string(dv01) + ", Vega: " + std::to_string(vega));
     }
-
     std::cout << "===========end of Part 3============" << std::endl;
 
     //    // task 4, analyzing pricing result
