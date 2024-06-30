@@ -58,7 +58,7 @@ double Bond::Payoff(double marketPrice) const {
                 static_cast<double>(
                     paymentSchedule[i].differenceInDays(valueDate)) /
                 Constants::NUM_DAYS_IN_YEAR; // Convert days to years
-            rate = market.getCurve(Date(2024, 6, 1), curveName)
+            rate = market.getCurve(valueDate, curveName)
                        .getRate(paymentSchedule[i]);
             double discountFactor = exp(-rate * yearsSinceStart);
             if (i == paymentCount - 1) {
