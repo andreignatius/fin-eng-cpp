@@ -1,9 +1,11 @@
 # Financial Engineering Project using C++
 
 ## Overview
-This project involves pricing various financial instruments such as options and swaps using C++. 
-
-The project takes in market data in .txt or .csv or .json format, as well as user-defined financial instruments to perform these operations.
+### Part 1
+This part of the project involves pricing various financial instruments such as options and swaps using C++. 
+The code takes in market data in .txt or .csv or .json format, as well as user-defined financial instruments to perform these operations.
+### Part 2
+This part of the project continues from the above, but with additional requirements: 1) calculation of DV01 and Vega, 2) creating a portfolio of trades for 2.a) near-zero DV01 and Vega, 2.b) maximize PnL for certain DV01 and Vega appetite
 
 ## Features
 - Cross-OS collaboration using CMake
@@ -24,6 +26,9 @@ The project takes in market data in .txt or .csv or .json format, as well as use
   - Virtual functions and abstract base class
   - fstream
   - iterators
+  - smart pointers
+  - design pattern
+  - python integration
 
 ## Prerequisites
 - C++17 or later
@@ -61,6 +66,7 @@ The project takes in market data in .txt or .csv or .json format, as well as use
 
 ## Example
 A short extract of user input and project output
+### Part 1
 ```
 // user input
 mkt.updateMarketFromVolFile((DATA_PATH / "vol_euro.csv").string(), "EuropeanOption");
@@ -73,6 +79,12 @@ CRR tree priced trade with PV: 93.3583
 // log file output
 [INFO] Processing European Option. Underlying= AAPL, Type= 1, Strike= 700.000000, Expiry= 2025-12-31
 [INFO] trade: EuropeanOption AAPL PV : 105.594224
+```
+### Part 2
+```
+dv01_1 = np.array([0.6, -0.3, 0.4, 0.2])
+vega_1 = np.array([1.2, 0.8, -0.6, 0.1])
+Optimal weights: [0.01       0.44306136 0.53693864 0.01      ]
 ```
 
 ## Code Structure
