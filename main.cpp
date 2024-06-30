@@ -204,7 +204,7 @@ int main() {
 
     // why do i need to re-set myPortfolio?
     // Move the portfolio
-    myPortfolio = std::move(myJSONReader.getPortfolio());
+    // myPortfolio = std::move(myJSONReader.getPortfolio());
 
     std::unordered_map<SecurityKey, std::vector<Trade*>, SecurityHash> securityMap;
 	
