@@ -163,10 +163,44 @@ int main() {
             JSONReader will parse and construct the portfolio vector.
     */
     vector<std::unique_ptr<Trade>> myPortfolio;
+    // JSONReader myJSONReader((MKT_DATA_PATH / "portfolio.json").string(), mkt,
+    //                         myPortfolio, Date(2024, 6, 1));
+    // myJSONReader.constructPortfolio();
+    // myJSONReader.getMarketObject().Print();
+
+    // JSONReader myJSONReaderDay2((MKT_DATA_PATH / "portfolio.json").string(), mkt,
+    //                         myPortfolio, Date(2024, 6, 2));
+    // myJSONReaderDay2.constructPortfolio();
+    // myJSONReaderDay2.getMarketObject().Print();
+
+    // Create and construct portfolio for day 1
     JSONReader myJSONReader((MKT_DATA_PATH / "portfolio.json").string(), mkt,
                             myPortfolio, Date(2024, 6, 1));
     myJSONReader.constructPortfolio();
     myJSONReader.getMarketObject().Print();
+
+    // Extend the existing portfolio with day 1 trades
+    vector<std::unique_ptr<Trade>>& tempPortfolio1 = myJSONReader.getPortfolio();
+    myPortfolio.insert(myPortfolio.end(),
+                       std::make_move_iterator(tempPortfolio1.begin()),
+                       std::make_move_iterator(tempPortfolio1.end()));
+    tempPortfolio1.clear();  // Clear the temporary portfolio to ensure it's empty
+
+    // Create and construct portfolio for day 2
+    JSONReader myJSONReaderDay2((MKT_DATA_PATH / "portfolio.json").string(), mkt,
+                                myPortfolio, Date(2024, 6, 2));
+    myJSONReaderDay2.constructPortfolio();
+    myJSONReaderDay2.getMarketObject().Print();
+
+    // Extend the existing portfolio with day 2 trades
+    vector<std::unique_ptr<Trade>>& tempPortfolio2 = myJSONReaderDay2.getPortfolio();
+    myPortfolio.insert(myPortfolio.end(),
+                       std::make_move_iterator(tempPortfolio2.begin()),
+                       std::make_move_iterator(tempPortfolio2.end()));
+    tempPortfolio2.clear();  // Clear the temporary portfolio
+
+    // Optionally print or validate the combined portfolio
+    std::cout << "Combined portfolio size: " << myPortfolio.size() << std::endl;
 
     // why do i need to re-set myPortfolio?
     // Move the portfolio
