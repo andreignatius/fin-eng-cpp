@@ -1,11 +1,3 @@
-#include <chrono>
-#include <ctime>
-#include <filesystem>
-#include <fstream>
-#include <iostream>
-#include <mutex>
-#include <string>
-
 #include "AmericanTrade.h"
 #include "BlackScholesPricer.h"
 #include "Bond.h"
@@ -15,8 +7,16 @@
 #include "Market.h"
 #include "PortfolioMaker.h"
 #include "Pricer.h"
+#include "RiskEngine.h"
 #include "Swap.h"
 #include "Utils.h"
+#include <chrono>
+#include <ctime>
+#include <filesystem>
+#include <fstream>
+#include <iostream>
+#include <mutex>
+#include <string>
 /*
 Comments: when using new, pls remember to use delete for ptr
 */
@@ -232,14 +232,17 @@ int main() {
 
     std::vector<double> pricingResults;
 
+    RiskEngine myRE = RiskEngine(mkt);
+
     for (auto &trade : myPortfolio) {
         std::cout << "***** Start PV Pricing and Risk Test *****" << std::endl;
         double pv = treePricer->Price(
             mkt, trade.get(),
             Date(2024, 6, 1)); // Assuming Price() accepts a raw pointer
-        double dv01 =
-            treePricer->CalculateDV01(mkt, trade.get(), Date(2024, 6, 1));
+        double dv01 = 0; //     treePricer->CalculateDV01(mkt, trade.get(),
+                         //     Date(2024, 6, 1));
         double vega = 0;
+        myRE.computeRisk("dv01", trade.get(), Date(2024, 6, 1), true);
         pricingResults.push_back(pv);
         std::string tradeInfo = "";
         std::cout << "***** Priced trade with PV *****: " << pv << std::endl;
