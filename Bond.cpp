@@ -47,11 +47,6 @@ double Bond::Payoff(double marketPrice) const {
               << " ; Notional : " << notional
               << " ; Coupon Amt : " << couponAmount << " ; Freq : " << frequency
               << std::endl;
-    // std::cout << "VERIFY PAYMENT SCHEDULE" << std::endl;
-    // for (auto it = paymentSchedule.begin(); it != paymentSchedule.end();
-    // ++it) {
-    //     std::cout << *it << std::endl;
-    // }
     for (int i = 0; i < numPeriods; ++i) {
         if (paymentSchedule[i] <= valueDate) {
             // coupon already disbursed
@@ -69,14 +64,18 @@ double Bond::Payoff(double marketPrice) const {
             if (i == paymentCount - 1) {
                 // on maturity coupon + notional
                 pv += discountFactor * (couponAmount + notional);
+                /*
                 std::cout << "COUNT FINAL " << i
                           << " DATE : " << paymentSchedule[i] << " PV : " << pv
                           << std::endl;
+                          */
             } else {
                 // only coupon
                 pv += discountFactor * couponAmount;
+                /*
                 std::cout << "COUNT " << i << " DATE : " << paymentSchedule[i]
                           << " PV : " << pv << std::endl;
+                          */
             }
         }
     }
