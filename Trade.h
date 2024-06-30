@@ -10,8 +10,8 @@ public:
     Trade(const string& _type, const Date& _tradeDate): tradeType(_type), tradeDate(_tradeDate) {};
     Trade(const string& _type, const Date& _tradeDate, const string& _underlying)
         : tradeType(_type), tradeDate(_tradeDate), underlying(_underlying) {}
-    Trade(const string& _type, const Date& _tradeDate, const string& _underlying, const string& _uuid)
-        : tradeType(_type), tradeDate(_tradeDate), underlying(_underlying), uuid(_uuid) {}
+    Trade(const string& _type, const Date& _tradeDate, const Date& _valueDate, const string& _underlying, const string& _uuid)
+        : tradeType(_type), tradeDate(_tradeDate), valueDate(_valueDate), underlying(_underlying), uuid(_uuid) {}
 
     string getType() const;
     string getUnderlying() const; // Accessor for the underlying asset
@@ -24,6 +24,7 @@ public:
 protected:   
     string tradeType;
     Date tradeDate;
+    Date valueDate;
 private:
     string underlying; // Identifier for the underlying asset
     string uuid;
