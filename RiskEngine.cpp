@@ -56,8 +56,8 @@ void RiskEngine::computeRisk(string riskType, Trade *trade, Date valueDate,
                     upCurve.addRate(*it, currRate + 0.0001);
                     downCurve.addRate(*it, currRate - 0.0001);
                     //  3. NOW PRICE THIS
-                    pv_up = swap->Payoff(upCurve);
-                    pv_down = swap->Payoff(upCurve);
+                    pv_up = swap->PayoffCurve(upCurve);
+                    pv_down = swap->PayoffCurve(downCurve);
                     double dv01 = (pv_up - pv_down) / 2.0;
                     std::cout << "SWAP DV01 " << *it << " = " << dv01
                               << std::endl;
