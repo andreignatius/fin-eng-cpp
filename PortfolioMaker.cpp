@@ -90,10 +90,10 @@ std::vector<std::unique_ptr<Trade>> PortfolioMaker::constructPortfolio(
             std::cout << "building EURO OPT" << std::endl;
             if (opt == "call") {
                 thePortfolio.push_back(std::make_unique<EuropeanOption>(
-                    Call, strike, expiryDate, underlying, "X"));
+                    Call, strike, expiryDate, valueDate, underlying, "X"));
             } else if (opt == "put") {
                 thePortfolio.push_back(std::make_unique<EuropeanOption>(
-                    Put, strike, expiryDate, underlying, "X"));
+                    Put, strike, expiryDate, valueDate, underlying, "X"));
             } else {
                 std::cout << "THIS IS NOT VALID OPTION TYPE" << std::endl;
             }
@@ -103,10 +103,10 @@ std::vector<std::unique_ptr<Trade>> PortfolioMaker::constructPortfolio(
             std::cout << "building AMERICAN OPT" << std::endl;
             if (opt == "call") {
                 thePortfolio.push_back(std::make_unique<AmericanOption>(
-                    Call, strike, expiryDate, underlying, "X"));
+                    Call, strike, expiryDate, valueDate, underlying, "X"));
             } else if (opt == "put") {
                 thePortfolio.push_back(std::make_unique<AmericanOption>(
-                    Put, strike, expiryDate, underlying, "X"));
+                    Put, strike, expiryDate, valueDate, underlying, "X"));
             } else {
                 std::cout << "THIS IS NOT VALID OPTION TYPE" << std::endl;
             }
