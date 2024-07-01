@@ -18,6 +18,9 @@
 #include <mutex>
 #include <string>
 #include <future>
+
+#define USE_MULTITHREADING 1
+
 /*
 Comments: when using new, pls remember to use delete for ptr
 */
@@ -267,32 +270,11 @@ int main() {
 
     std::vector<double> pricingResults;
 
+    auto start = std::chrono::high_resolution_clock::now();
+
     RiskEngine myRiskEngine = RiskEngine(mkt);
-    // for (auto &trade : myPortfolio) {
-    //     std::cout << "***** Start PV Pricing and Risk Test *****" << std::endl;
-    //     double pv = treePricer->Price(
-    //         mkt, trade.get(),
-    //         Date(2024, 6, 1)); // Assuming Price() accepts a raw pointer
-    //     std::cout<<"+++" << std::endl;
-    //     double dv01 = 0; //     treePricer->CalculateDV01(mkt, trade.get(),
-    //                      //     Date(2024, 6, 1));
-    //     double vega = 0;
-    //     std::cout
-    //         << "====================== DV01 CALCULATION ======================"
-    //         << std::endl;
-    //     myRiskEngine.computeRisk("dv01", trade.get(), Date(2024, 6, 1),
-    //                      treePricer.get(), true);
-    //     std::cout
-    //         << "====================== VEGA CALCULATION ======================"
-    //         << std::endl;
-    //     myRiskEngine.computeRisk("vega", trade.get(), Date(2024, 6, 1),
-    //                      treePricer.get(), true);
-    //     pricingResults.push_back(pv);
-    //     std::string tradeInfo = "";
-    //     std::cout << "***** Priced trade with PV *****: " << pv << std::endl;
-    //     std::cout << "========================================================="
-    //               << std::endl;
-    // }
+
+#if USE_MULTITHREADING
     std::vector<std::future<void>> futures; // To store futures of asynchronous tasks
 
     for (auto &trade : myPortfolio) {
@@ -323,7 +305,37 @@ int main() {
     for (auto &future : futures) {
         future.get(); // This blocks until the task completes
     }
-
+#else
+    for (auto &trade : myPortfolio) {
+        std::cout << "***** Start PV Pricing and Risk Test *****" << std::endl;
+        double pv = treePricer->Price(
+            mkt, trade.get(),
+            Date(2024, 6, 1)); // Assuming Price() accepts a raw pointer
+        std::cout<<"+++" << std::endl;
+        double dv01 = 0; //     treePricer->CalculateDV01(mkt, trade.get(),
+                         //     Date(2024, 6, 1));
+        double vega = 0;
+        std::cout
+            << "====================== DV01 CALCULATION ======================"
+            << std::endl;
+        myRiskEngine.computeRisk("dv01", trade.get(), Date(2024, 6, 1),
+                         treePricer.get(), true);
+        std::cout
+            << "====================== VEGA CALCULATION ======================"
+            << std::endl;
+        myRiskEngine.computeRisk("vega", trade.get(), Date(2024, 6, 1),
+                         treePricer.get(), true);
+        pricingResults.push_back(pv);
+        std::string tradeInfo = "";
+        std::cout << "***** Priced trade with PV *****: " << pv << std::endl;
+        std::cout << "========================================================="
+                  << std::endl;
+    }
+#endif
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> elapsed = end - start;
+    
+    std::cout << "Elapsed time: " << elapsed.count() << " ms\n";
     std::cout << "=========================================================" << std::endl;
 
 
