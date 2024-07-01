@@ -13,6 +13,22 @@ This is a C++ project that:
    1. CRR binomial tree vs Black model for an European option
    2. American option vs European option for CRR binomial tree model
 
+Example:
+```
+// user input
+mkt.updateMarketFromVolFile((DATA_PATH / "vol_euro.csv").string(), "EuropeanOption");
+myPortfolio.push_back(new EuropeanOption(Call, 700, Date(2025, 12, 31), "AAPL"));
+
+// console output
+Trade: EuropeanOption, Underlying: AAPL
+CRR tree priced trade with PV: 93.3583
+
+// log file output
+[INFO] Processing European Option. Underlying= AAPL, Type= 1, Strike= 700.000000, Expiry= 2025-12-31
+[INFO] trade: EuropeanOption AAPL PV : 105.594224
+```
+
+
 ### Part 2
 This part of the project continues from Part 1, but with additional requirements:
 1. Create a portfolio of trades using trade info given in attached portfolio.txt.
@@ -23,6 +39,25 @@ This part of the project continues from Part 1, but with additional requirements
 4. Analysing the Greeks of the portfolio and design a small strategy that either:
    1. Square off the risk of portfolio
    2. Maximise portfolio PnL given a fixed risk limit of Dv01 and Vega
+
+Example:
+```
+//user input
+pnl = [200253, -135622, -28646.2, -275254, -297739, -214078, 18.1616, 159.34, 112.997, 0.0110558, 5.79535e-12, 15.2482, 126.244, 143.147, 0.00756741]
+dv01 = [-0.02903, -0.03290, 0.00140, -0.04719, -0.01726, 0.02154, 0.01352, -0.00362, -0.03104, -0.03160, 0.04825, 0.02215, -0.02379, -0.00126, -0.02079]
+vega = [3.82344, 4.09414, 1.98718, 2.66876, 1.70367, 2.70116, 3.23691, 4.13602, 0.74357, 1.15589, 4.64055, 3.43809, 2.02648, 0.97007, 4.85105]
+dv01_limit = 0.05
+vega_limit = 10
+
+//console output
+Optimal solution found.
+[1.         0.00100001 0.00100003 0.001      0.001      0.001
+ 0.00100675 0.58168899 0.99999033 0.0010275  0.00100542 0.00100636
+ 0.99997891 0.9999921  0.00100522]
+Total DV01 of the portfolio: -0.08726826602093173
+Total Vega of the portfolio: 9.999983194641016
+Total PnL of the portfolio: 199776.75946649472
+```
 
 ## Project Features
 ### Implementation aspects
@@ -59,7 +94,7 @@ This part of the project continues from Part 1, but with additional requirements
 - Volatility sensitivity computation - Vega **(Part 2)**
 - Risk adjusted portfolio optimization **(Part 2)**
 
-## Instruction 
+## User Instruction
 ### System Prerequisites
 - C++17 or later
 - CMake 3.10 or later
@@ -95,40 +130,7 @@ This part of the project continues from Part 1, but with additional requirements
 - European options in the portfolio is priced with the TreePricer
 - Risk free rate fix at 2%
 
-## Example
-A short extract of user input and project output
-### Part 1
-```
-// user input
-mkt.updateMarketFromVolFile((DATA_PATH / "vol_euro.csv").string(), "EuropeanOption");
-myPortfolio.push_back(new EuropeanOption(Call, 700, Date(2025, 12, 31), "AAPL"));
 
-// console output
-Trade: EuropeanOption, Underlying: AAPL
-CRR tree priced trade with PV: 93.3583
-
-// log file output
-[INFO] Processing European Option. Underlying= AAPL, Type= 1, Strike= 700.000000, Expiry= 2025-12-31
-[INFO] trade: EuropeanOption AAPL PV : 105.594224
-```
-### Part 2
-```
-//user input
-pnl = [200253, -135622, -28646.2, -275254, -297739, -214078, 18.1616, 159.34, 112.997, 0.0110558, 5.79535e-12, 15.2482, 126.244, 143.147, 0.00756741]
-dv01 = [-0.02903, -0.03290, 0.00140, -0.04719, -0.01726, 0.02154, 0.01352, -0.00362, -0.03104, -0.03160, 0.04825, 0.02215, -0.02379, -0.00126, -0.02079]
-vega = [3.82344, 4.09414, 1.98718, 2.66876, 1.70367, 2.70116, 3.23691, 4.13602, 0.74357, 1.15589, 4.64055, 3.43809, 2.02648, 0.97007, 4.85105]
-dv01_limit = 0.05
-vega_limit = 10
-
-//console output
-Optimal solution found.
-[1.         0.00100001 0.00100003 0.001      0.001      0.001
- 0.00100675 0.58168899 0.99999033 0.0010275  0.00100542 0.00100636
- 0.99997891 0.9999921  0.00100522]
-Total DV01 of the portfolio: -0.08726826602093173
-Total Vega of the portfolio: 9.999983194641016
-Total PnL of the portfolio: 199776.75946649472
-```
 
 ## Code Structure
 ### Source Code Files
