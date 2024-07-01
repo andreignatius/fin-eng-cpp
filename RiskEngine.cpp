@@ -111,13 +111,15 @@ void RiskEngine::computeRisk(string riskType, Trade *trade, Date valueDate,
             // } else if (europeanOption) {
             // }
             if (americanOption) {
-                double vega =
+                std::cout << "americanOption vega calc" << std::endl;
+                double dv01 =
                     americanOption->CalculateVega(theMarket, valueDate, pricer);
-                std::cout << "AMERICAN OPTION VEGA: " << vega << std::endl;
+                std::cout << "americanOption vega  = " << dv01 << std::endl;
             } else if (europeanOption) {
-                double vega =
+                std::cout << "europeanOption vega calc" << std::endl;
+                double dv01 =
                     europeanOption->CalculateVega(theMarket, valueDate, pricer);
-                std::cout << "EUROPEAN OPTION VEGA: " << vega << std::endl;
+                std::cout << "europeanOption vega  = " << dv01 << std::endl;
             } else {
                 std::cout << "NO NEED VEGA CHECK" << std::endl;
             }
