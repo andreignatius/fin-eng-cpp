@@ -273,13 +273,13 @@ int main() {
         // Async DV01 calculation
         auto dv01Future = std::async(std::launch::async, [&myRiskEngine, &trade, &mkt, &treePricer]() {
             std::cout << "====================== DV01 CALCULATION ======================" << std::endl;
-            myRiskEngine.computeRisk("dv01", trade.get(), Date(2024, 6, 1), treePricer.get(), true);
+            myRiskEngine.computeRisk("dv01", trade.get(), Date(2024, 6, 1), treePricer.get());
         });
 
         // Async VEGA calculation
         auto vegaFuture = std::async(std::launch::async, [&myRiskEngine, &trade, &mkt, &treePricer]() {
             std::cout << "====================== VEGA CALCULATION ======================" << std::endl;
-            myRiskEngine.computeRisk("vega", trade.get(), Date(2024, 6, 1), treePricer.get(), true);
+            myRiskEngine.computeRisk("vega", trade.get(), Date(2024, 6, 1), treePricer.get());
         });
 
         futures.push_back(std::move(dv01Future));
@@ -305,12 +305,12 @@ int main() {
             << "====================== DV01 CALCULATION ======================"
             << std::endl;
         myRiskEngine.computeRisk("dv01", trade.get(), Date(2024, 6, 1),
-                         treePricer.get(), true);
+                         treePricer.get());
         std::cout
             << "====================== VEGA CALCULATION ======================"
             << std::endl;
         myRiskEngine.computeRisk("vega", trade.get(), Date(2024, 6, 1),
-                         treePricer.get(), true);
+                         treePricer.get());
         pricingResults.push_back(pv);
         std::string tradeInfo = "";
         std::cout << "***** Priced trade with PV *****: " << pv << std::endl;
