@@ -78,33 +78,25 @@ double EuropeanOption::CalculateDV01(const Market &market,
 double EuropeanOption::CalculateVega(const Market &market,
                                      const Date &valueDate,
                                      Pricer *pricer) const {
-    double originalPV = pricer->Price(market, this, valueDate);
-
-    // Clone the original market to create perturbed markets
-    Market upMarket = market;
-    Market downMarket = market;
-
+    std::cout << "***EuropeanOption CalculateVega START" << std::endl;
     // Perturb the volatility curve
-    VolCurve originalVolCurve = market.getVolCurve(valueDate, this->underlying);
+    std::string underlying = this->underlying;
+    VolCurve originalVolCurve = market.getVolCurve(valueDate, underlying);
     VolCurve upVolCurve = originalVolCurve;
     VolCurve downVolCurve = originalVolCurve;
-
     std::vector<Date> tenors = originalVolCurve.getTenors();
     for (const Date &tenor : tenors) {
         double currVol = originalVolCurve.getVol(tenor);
         upVolCurve.addVol(tenor, currVol + 0.01);   // increase vol by 1%
         downVolCurve.addVol(tenor, currVol - 0.01); // decrease vol by 1%
     }
-    std::cout << "ORIGVOLCURVE" << std::endl;
-    originalVolCurve.display();
-    std::cout << "UPVOLCURVE" << std::endl;
-    upVolCurve.display();
-    std::cout << "DOWNVOLCURVE" << std::endl;
-    downVolCurve.display();
 
-    // Update the perturbed markets with new vol curves
-    upMarket.updateVolCurve(this->underlying, upVolCurve, valueDate);
-    downMarket.updateVolCurve(this->underlying, downVolCurve, valueDate);
+    // Clone the original market to create perturbed markets
+    Market upMarket = market;
+    Market downMarket = market;
+    // assume usd-sofr curve
+    upMarket.updateVolCurve(underlying, upVolCurve, valueDate);
+    downMarket.updateVolCurve(underlying, downVolCurve, valueDate);
 
     // Price the option with perturbed markets
     double pv_up = pricer->Price(upMarket, this, valueDate);
@@ -115,6 +107,7 @@ double EuropeanOption::CalculateVega(const Market &market,
     double vega = (pv_up - pv_down) /
                   0.02; // Divided by total change in volatility (0.01 + 0.01)
 
+    std::cout << "***EuropeanOption CalculateVega END" << std::endl;
     return vega;
 }
 

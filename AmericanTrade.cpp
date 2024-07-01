@@ -73,7 +73,6 @@ double AmericanOption::CalculateDV01(const Market &market,
     RateCurve upCurve = theCurve;
     RateCurve downCurve = theCurve;
     std::vector<Date> tenors = theCurve.getTenors();
-    //      2. Shock the whole curve?
     for (auto it = tenors.begin(); it != tenors.end(); ++it) {
         double currRate = theCurve.getRate(*it);
         upCurve.addRate(*it, currRate + 0.0001);
@@ -102,26 +101,24 @@ double AmericanOption::CalculateVega(const Market &market,
                                      const Date &valueDate,
                                      Pricer *pricer) const {
     std::cout << "***AmericanOption CalculateVega START" << std::endl;
-    double originalPV = pricer->Price(market, this, valueDate);
-
-    // Clone the original market to create perturbed markets
-    Market upMarket = market;
-    Market downMarket = market;
-
     // Perturb the volatility curve
-    VolCurve originalVolCurve = market.getVolCurve(valueDate, this->underlying);
+    std::string underlying = this->underlying;
+    VolCurve originalVolCurve = market.getVolCurve(valueDate, underlying);
     VolCurve upVolCurve = originalVolCurve;
     VolCurve downVolCurve = originalVolCurve;
-
     std::vector<Date> tenors = originalVolCurve.getTenors();
     for (const Date &tenor : tenors) {
         double currVol = originalVolCurve.getVol(tenor);
         upVolCurve.addVol(tenor, currVol + 0.01);   // increase vol by 1%
         downVolCurve.addVol(tenor, currVol - 0.01); // decrease vol by 1%
     }
-    // Update the perturbed markets with new vol curves
-    upMarket.updateVolCurve(this->underlying, upVolCurve, valueDate);
-    downMarket.updateVolCurve(this->underlying, downVolCurve, valueDate);
+
+    // Clone the original market to create perturbed markets
+    Market upMarket = market;
+    Market downMarket = market;
+    // assume usd-sofr curve
+    upMarket.updateVolCurve(underlying, upVolCurve, valueDate);
+    downMarket.updateVolCurve(underlying, downVolCurve, valueDate);
 
     // Price the option with perturbed markets
     double pv_up = pricer->Price(upMarket, this, valueDate);
