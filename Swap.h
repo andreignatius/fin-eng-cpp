@@ -19,21 +19,17 @@ class Swap : public Trade {
     Swap(Date start, Date end, Date _valueDate, double _notional,
          double _fixedRate, double _frequency, bool _isFixedForFloating,
          const Market &_market, const string _curveName, const string _uuid)
-        : Trade("SwapTrade", start, _valueDate, _curveName, _uuid), startDate(start),
-          maturityDate(end), valueDate(_valueDate), notional(_notional),
-          fixedRate(_fixedRate), frequency(_frequency),
+        : Trade("SwapTrade", start, _valueDate, _curveName, _uuid),
+          startDate(start), maturityDate(end), valueDate(_valueDate),
+          notional(_notional), fixedRate(_fixedRate), frequency(_frequency),
           isFixedForFloating(_isFixedForFloating), market(_market),
           curveName(_curveName), uuid(_uuid) {
-
         if (startDate >= maturityDate) {
             throw std::invalid_argument(
                 "Start date must be before the maturity date.");
         }
-        // if (notional <= 0) {
-        //     throw std::invalid_argument("Notional must be positive.");
-        // }
-        if (tradeRate < 0) {
-            throw std::invalid_argument("Trade rate cannot be negative.");
+        if (fixedRate < 0) {
+            throw std::invalid_argument("Fixed rate cannot be negative.");
         }
         if (frequency <= 0) {
             std::cout << "check frequency" << frequency << "!" << std::endl;
@@ -49,6 +45,8 @@ class Swap : public Trade {
     curve;
     */
     virtual double Payoff(double marketPrice) const override; // use Market data
+    double PayoffCurve(RateCurve theRate) const;              // use Market data
+
     std::string toString() const;
     double getAnnuity() const; // implement this in a cpp file
 

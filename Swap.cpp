@@ -3,6 +3,60 @@
 #include <cmath>
 #include <sstream>
 #include <stdexcept>
+double
+Swap::PayoffCurve(RateCurve theRate) const { // TODO marketPrice is redundant
+    double annuity = getAnnuity();           // Use internal market data
+    double currentRate = 0.0;
+    double rate;
+    double pv;
+    double yearsSinceStart;
+    Date paymentDate = startDate;
+    double fixedLegPV;
+    double floatLegPV;
+    double DF_last;
+
+    fixedLegPV =
+        annuity * (fixedRate * frequency); // assume fixedRate is annual rate
+
+    // find last discount rate for floating leg pv calculation
+    // TODO may need clean up and checks
+    try {
+        currentRate =
+            market.getCurve(Date(2024, 6, 1), curveName).getRate(startDate);
+        // std::cout << "current rate is " << currentRate << std::endl;
+    } catch (const std::out_of_range &e) {
+        std::cerr << "specified curve not found in market data. - using "
+                     "default rate 0."
+                  << std::endl;
+    }
+    long daysBetween = maturityDate.differenceInDays(startDate);
+    double yearsBetween = static_cast<double>(daysBetween) /
+                          Constants::NUM_DAYS_IN_YEAR; // Convert days to years
+    int numPeriods = static_cast<int>(
+        yearsBetween * frequency); // Calculate the total number of periods
+    for (int i = 1; i <= numPeriods; ++i) {
+        paymentDate.addMonths(static_cast<int>(
+            12 /
+            frequency)); // Adjust the payment date according to the frequency
+        yearsSinceStart =
+            static_cast<double>(paymentDate.differenceInDays(startDate)) /
+            Constants::NUM_DAYS_IN_YEAR; // Convert days to years
+        rate = theRate.getRate(paymentDate);
+        double discountFactor = exp(-rate * yearsSinceStart);
+    }
+
+    DF_last = exp(-rate * yearsSinceStart);
+    floatLegPV = notional * (1 - DF_last);
+    // std::cout << isFixedForFloating << std::endl;
+    if (isFixedForFloating) {
+        pv = floatLegPV - fixedLegPV;
+    } else {
+        pv = fixedLegPV - floatLegPV;
+    }
+    // std::cout << "fix PV: " << fixedLegPV << ", float PV:
+    // "<<floatLegPV<<std::endl;
+    return pv;
+}
 
 double Swap::Payoff(double marketPrice) const { // TODO marketPrice is redundant
     double annuity = getAnnuity();              // Use internal market data
@@ -23,7 +77,7 @@ double Swap::Payoff(double marketPrice) const { // TODO marketPrice is redundant
     try {
         currentRate =
             market.getCurve(Date(2024, 6, 1), curveName).getRate(startDate);
-        std::cout << "current rate is " << currentRate << std::endl;
+        // std::cout << "current rate is " << currentRate << std::endl;
     } catch (const std::out_of_range &e) {
         std::cerr << "specified curve not found in market data. - using "
                      "default rate 0."
@@ -47,7 +101,7 @@ double Swap::Payoff(double marketPrice) const { // TODO marketPrice is redundant
 
     DF_last = exp(-rate * yearsSinceStart);
     floatLegPV = notional * (1 - DF_last);
-    std::cout << isFixedForFloating << std::endl;
+    // std::cout << isFixedForFloating << std::endl;
     if (isFixedForFloating) {
         pv = floatLegPV - fixedLegPV;
     } else {
@@ -78,10 +132,10 @@ double Swap::getAnnuity() const {
     int numPeriods = static_cast<int>(
         yearsBetween * frequency); // Calculate the total number of periods
 
-    std::cout << "maturityDate: " << maturityDate << std::endl;
-    std::cout << "startDate: " << startDate << std::endl;
-    std::cout << "numPeriods: " << numPeriods << std::endl;
-    std::cout << "frequency: " << frequency << std::endl;
+    // std::cout << "maturityDate: " << maturityDate << std::endl;
+    // std::cout << "startDate: " << startDate << std::endl;
+    // std::cout << "numPeriods: " << numPeriods << std::endl;
+    // std::cout << "frequency: " << frequency << std::endl;
 
     for (int i = 1; i <= numPeriods; ++i) {
         paymentDate.addMonths(static_cast<int>(
