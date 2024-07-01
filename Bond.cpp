@@ -64,20 +64,9 @@ double Bond::PayoffCurve(RateCurve theCurve) const {
             if (i == paymentCount - 1) {
                 // on maturity coupon + notional
                 pv += discountFactor * (couponAmount + notional);
-                /*
-                std::cout << "COUNT FINAL " << i
-                          << " DATE : " << paymentSchedule[i] << " PV : " <<
-                pv
-                          << std::endl;
-                          */
             } else {
                 // only coupon
                 pv += discountFactor * couponAmount;
-                /*
-                std::cout << "COUNT " << i << " DATE : " <<
-                paymentSchedule[i]
-                          << " PV : " << pv << std::endl;
-                          */
             }
         }
     }

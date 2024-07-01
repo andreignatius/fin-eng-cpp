@@ -29,10 +29,10 @@ double Pricer::Price(const Market &mkt, const Trade *trade,
     } else {
         double marketPrice = 0.0;
         if (trade->getType() == "BondTrade") {
-            std::cout << "checking bond px for " << trade->getUnderlying()
-                      << std::endl;
+            // std::cout << "checking bond px for " << trade->getUnderlying()
+            //           << std::endl;
             marketPrice = mkt.getBondPrice(trade->getUnderlying());
-            std::cout << "bond px: " << marketPrice << std::endl;
+            // std::cout << "bond px: " << marketPrice << std::endl;
         } else if (trade->getType() == "SwapTrade") {
             std::cout << "Processing swap trade with no relevant market price."
                       << std::endl;
@@ -42,7 +42,6 @@ double Pricer::Price(const Market &mkt, const Trade *trade,
         }
         pv = trade->Payoff(marketPrice);
     }
-
     return pv;
 }
 
@@ -97,9 +96,9 @@ double BinomialTreePricer::PriceTree(const Market &mkt,
     if (trade.getType() == "TreeProduct" ||
         trade.getType() == "AmericanOption" ||
         trade.getType() == "EuropeanOption") {
-        std::cout << "underlying111: " << trade.getUnderlying() << std::endl;
+        // std::cout << "underlying111: " << trade.getUnderlying() << std::endl;
         stockPrice = mkt.getPriceOrRate(trade.getUnderlying(), valueDate);
-        std::cout << "px output: " << stockPrice << std::endl;
+        // std::cout << "px output: " << stockPrice << std::endl;
 
     } else {
         stockPrice = mkt.getPriceOrRate(trade.getType(), valueDate);

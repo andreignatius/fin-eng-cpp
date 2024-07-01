@@ -275,6 +275,7 @@ int main() {
         double pv = treePricer->Price(
             mkt, trade.get(),
             Date(2024, 6, 1)); // Assuming Price() accepts a raw pointer
+        std::cout<<"+++" << std::endl;
         double dv01 = 0; //     treePricer->CalculateDV01(mkt, trade.get(),
                          //     Date(2024, 6, 1));
         double vega = 0;
