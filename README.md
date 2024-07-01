@@ -1,13 +1,31 @@
 # Financial Engineering Project using C++
 
 ## Overview
-### Part 1
-This part of the project involves pricing various financial instruments such as options and swaps using C++. 
-The code takes in market data in .txt or .csv or .json format, as well as user-defined financial instruments to perform these operations.
-### Part 2
-This part of the project continues from the above, but with additional requirements: 1) calculation of DV01 and Vega, 2.a) Create a portfolio with near-zero DV01 and Vega, 2.b) Create a portfolio that maximize PnL for a given DV01 and Vega limit
+This is a C++ project that:
+  1. Computes and analyze the price of Bonds, Swaps, European Options and American options given relevant market information and contract details (such as SOFR curve, volatility, contract expiry date, frequency etc)
+  2. Create either a risk minimizing investment portfolio or a PnL maximizing investment portfolio
 
-## Features
+### Part 1
+1. Create market data objects using the .txt files containing stock price, interest rate and volatility
+2. Create a portfolio of bonds, swaps, European options, American options
+3. Create a pricer and price each of the trade
+4. Analyze and compare:
+   1. CRR binomial tree vs Black model for an European option
+   2. American option vs European option for CRR binomial tree model
+
+### Part 2
+This part of the project continues from Part 1, but with additional requirements:
+1. Create a portfolio of trades using trade info given in attached portfolio.txt.
+2. Create 2 days market data using market data attached.
+3. Price the portfolio and output the PV and Risk (DV01 and Vega) for 2 dates.
+   1. Output the pv and risk result for each date into file.
+   2. Compute the PnL of each trade using PV difference between 2 dates
+4. Analysing the Greeks of the portfolio and design a small strategy that either:
+   1. Square off the risk of portfolio
+   2. Maximise portfolio PnL given a fixed risk limit of Dv01 and Vega
+
+## Project Features
+### Implementation aspects
 - Cross-OS collaboration using CMake
 - Text Data Parsing: Efficiently reads and processes input data from CSV files.
 - CSV Data Parsing: Efficiently reads and processes input data from CSV files.
@@ -22,7 +40,7 @@ This part of the project continues from the above, but with additional requireme
 - Python integration **(Part 2)**
   - creating and optimizing appropriate portfolio in python
   - input and output of python are in .csv
-- Various C++ techniques, including but not limited to:
+- Various other C++ techniques, including but not limited to:
   - Polymorphism
   - Operator overload
   - Pointers
@@ -31,26 +49,30 @@ This part of the project continues from the above, but with additional requireme
   - iterators
   - dynamic casting
   - smart pointers **(Part 2)**
-  - design pattern **(Part 2)**
+ 
+### Financial aspects
+- Bond pricing
+- Swap pricing
+- Option pricing using Binomial tree model
+- Option pricing using Black model
+- Interest rate sensitivity computation - DV01 **(Part 2)**
+- Volatility sensitivity computation - Vega **(Part 2)**
+- Risk adjusted portfolio optimization **(Part 2)**
 
-## Prerequisites
+## Instruction 
+### System Prerequisites
 - C++17 or later
 - CMake 3.10 or later
 - Any standard C++ compiler (e.g., GCC, Clang, MSVC)
+- Mac or Windows OS
 
-## Instruction for building and running the project
-1. Prepare market data in .csv or .txt format. Formatting should follow the provided sample files in /data directory
+### Building and running the project
+1. Prepare market data in .csv or .txt format. Formatting should follow the provided sample files in /data directory. For **(Part 2)**, use /market_data directory.
 2. Prepare your portfolio using .json file. Formatting should follow the provided sample files in /data directory
 3. Adjust filenames accordingly in main.cpp inside main() function
 4. Compile and run using either of the following scripts
-  - For windows OS, run in console: `./build_and_run.bat`
-  - For Mac OS, run in console: `./build_and_run.sh`
-
-## Part 2 Highlights
-- Organize the set of tradables into a portfolio for easy manipulation
-- Calculate DV01 and Vega of trades using the *RiskEngine*, where the interest rate or volatility at certain timeframe is perturbed by 0.001 to obtain the sensitivity
-- Structure the two required products by assigning different weights using Tikhonov regularization
-
+  - **For windows OS, run in console: `./build_and_run.bat`**
+  - **For Mac OS, run in console: `./build_and_run.sh`**
 
 ## Notable Assumptions
 1. Bond Pricing
@@ -91,9 +113,21 @@ CRR tree priced trade with PV: 93.3583
 ```
 ### Part 2
 ```
-dv01_1 = np.array([0.6, -0.3, 0.4, 0.2])
-vega_1 = np.array([1.2, 0.8, -0.6, 0.1])
-Optimal weights: [0.01       0.44306136 0.53693864 0.01      ]
+//user input
+pnl = [200253, -135622, -28646.2, -275254, -297739, -214078, 18.1616, 159.34, 112.997, 0.0110558, 5.79535e-12, 15.2482, 126.244, 143.147, 0.00756741]
+dv01 = [-0.02903, -0.03290, 0.00140, -0.04719, -0.01726, 0.02154, 0.01352, -0.00362, -0.03104, -0.03160, 0.04825, 0.02215, -0.02379, -0.00126, -0.02079]
+vega = [3.82344, 4.09414, 1.98718, 2.66876, 1.70367, 2.70116, 3.23691, 4.13602, 0.74357, 1.15589, 4.64055, 3.43809, 2.02648, 0.97007, 4.85105]
+dv01_limit = 0.05
+vega_limit = 10
+
+//console output
+Optimal solution found.
+[1.         0.00100001 0.00100003 0.001      0.001      0.001
+ 0.00100675 0.58168899 0.99999033 0.0010275  0.00100542 0.00100636
+ 0.99997891 0.9999921  0.00100522]
+Total DV01 of the portfolio: -0.08726826602093173
+Total Vega of the portfolio: 9.999983194641016
+Total PnL of the portfolio: 199776.75946649472
 ```
 
 ## Code Structure
@@ -142,4 +176,3 @@ Optimal weights: [0.01       0.44306136 0.53693864 0.01      ]
 - **data**: contains the .txt or .csv or .json file, where market information is stored at
 - **output**: contains the log files produced by the logger feature
 - **market_data**: contains the .txt or .csv file for **(Part 2)**
-
