@@ -66,6 +66,7 @@ double AmericanOption::AmericanOption::ValueAtNode(double S, double t, double co
 // }
 
 double AmericanOption::CalculateVega(const Market &market, const Date &valueDate, Pricer *pricer) const {
+    std::cout << "***AmericanOption CalculateVega START" << std::endl;
     double originalPV = pricer->Price(market, this, valueDate);
 
     // Clone the original market to create perturbed markets
@@ -95,6 +96,7 @@ double AmericanOption::CalculateVega(const Market &market, const Date &valueDate
     // Calculate Vega as the difference in PV divided by the change in volatility
     double vega = (pv_up - pv_down) / 0.02;  // Divided by total change in volatility (0.01 + 0.01)
 
+    std::cout << "***AmericanOption CalculateVega END" << std::endl;
     return vega;
 }
 
