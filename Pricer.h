@@ -12,7 +12,7 @@
 class Pricer {
   public:
     // virtual double Price(const Market& mkt, std::unique_ptr<Trade>& trade);
-    virtual double Price(const Market &mkt, Trade *trade,
+    virtual double Price(const Market &mkt, const Trade *trade,
                          const Date &valueDate);
     virtual double CalculateDV01(const Market &market, Trade *trade,
                                  const Date &valueDate);

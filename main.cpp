@@ -113,15 +113,45 @@ int main() {
     mkt.updateMarketFromVolFile((MKT_DATA_PATH / "vol_20240602.csv").string(),
                                 "SwapTrade", Date(2024, 6, 2));
 
+    // mkt.updateMarketFromVolFile((MKT_DATA_PATH / "vol_20240601.csv").string(),
+    //                             "AmericanOption", Date(2024, 6, 1));
+    // mkt.updateMarketFromVolFile((MKT_DATA_PATH / "vol_20240602.csv").string(),
+    //                             "AmericanOption", Date(2024, 6, 2));
+
+    // mkt.updateMarketFromVolFile((MKT_DATA_PATH / "vol_20240601.csv").string(),
+    //                             "EuropeanOption", Date(2024, 6, 1));
+    // mkt.updateMarketFromVolFile((MKT_DATA_PATH / "vol_20240602.csv").string(),
+    //                             "EuropeanOption", Date(2024, 6, 2));
+
     mkt.updateMarketFromVolFile((MKT_DATA_PATH / "vol_20240601.csv").string(),
-                                "AmericanOption", Date(2024, 6, 1));
+                                "AAPL", Date(2024, 6, 1));
     mkt.updateMarketFromVolFile((MKT_DATA_PATH / "vol_20240602.csv").string(),
-                                "AmericanOption", Date(2024, 6, 2));
+                                "AAPL", Date(2024, 6, 2));
+
+    mkt.updateMarketFromVolFile((MKT_DATA_PATH / "vol_20240601.csv").string(),
+                                "SP500", Date(2024, 6, 1));
+    mkt.updateMarketFromVolFile((MKT_DATA_PATH / "vol_20240602.csv").string(),
+                                "SP500", Date(2024, 6, 2));
 
     mkt.updateMarketFromVolFile((MKT_DATA_PATH / "vol_20240601.csv").string(),
                                 "EuropeanOption", Date(2024, 6, 1));
     mkt.updateMarketFromVolFile((MKT_DATA_PATH / "vol_20240602.csv").string(),
                                 "EuropeanOption", Date(2024, 6, 2));
+
+    mkt.updateMarketFromVolFile((MKT_DATA_PATH / "vol_20240601.csv").string(),
+                                "STI", Date(2024, 6, 1));
+    mkt.updateMarketFromVolFile((MKT_DATA_PATH / "vol_20240602.csv").string(),
+                                "STI", Date(2024, 6, 2));
+
+    mkt.updateMarketFromVolFile((MKT_DATA_PATH / "vol_20240601.csv").string(),
+                                "usd-sofr", Date(2024, 6, 1));
+    mkt.updateMarketFromVolFile((MKT_DATA_PATH / "vol_20240602.csv").string(),
+                                "usd-sofr", Date(2024, 6, 2));
+
+    mkt.updateMarketFromVolFile((MKT_DATA_PATH / "vol_20240601.csv").string(),
+                                "AmericanOption", Date(2024, 6, 1));
+    mkt.updateMarketFromVolFile((MKT_DATA_PATH / "vol_20240602.csv").string(),
+                                "AmericanOption", Date(2024, 6, 2));
 
     mkt.updateMarketFromBondFile(
         (DATA_PATH / "bondPrice.txt").string()); // Load bond prices
@@ -244,7 +274,9 @@ int main() {
         double dv01 = 0; //     treePricer->CalculateDV01(mkt, trade.get(),
                          //     Date(2024, 6, 1));
         double vega = 0;
-        myRE.computeRisk("dv01", trade.get(), Date(2024, 6, 1), true);
+        myRE.computeRisk("dv01", trade.get(), Date(2024, 6, 1), treePricer.get(), true);
+
+        myRE.computeRisk("vega", trade.get(), Date(2024, 6, 1), treePricer.get(), true);
         pricingResults.push_back(pv);
         std::string tradeInfo = "";
         std::cout << "***** Priced trade with PV *****: " << pv << std::endl;

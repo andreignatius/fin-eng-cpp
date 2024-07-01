@@ -5,6 +5,7 @@
 #include "EuropeanTrade.h"
 #include "Swap.h"
 #include "Trade.h"
+#include "Pricer.h"
 
 #include <algorithm>
 #include <cmath>
@@ -21,7 +22,7 @@ class RiskEngine {
         theMarket.Print();
     };
     // virtual double Price(const Market& mkt, std::unique_ptr<Trade>& trade);
-    void computeRisk(string riskType, Trade *trade, Date valueDate,
+    void computeRisk(string riskType, Trade *trade, Date valueDate, Pricer* pricer,
                      bool singleThread);
 
   private:

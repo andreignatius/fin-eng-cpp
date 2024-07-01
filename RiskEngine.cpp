@@ -1,6 +1,6 @@
 #include "RiskEngine.h"
 
-void RiskEngine::computeRisk(string riskType, Trade *trade, Date valueDate,
+void RiskEngine::computeRisk(string riskType, Trade *trade, Date valueDate, Pricer* pricer,
                              bool singleThread) {
     string type = trade->getType();
     if (singleThread) {
@@ -78,29 +78,36 @@ void RiskEngine::computeRisk(string riskType, Trade *trade, Date valueDate,
             double rate;
             double pv_up;
             double pv_down;
+            // if (americanOption) {
+            //     // 1. get the underlying curve
+            //     underlying = americanOption->getUnderlying();
+            //     VolCurve theCurve =
+            //         theMarket.getVolCurve(valueDate, underlying);
+            //     // 2. shock the curve + do the PV
+            //     //      1. Copy the curve first
+            //     VolCurve upCurve = theCurve;
+            //     VolCurve downCurve = theCurve;
+            //     std::vector<Date> tenors = theCurve.getTenors();
+            //     //      2. Iter through the keys of the curve
+            //     for (auto it = tenors.begin(); it != tenors.end(); ++it) {
+            //         double currVol = theCurve.getVol(*it);
+            //         upCurve.addVol(*it, currVol + 0.01);
+            //         downCurve.addVol(*it, currVol - 0.01);
+            //         //  3. NOW PRICE THIS
+            //         // pv_up = americanOption->Payoff(upCurve);
+            //         // pv_down = americanOption->Payoff(upCurve);
+            //         // double dv01 = (pv_up - pv_down) / 2.0;
+            //     }
+            // } else if (europeanOption) {
+            // }
             if (americanOption) {
-                // 1. get the underlying curve
-                underlying = americanOption->getUnderlying();
-                VolCurve theCurve =
-                    theMarket.getVolCurve(valueDate, underlying);
-                // 2. shock the curve + do the PV
-                //      1. Copy the curve first
-                VolCurve upCurve = theCurve;
-                VolCurve downCurve = theCurve;
-                std::vector<Date> tenors = theCurve.getTenors();
-                //      2. Iter through the keys of the curve
-                for (auto it = tenors.begin(); it != tenors.end(); ++it) {
-                    double currVol = theCurve.getVol(*it);
-                    upCurve.addVol(*it, currVol + 0.01);
-                    downCurve.addVol(*it, currVol - 0.01);
-                    //  3. NOW PRICE THIS
-                    // pv_up = americanOption->Payoff(upCurve);
-                    // pv_down = americanOption->Payoff(upCurve);
-                    // double dv01 = (pv_up - pv_down) / 2.0;
-                }
+                double vega = americanOption->CalculateVega(theMarket, valueDate, pricer);
+                std::cout << "AMERICAN OPTION VEGA: " << vega << std::endl;
             } else if (europeanOption) {
+                double vega = europeanOption->CalculateVega(theMarket, valueDate, pricer);
+                std::cout << "EUROPEAN OPTION VEGA: " << vega << std::endl;
             } else {
-                std::cout << "NO NEED DV01 CHECK" << std::endl;
+                std::cout << "NO NEED VEGA CHECK" << std::endl;
             }
         }
         if (riskType == "price") {

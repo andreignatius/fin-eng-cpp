@@ -67,6 +67,9 @@ class Market {
                   const RateCurve &curve); // implement this
     void addVolCurve(const std::string &curveName,
                      const VolCurve &curve); // implement this
+    void updateVolCurve(const std::string &curveName, 
+                        const VolCurve &curve,
+                        const Date &date);
     void addBondPrice(const std::string &bondName,
                       double price); // implement this
     // void addStockPrice(const std::string &bondName,

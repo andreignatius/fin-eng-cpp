@@ -5,17 +5,17 @@
 #include "Market.h"
 #include <cmath>
 
-double Pricer::Price(const Market &mkt, Trade *trade, const Date &valueDate) {
+double Pricer::Price(const Market &mkt, const Trade *trade, const Date &valueDate) {
     double pv = 0.0;
 
-    if (auto *option = dynamic_cast<TreeProduct *>(trade)) {
+    if (auto *option = dynamic_cast<const TreeProduct *>(trade)) {
         // Simplifies handling for both American and European options as both
         // are TreeProduct. verbose logic below for reference / trace of code
         // for debugging purposes
         pv = PriceTree(mkt, *option, valueDate);
         // I NEED TO SEE THE STRIKE !
-        auto *americanOption = dynamic_cast<AmericanOption *>(trade);
-        auto *europeanOption = dynamic_cast<EuropeanOption *>(trade);
+        auto *americanOption = dynamic_cast<const AmericanOption *>(trade);
+        auto *europeanOption = dynamic_cast<const EuropeanOption *>(trade);
         if (americanOption) {
             std::cout << "AMERICAN STRIKE (K) = " << americanOption->getStrike()
                       << std::endl;

@@ -240,6 +240,13 @@ void Market::addVolCurve(const std::string &curveName, const VolCurve &curve) {
     volCurves[curveName] = curve;
 }
 
+void Market::updateVolCurve(const std::string &curveName, const VolCurve &curve, const Date &date) {
+    volCurves[curveName] = curve;
+    // Additionally, if you are using daily curves, update them accordingly
+    dailyVolCurves[date][curveName] = curve;
+}
+
+
 void Market::setRiskFreeRate(double rate) { riskFreeRate = rate; }
 
 void Market::addAssetType(const std::string &assetName, AssetType type) {
@@ -329,6 +336,9 @@ RateCurve Market::getCurve(const Date &date, const string &curveName) const {
 // }
 
 VolCurve Market::getVolCurve(const Date &date, const string &curveName) const {
+    std::cout << "getVolCurve" << std::endl;
+    std::cout << "date: " << date.toString() << std::endl;
+    std::cout << "curveName: " << curveName << std::endl;
     auto itDate = dailyVolCurves.find(date);
     if (itDate != dailyVolCurves.end()) {
         auto itCurve = itDate->second.find(curveName);

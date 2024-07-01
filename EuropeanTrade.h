@@ -6,6 +6,8 @@
 #include "Types.h"
 #include "Utils.h"
 #include "Payoff.h" // Include if PAYOFF namespace functions are defined here
+#include "Market.h"
+#include "Pricer.h"
 
 class EuropeanOption : public TreeProduct {
 public:
@@ -18,6 +20,7 @@ public:
     double getStrike() const;
     OptionType getOptionType() const;
     virtual double ValueAtNode(double S, double t, double continuation) const override;
+    double CalculateVega(const Market &market, const Date &valueDate, Pricer *pricer) const;
     std::string toString() const;
 
 protected:
