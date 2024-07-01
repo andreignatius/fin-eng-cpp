@@ -40,15 +40,15 @@ std::vector<std::unique_ptr<Trade>> PortfolioMaker::constructPortfolio(
     std::cout << portfolioMap.find("Id")->second.size() << std::endl;
     for (int i = 0; i < portfolioMap.find("Id")->second.size(); i++) {
         // 1. get the parameters
-        id = portfolioMap.at("Id")[i];
-        type = portfolioMap.find("type")->second[i];
-        underlying = portfolioMap.find("underlying")->second[i];
-        start = portfolioMap.find("start")->second[i];
-        end = portfolioMap.find("end")->second[i];
-        notional = std::stod(portfolioMap.find("notional")->second[i]);
-        strike = std::stod(portfolioMap.find("strike")->second[i]);
-        opt = portfolioMap.find("opt")->second[i];
-        freq_str = portfolioMap.find("freq")->second[i];
+        id          = portfolioMap.at("Id")[i];
+        type        = portfolioMap.find("type")->second[i];
+        underlying  = portfolioMap.find("underlying")->second[i];
+        start       = portfolioMap.find("start")->second[i];
+        end         = portfolioMap.find("end")->second[i];
+        notional    = std::stod(portfolioMap.find("notional")->second[i]);
+        strike      = std::stod(portfolioMap.find("strike")->second[i]);
+        opt         = portfolioMap.find("opt")->second[i];
+        freq_str    = portfolioMap.find("freq")->second[i];
         // intermediate output
         std::cout << i << " " << type << " " << underlying << " " << start
                   << " " << end << " " << notional << " " << strike << " "
@@ -74,7 +74,7 @@ std::vector<std::unique_ptr<Trade>> PortfolioMaker::constructPortfolio(
             std::cout << "building BOND" << std::endl;
             thePortfolio.push_back(std::make_unique<Bond>(
                 startDate, endDate, valueDate, notional, strike, freq,
-                theMarket, underlying, "X"));
+                theMarket, underlying, id));
             std::cout << " ---> build complete" << std::endl;
         } else if (type == "swap") {
             std::cout << "building SWAP" << std::endl;

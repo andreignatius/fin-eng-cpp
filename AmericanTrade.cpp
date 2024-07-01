@@ -34,36 +34,6 @@ double AmericanOption::AmericanOption::ValueAtNode(double S, double t,
     return std::max(Payoff(S), continuation);
 }
 
-// double AmericanOption::CalculateVega(const Market &market, const Date
-// &valueDate, Pricer &pricer) const {
-//     double originalPV = Pricer::Price(market, this, valueDate);
-
-//     // Perturb the volatility curve
-//     VolCurve volCurve = market.getVolCurve(valueDate, underlying);
-//     VolCurve upCurve = volCurve;
-//     VolCurve downCurve = volCurve;
-//     std::vector<Date> tenors = volCurve.getTenors();
-
-//     for (const Date &tenor : tenors) {
-//         double currVol = volCurve.getVol(tenor);
-//         upCurve.addVol(tenor, currVol + 0.01);
-//         downCurve.addVol(tenor, currVol - 0.01);
-//     }
-
-//     // Update the market with perturbed curves
-//     Market upMarket = market;
-//     Market downMarket = market;
-//     upMarket.updateVolCurve(underlying, upCurve, valueDate);
-//     downMarket.updateVolCurve(underlying, downCurve, valueDate);
-
-//     // Price the option with perturbed curves
-//     double pv_up = pricer->Price(upMarket, this, valueDate);
-//     double pv_down = pricer->Price(downMarket, this, valueDate);
-
-//     // Calculate Vega
-//     double vega = (pv_up - pv_down) / 2.0;
-//     return vega;
-// }
 double AmericanOption::CalculateDV01(const Market &market,
                                      const Date &valueDate,
                                      Pricer *pricer) const {

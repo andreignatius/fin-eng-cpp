@@ -17,6 +17,10 @@
 #include <iostream>
 #include <mutex>
 #include <string>
+#include <future>
+
+#define USE_MULTITHREADING 1
+
 /*
 Comments: when using new, pls remember to use delete for ptr
 */
@@ -112,20 +116,6 @@ int main() {
                                 "SwapTrade", Date(2024, 6, 1));
     mkt.updateMarketFromVolFile((MKT_DATA_PATH / "vol_20240602.csv").string(),
                                 "SwapTrade", Date(2024, 6, 2));
-
-    // mkt.updateMarketFromVolFile((MKT_DATA_PATH /
-    // "vol_20240601.csv").string(),
-    //                             "AmericanOption", Date(2024, 6, 1));
-    // mkt.updateMarketFromVolFile((MKT_DATA_PATH /
-    // "vol_20240602.csv").string(),
-    //                             "AmericanOption", Date(2024, 6, 2));
-
-    // mkt.updateMarketFromVolFile((MKT_DATA_PATH /
-    // "vol_20240601.csv").string(),
-    //                             "EuropeanOption", Date(2024, 6, 1));
-    // mkt.updateMarketFromVolFile((MKT_DATA_PATH /
-    // "vol_20240602.csv").string(),
-    //                             "EuropeanOption", Date(2024, 6, 2));
 
     mkt.updateMarketFromVolFile((MKT_DATA_PATH / "vol_20240601.csv").string(),
                                 "AAPL", Date(2024, 6, 1));
@@ -265,11 +255,43 @@ int main() {
         std::make_unique<CRRBinomialTreePricer>(700);
 
     std::vector<double> pricingResults;
-    std::ofstream outputFile("portfolio_data.csv");
-    outputFile << "TradeID,DV01,Vega,PV\n"; // Column headers
 
-    RiskEngine myRE = RiskEngine(mkt);
+    auto start = std::chrono::high_resolution_clock::now();
 
+    RiskEngine myRiskEngine = RiskEngine(mkt);
+
+#if USE_MULTITHREADING
+    std::vector<std::future<void>> futures; // To store futures of asynchronous tasks
+
+    for (auto &trade : myPortfolio) {
+        // Launch asynchronous tasks for each trade
+        std::cout << "***** Start PV Pricing and Risk Test *****" << std::endl;
+        double pv = treePricer->Price(mkt, trade.get(), Date(2024, 6, 1));
+        std::cout << "+++" << std::endl;
+        std::cout << "***** Priced trade with PV *****: " << pv << std::endl;
+
+        // Async DV01 calculation
+        auto dv01Future = std::async(std::launch::async, [&myRiskEngine, &trade, &mkt, &treePricer]() {
+            std::cout << "====================== DV01 CALCULATION ======================" << std::endl;
+            myRiskEngine.computeRisk("dv01", trade.get(), Date(2024, 6, 1), treePricer.get());
+        });
+
+        // Async VEGA calculation
+        auto vegaFuture = std::async(std::launch::async, [&myRiskEngine, &trade, &mkt, &treePricer]() {
+            std::cout << "====================== VEGA CALCULATION ======================" << std::endl;
+            myRiskEngine.computeRisk("vega", trade.get(), Date(2024, 6, 1), treePricer.get());
+        });
+
+        futures.push_back(std::move(dv01Future));
+        futures.push_back(std::move(vegaFuture));
+        pricingResults.push_back(pv); // Assuming pricingResults is defined elsewhere
+    }
+
+    // Wait for all futures to complete
+    for (auto &future : futures) {
+        future.get(); // This blocks until the task completes
+    }
+#else
     for (auto &trade : myPortfolio) {
         std::cout << "***** Start PV Pricing and Risk Test *****" << std::endl;
         double pv = treePricer->Price(
@@ -282,164 +304,28 @@ int main() {
         std::cout
             << "====================== DV01 CALCULATION ======================"
             << std::endl;
-        myRE.computeRisk("dv01", trade.get(), Date(2024, 6, 1),
-                         treePricer.get(), true);
+        myRiskEngine.computeRisk("dv01", trade.get(), Date(2024, 6, 1),
+                         treePricer.get());
         std::cout
             << "====================== VEGA CALCULATION ======================"
             << std::endl;
-        myRE.computeRisk("vega", trade.get(), Date(2024, 6, 1),
-                         treePricer.get(), true);
+        myRiskEngine.computeRisk("vega", trade.get(), Date(2024, 6, 1),
+                         treePricer.get());
         pricingResults.push_back(pv);
         std::string tradeInfo = "";
         std::cout << "***** Priced trade with PV *****: " << pv << std::endl;
         std::cout << "========================================================="
                   << std::endl;
-        // logger.info("trade: " + trade->getUUID() + " " + trade->getType() + "
-        // " + trade->getUnderlying() + " PV : " + std::to_string(pv));
-        // logger.info("trade: " + trade->toString());
-        /*
-        if (auto *bond = dynamic_cast<Bond *>(trade.get())) {
-            tradeInfo = bond->toString();
-        } else if (auto *swap = dynamic_cast<Swap *>(trade.get())) {
-            tradeInfo = swap->toString();
-        } else if (auto *amerOption =
-                       dynamic_cast<AmericanOption *>(trade.get())) {
-            tradeInfo = amerOption->toString();
-            vega = treePricer->CalculateVega(mkt, amerOption, Date(2024, 6, 1));
-        } else if (auto *euroOption =
-                       dynamic_cast<EuropeanOption *>(trade.get())) {
-            tradeInfo = euroOption->toString();
-            vega = treePricer->CalculateVega(mkt, euroOption, Date(2024, 6, 1));
-        }
-        // std::cout << "trade: " << tradeInfo << ", PV: " << pv << std::endl;
-        // logger.info("trade: " + tradeInfo + ", PV: " + std::to_string(pv));
-        std::cout << "Trade PV: " << pv << ", DV01: " << dv01
-                  << ", Vega: " << vega << std::endl;
-        logger.info("Trade PV: " + std::to_string(pv) + ", DV01: " +
-                    std::to_string(dv01) + ", Vega: " + std::to_string(vega));
-        // Assuming Trade has a method getID() that returns a unique identifier
-        outputFile << trade->getUUID() << "," << dv01 << "," << vega << "," <<
-        pv << "\n";
-        */
     }
-    // outputFile.close();
+#endif
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> elapsed = end - start;
+    
+    std::cout << "Elapsed time: " << elapsed.count() << " ms\n";
+    std::cout << "=========================================================" << std::endl;
+
 
     std::cout << "===========end of Part 3============" << std::endl;
-
-    //    // task 4, analyzing pricing result
-    //    //  a) compare CRR binomial tree result for an european option vs
-    //    Black
-    //    //  model b) compare CRR binomial tree result for an american option
-    //    vs
-    //    //  european option
-
-    //    // task 4, analyzing pricing result
-    //    // a) compare CRR binomial tree result for a European option vs
-    //    // Black-Scholes model results should converge over time
-    //    std::cout << "\n============Start of Part 4============" << std::endl;
-    //    std::cout << "a) Comparing European Option pricing methods" <<
-    //    std::endl;
-
-    //    for (auto& trade : myPortfolio) {
-    //        EuropeanOption *euroOption = dynamic_cast<EuropeanOption
-    //        *>(trade.get()); if (euroOption) {
-    //            std::string opt_type_str = "";
-    //            OptionType opt_type = euroOption->getOptionType();
-    //            if (opt_type == Call){
-    //                opt_type_str = "CALL";
-    //            } else if (opt_type == Put){
-    //                opt_type_str = "PUT";
-    //            }
-    //            std::cout<<"\nUnderlying: " << trade->getUnderlying()<<",
-    //            Instrument : "<< euroOption->getType() <<", Option type :
-    //            "<<opt_type_str<< ", Strike : " <<
-    //            euroOption->getStrike()<<std::endl; double bsPrice =
-    //            BlackScholesPricer::Price(mkt, *euroOption); double crrPrice =
-    //            treePricer->Price(mkt, euroOption); std::cout << "Comparing
-    //            European Option: " << std::endl; std::cout << "European Option
-    //            Details: " << euroOption->toString() << std::endl; std::cout
-    //            << "Black-Scholes Price: " << bsPrice << std::endl; std::cout
-    //            << "CRR Binomial Tree Price: " << crrPrice << std::endl;
-    //            logger.info("Comparing European Option BS vs CRR Tree: ");
-    //            logger.info("European Option Details: " +
-    //            euroOption->toString()); logger.info("Black-Scholes Price: " +
-    //            std::to_string(bsPrice)); logger.info("CRR Binomial Tree
-    //            Price: " + std::to_string(crrPrice));
-    //        }
-    //    }
-
-    //    // b) compare CRR binomial tree result for an American option vs
-    //    European
-    //    // option compare between US call / put vs EU call / put
-    //    // only compare between american and european options with same:
-    //    // (1) option type ( call / put )
-    //    // (2) strike price
-    //    // (3) expiration date
-
-    //    // make use of hashmap to reduce full portfolio O(n^2 comparisons)
-    //    std::cout << "\nb) Comparing pricing results between Amer vs Euro,
-    //    Call vs Put" << std::endl;
-
-    //    for (const auto& entry : securityMap) {
-    //     const SecurityKey& key = entry.first;
-    //     const std::vector<Trade*>& trades = entry.second;
-
-    //     std::vector<AmericanOption*> americanOptions;
-    //     std::vector<EuropeanOption*> europeanOptions;
-
-    //     // Separate American and European options
-    //     for (auto* trade : trades) {
-    //         if (auto* amerOption = dynamic_cast<AmericanOption*>(trade)) {
-    //             americanOptions.push_back(amerOption);
-    //         } else if (auto* euroOption =
-    //         dynamic_cast<EuropeanOption*>(trade)) {
-    //             europeanOptions.push_back(euroOption);
-    //         }
-    //     }
-
-    //     // std::cout << "American options size: " << americanOptions.size()
-    //     << std::endl;
-    //        // std::cout << "European options size: " <<
-    //        europeanOptions.size() << std::endl; std::cout << "\nComparing
-    //        American and European Options for Type: " <<
-    //        OptionTypeToString(key.optionType)
-    //                           << ", Strike: " << key.strike << ", Expiry: "
-    //                           << key.expiry << std::endl;
-    //     // Compare options if both types are present
-    //     if (!americanOptions.empty() && !europeanOptions.empty()) {
-    //         for (auto* amerOption : americanOptions) {
-    //             double amerPrice = treePricer->Price(mkt, amerOption);
-    //                logger.info("Comparing American Option with European
-    //                Option: ");
-    //             logger.info("Processing American Option. Underlying= " +
-    //             amerOption->getUnderlying() +", Type= " +
-    //             OptionTypeToString(amerOption->getOptionType()) + ", Strike=
-    //             " + std::to_string(amerOption->getStrike()) +
-    //                    ", Expiry= " + amerOption->GetExpiry().toString()); //
-    //                    !!!
-    //             for (auto* euroOption : europeanOptions) {
-    //                 double euroPrice = treePricer->Price(mkt, euroOption);
-    //                 logger.info("Processing European Option. Underlying= " +
-    //                 euroOption->getUnderlying() +", Type= " +
-    //                 OptionTypeToString(euroOption->getOptionType()) + ",
-    //                 Strike= " + std::to_string(euroOption->getStrike()) +
-    //                    ", Expiry= " + euroOption->GetExpiry().toString()); //
-    //                    !!!
-
-    //                 // Log or further process the comparison as needed
-    //                 std::cout << "Comparing American Option with European
-    //                 Option: " << std::endl;
-    // 	            std::cout << "*****American Option Price*****: " <<
-    // amerPrice << std::endl; 	            std::cout << "*****European Option
-    // Price*****: "
-    // << euroPrice << std::endl; 	            logger.info("*****American
-    // Option Price*****: " + std::to_string(amerPrice));
-    // logger.info("*****European Option Price*****: " +
-    // std::to_string(euroPrice));
-    //             }
-    //         }
-    //     }
-    // }
 
     // final
     std::cout << "\nProject build successfully!" << std::endl;
