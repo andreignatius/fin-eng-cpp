@@ -3,7 +3,7 @@
 void RiskEngine::computeRisk(string riskType, Trade *trade, Date valueDate,
                              Pricer *pricer) {
     string type = trade->getType();
-    std::cout << "SINGLE THREAD RISK CALC FOR : " << type << std::endl;
+    std::cout << "RISK CALC FOR : " << type << std::endl;
     auto *americanOption = dynamic_cast<AmericanOption *>(trade);
     auto *europeanOption = dynamic_cast<EuropeanOption *>(trade);
     auto *bond = dynamic_cast<Bond *>(trade);
