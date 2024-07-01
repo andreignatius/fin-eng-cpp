@@ -113,14 +113,18 @@ int main() {
     mkt.updateMarketFromVolFile((MKT_DATA_PATH / "vol_20240602.csv").string(),
                                 "SwapTrade", Date(2024, 6, 2));
 
-    // mkt.updateMarketFromVolFile((MKT_DATA_PATH / "vol_20240601.csv").string(),
+    // mkt.updateMarketFromVolFile((MKT_DATA_PATH /
+    // "vol_20240601.csv").string(),
     //                             "AmericanOption", Date(2024, 6, 1));
-    // mkt.updateMarketFromVolFile((MKT_DATA_PATH / "vol_20240602.csv").string(),
+    // mkt.updateMarketFromVolFile((MKT_DATA_PATH /
+    // "vol_20240602.csv").string(),
     //                             "AmericanOption", Date(2024, 6, 2));
 
-    // mkt.updateMarketFromVolFile((MKT_DATA_PATH / "vol_20240601.csv").string(),
+    // mkt.updateMarketFromVolFile((MKT_DATA_PATH /
+    // "vol_20240601.csv").string(),
     //                             "EuropeanOption", Date(2024, 6, 1));
-    // mkt.updateMarketFromVolFile((MKT_DATA_PATH / "vol_20240602.csv").string(),
+    // mkt.updateMarketFromVolFile((MKT_DATA_PATH /
+    // "vol_20240602.csv").string(),
     //                             "EuropeanOption", Date(2024, 6, 2));
 
     mkt.updateMarketFromVolFile((MKT_DATA_PATH / "vol_20240601.csv").string(),
@@ -262,7 +266,7 @@ int main() {
 
     std::vector<double> pricingResults;
     std::ofstream outputFile("portfolio_data.csv");
-	outputFile << "TradeID,DV01,Vega,PV\n";  // Column headers
+    outputFile << "TradeID,DV01,Vega,PV\n"; // Column headers
 
     RiskEngine myRE = RiskEngine(mkt);
 
@@ -274,16 +278,26 @@ int main() {
         double dv01 = 0; //     treePricer->CalculateDV01(mkt, trade.get(),
                          //     Date(2024, 6, 1));
         double vega = 0;
-        myRE.computeRisk("dv01", trade.get(), Date(2024, 6, 1), treePricer.get(), true);
-
-        myRE.computeRisk("vega", trade.get(), Date(2024, 6, 1), treePricer.get(), true);
+        std::cout
+            << "====================== DV01 CALCULATION ======================"
+            << std::endl;
+        myRE.computeRisk("dv01", trade.get(), Date(2024, 6, 1),
+                         treePricer.get(), true);
+        std::cout
+            << "====================== VEGA CALCULATION ======================"
+            << std::endl;
+        myRE.computeRisk("vega", trade.get(), Date(2024, 6, 1),
+                         treePricer.get(), true);
         pricingResults.push_back(pv);
         std::string tradeInfo = "";
         std::cout << "***** Priced trade with PV *****: " << pv << std::endl;
+        std::cout << "========================================================="
+                     "=============================="
+                  << std::endl;
         // logger.info("trade: " + trade->getUUID() + " " + trade->getType() + "
         // " + trade->getUnderlying() + " PV : " + std::to_string(pv));
         // logger.info("trade: " + trade->toString());
-
+        /*
         if (auto *bond = dynamic_cast<Bond *>(trade.get())) {
             tradeInfo = bond->toString();
         } else if (auto *swap = dynamic_cast<Swap *>(trade.get())) {
@@ -304,9 +318,11 @@ int main() {
         logger.info("Trade PV: " + std::to_string(pv) + ", DV01: " +
                     std::to_string(dv01) + ", Vega: " + std::to_string(vega));
         // Assuming Trade has a method getID() that returns a unique identifier
-    	outputFile << trade->getUUID() << "," << dv01 << "," << vega << "," << pv << "\n";
+        outputFile << trade->getUUID() << "," << dv01 << "," << vega << "," <<
+        pv << "\n";
+        */
     }
-    outputFile.close();
+    // outputFile.close();
 
     std::cout << "===========end of Part 3============" << std::endl;
 
