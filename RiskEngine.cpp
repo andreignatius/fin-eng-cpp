@@ -1,7 +1,7 @@
 #include "RiskEngine.h"
 
-void RiskEngine::computeRisk(string riskType, Trade *trade, Date valueDate, Pricer* pricer,
-                             bool singleThread) {
+void RiskEngine::computeRisk(string riskType, Trade *trade, Date valueDate,
+                             Pricer *pricer, bool singleThread) {
     string type = trade->getType();
     if (singleThread) {
         std::cout << "SINGLE THREAD RISK CALC FOR : " << type << std::endl;
@@ -62,8 +62,18 @@ void RiskEngine::computeRisk(string riskType, Trade *trade, Date valueDate, Pric
                     std::cout << "SWAP DV01 " << *it << " = " << dv01
                               << std::endl;
                 }
+            } else if (americanOption) {
+                std::cout << "americanOption dv01 calc" << std::endl;
+                double dv01 =
+                    americanOption->CalculateDV01(theMarket, valueDate, pricer);
+                std::cout << "americanOption dv01  = " << dv01 << std::endl;
+            } else if (europeanOption) {
+                std::cout << "europeanOption dv01 calc" << std::endl;
+                double dv01 =
+                    europeanOption->CalculateDV01(theMarket, valueDate, pricer);
+                std::cout << "europeanOption dv01  = " << dv01 << std::endl;
             } else {
-                std::cout << "NO NEED DV01 CHECK" << std::endl;
+                std::cout << "UNRECOGNIZED INSTRUMENT" << std::endl;
             }
         }
 
@@ -101,10 +111,12 @@ void RiskEngine::computeRisk(string riskType, Trade *trade, Date valueDate, Pric
             // } else if (europeanOption) {
             // }
             if (americanOption) {
-                double vega = americanOption->CalculateVega(theMarket, valueDate, pricer);
+                double vega =
+                    americanOption->CalculateVega(theMarket, valueDate, pricer);
                 std::cout << "AMERICAN OPTION VEGA: " << vega << std::endl;
             } else if (europeanOption) {
-                double vega = europeanOption->CalculateVega(theMarket, valueDate, pricer);
+                double vega =
+                    europeanOption->CalculateVega(theMarket, valueDate, pricer);
                 std::cout << "EUROPEAN OPTION VEGA: " << vega << std::endl;
             } else {
                 std::cout << "NO NEED VEGA CHECK" << std::endl;
