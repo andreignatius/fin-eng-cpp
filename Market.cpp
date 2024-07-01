@@ -24,14 +24,15 @@ void RateCurve::addRate(const Date &tenor, double rate) {
         // Tenor already exists, replace the rate
         auto index = std::distance(tenors.begin(), it);
         rates[index] = rate;
-        std::cout << "Updated existing tenor " << tenor << " with new rate "
-                  << rate << "." << std::endl;
+        // std::cout << "Updated existing tenor " << tenor << " with new rate "
+        //           << rate << "." << std::endl;
     } else {
         // Tenor does not exist, add new tenor and rate
         tenors.push_back(tenor);
         rates.push_back(rate);
-        std::cout << "Added new tenor " << tenor << " with rate " << rate << "."
-                  << std::endl;
+        // std::cout << "Added new tenor " << tenor << " with rate " << rate <<
+        // "."
+        //           << std::endl;
     }
 }
 
@@ -92,14 +93,15 @@ void VolCurve::addVol(Date tenor, double volInDecimal) {
         // Tenor already exists, replace the rate
         auto index = std::distance(tenors.begin(), it);
         vols[index] = volInDecimal;
-        std::cout << "Updated existing tenor " << tenor << " with new vol "
-                  << volInDecimal << std::endl;
+        // std::cout << "Updated existing tenor " << tenor << " with new vol "
+        //           << volInDecimal << std::endl;
     } else {
         // Tenor does not exist, add new tenor and rate
         tenors.push_back(tenor);
         vols.push_back(volInDecimal);
-        std::cout << "Added new tenor " << tenor << " with vol " << volInDecimal
-                  << std::endl;
+        // std::cout << "Added new tenor " << tenor << " with vol " <<
+        // volInDecimal
+        //           << std::endl;
     }
 }
 
@@ -132,36 +134,47 @@ void VolCurve::addVol(Date tenor, double volInDecimal) {
 // }
 
 double VolCurve::getVol(const Date &expiry) const {
-    if (tenors.empty()) return 0; // No vols added
-    std::cout << "in VolCurve::getVol - " << expiry.toString() << std::endl;
+    if (tenors.empty())
+        return 0; // No vols added
+    // std::cout << "in VolCurve::getVol - " << expiry.toString() << std::endl;
     // Calculate the time to maturity in days
     int daysToMaturity = expiry.differenceInDays(startDate);
-    std::cout << "days to maturity: " << daysToMaturity << std::endl;
-    std::cout << "shortest available tenor: " << tenors[0].differenceInDays(startDate) << std::endl;
+    // std::cout << "days to maturity: " << daysToMaturity << std::endl;
+    // std::cout << "shortest available tenor: " <<
+    // tenors[0].differenceInDays(startDate) << std::endl;
     if (daysToMaturity <= tenors[0].differenceInDays(startDate)) {
-        std::cout << "tenor is shorter than available tenors: " << vols[0] << std::endl;
+        // std::cout << "tenor is shorter than available tenors: " << vols[0] <<
+        // std::endl;
         return vols[0]; // If tenor is shorter than available tenors
     } else if (daysToMaturity >= tenors.back().differenceInDays(startDate)) {
-        std::cout << "tenor is shorter than available tenors: " << vols.back() << std::endl;
+        // std::cout << "tenor is shorter than available tenors: " <<
+        // vols.back() << std::endl;
         return vols.back(); // If tenor is longer than available tenors
     } else {
         // Linear interpolation
         for (size_t i = 1; i < tenors.size(); ++i) {
             int currentTenorDays = tenors[i].differenceInDays(startDate);
             if (currentTenorDays >= daysToMaturity) {
-                int previousTenorDays = tenors[i - 1].differenceInDays(startDate);
+                int previousTenorDays =
+                    tenors[i - 1].differenceInDays(startDate);
                 double lowerVol = vols[i - 1];
                 double upperVol = vols[i];
 
                 // Interpolation formula
-                std::cout << "Interpolated value: " << lowerVol + (upperVol - lowerVol) * (daysToMaturity - previousTenorDays) / (currentTenorDays - previousTenorDays) << std::endl;
-                return lowerVol + (upperVol - lowerVol) * (daysToMaturity - previousTenorDays) / (currentTenorDays - previousTenorDays);
+                // std::cout << "Interpolated value: "
+                //          << lowerVol +
+                //                 (upperVol - lowerVol) *
+                //                     (daysToMaturity - previousTenorDays) /
+                //                     (currentTenorDays - previousTenorDays)
+                //          << std::endl;
+                return lowerVol + (upperVol - lowerVol) *
+                                      (daysToMaturity - previousTenorDays) /
+                                      (currentTenorDays - previousTenorDays);
             }
         }
     }
     return 0; // Default
 }
-
 
 vector<double> VolCurve::getVols() const { return this->vols; }
 
@@ -240,13 +253,26 @@ void Market::addVolCurve(const std::string &curveName, const VolCurve &curve) {
     volCurves[curveName] = curve;
 }
 
-void Market::updateVolCurve(const std::string &curveName, const VolCurve &curve, const Date &date) {
+void Market::updateVolCurve(const std::string &curveName, const VolCurve &curve,
+                            const Date &date) {
     volCurves[curveName] = curve;
     // Additionally, if you are using daily curves, update them accordingly
     dailyVolCurves[date][curveName] = curve;
 }
-
-
+void Market::updateRateCurve(const std::string &curveName,
+                             const RateCurve &curve, const Date &date) {
+    // 1. show before
+    // std::cout << "BEFORE curve name : " << curveName
+    //          << " daily curve for valdate " << date << std::endl;
+    // dailyCurves[date][curveName].display();
+    // 2. update curve
+    rateCurves[curveName] = curve;
+    dailyCurves[date][curveName] = curve;
+    // 3. show after
+    // std::cout << "AFTER curve name : " << curveName
+    //           << " daily curve for valdate " << date << std::endl;
+    // dailyCurves[date][curveName].display();
+}
 void Market::setRiskFreeRate(double rate) { riskFreeRate = rate; }
 
 void Market::addAssetType(const std::string &assetName, AssetType type) {

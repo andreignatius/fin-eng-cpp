@@ -45,7 +45,8 @@ class VolCurve { // atm vol curve without smile
     VolCurve(const string &_name, const Date &_startDate)
         : name(_name), startDate(_startDate){};
     void addVol(Date tenor, double volInDecimal); // implement this
-    double getVol(const Date& tenor) const; // implement using linear interpolation
+    double
+    getVol(const Date &tenor) const; // implement using linear interpolation
     vector<double> getVols() const;
     double getLatestVol() const; // Method to get the latest volatility
     void display() const;        // implement this
@@ -61,15 +62,17 @@ class VolCurve { // atm vol curve without smile
 class Market {
   public:
     Date asOf;
+    Market() {}
     Market(const Date &now) : asOf(now) {}
     void Print() const;
     void addCurve(const std::string &curveName,
                   const RateCurve &curve); // implement this
     void addVolCurve(const std::string &curveName,
                      const VolCurve &curve); // implement this
-    void updateVolCurve(const std::string &curveName, 
-                        const VolCurve &curve,
+    void updateVolCurve(const std::string &curveName, const VolCurve &curve,
                         const Date &date);
+    void updateRateCurve(const std::string &curveName, const RateCurve &curve,
+                         const Date &date);
     void addBondPrice(const std::string &bondName,
                       double price); // implement this
     // void addStockPrice(const std::string &bondName,
