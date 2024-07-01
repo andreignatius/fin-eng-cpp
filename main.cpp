@@ -292,7 +292,6 @@ int main() {
         std::string tradeInfo = "";
         std::cout << "***** Priced trade with PV *****: " << pv << std::endl;
         std::cout << "========================================================="
-                     "=============================="
                   << std::endl;
         // logger.info("trade: " + trade->getUUID() + " " + trade->getType() + "
         // " + trade->getUnderlying() + " PV : " + std::to_string(pv));
