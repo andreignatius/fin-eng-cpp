@@ -5,7 +5,7 @@
 This part of the project involves pricing various financial instruments such as options and swaps using C++. 
 The code takes in market data in .txt or .csv or .json format, as well as user-defined financial instruments to perform these operations.
 ### Part 2
-This part of the project continues from the above, but with additional requirements: 1) calculation of DV01 and Vega, 2) creating a portfolio of trades for 2.a) near-zero DV01 and Vega, 2.b) maximize PnL for certain DV01 and Vega appetite
+This part of the project continues from the above, but with additional requirements: 1) calculation of DV01 and Vega, 2.a) Create a portfolio with near-zero DV01 and Vega, 2.b) Create a portfolio that maximize PnL for a given DV01 and Vega limit
 
 ## Features
 - Cross-OS collaboration using CMake
@@ -19,6 +19,9 @@ This part of the project continues from the above, but with additional requireme
 - Error Handling: Robust error handling for data processing and pricing calculations.
 - Logging: output runtime results and warnings in a log file for review
 - Version control: using GitHub and following industry best practice (e.g. branch out, pull request, review, merge)
+- Python integration **(Part 2)**
+  - creating and optimizing appropriate portfolio in python
+  - input and output of python are in .csv
 - Various C++ techniques, including but not limited to:
   - Polymorphism
   - Operator overload
@@ -26,9 +29,9 @@ This part of the project continues from the above, but with additional requireme
   - Virtual functions and abstract base class
   - fstream
   - iterators
-  - smart pointers
-  - design pattern
-  - python integration
+  - dynamic casting
+  - smart pointers **(Part 2)**
+  - design pattern **(Part 2)**
 
 ## Prerequisites
 - C++17 or later
@@ -42,6 +45,12 @@ This part of the project continues from the above, but with additional requireme
 4. Compile and run using either of the following scripts
   - For windows OS, run in console: `./build_and_run.bat`
   - For Mac OS, run in console: `./build_and_run.sh`
+
+## Part 2 Highlights
+- Organize the set of tradables into a portfolio for easy manipulation
+- Calculate DV01 and Vega of trades using the *RiskEngine*, where the interest rate or volatility at certain timeframe is perturbed by 0.001 to obtain the sensitivity
+- Structure the two required products by assigning different weights using Tikhonov regularization
+
 
 ## Notable Assumptions
 1. Bond Pricing
@@ -99,7 +108,9 @@ Optimal weights: [0.01       0.44306136 0.53693864 0.01      ]
 - **Bond.cpp**: Implementation of bond-related functionality.
 - **Date.cpp**: Implementation of date handling functionality.
 - **Market.cpp**: Implementation of market information functionality.
+- **PortfolioMaker.cpp**: Implementation of portfolio construction functionality. **(Part 2)**
 - **Pricer.cpp**: General pricing functionality.
+- **RiskEnginee.cpp**: Implementation of DV01 and Vega calculation. **(Part 2)**
 - **Swap.cpp**: Implementation of swap-related functionality.
 - **TenorMap.cpp**: Implementation of tenor mapping.
 - **Trade.cpp**: General trade functionality.
@@ -116,12 +127,19 @@ Optimal weights: [0.01       0.44306136 0.53693864 0.01      ]
 - **Date.h**: Header file for date handling functionality.
 - **Market.h**: Header file for market information functionality.
 - **Payoff.h**: Header file for payoff-related functionality.
+- **PortfolioMaker.h**: Header file for creating a portfolio of trades. **(Part 2)**
 - **Pricer.h**: Header file for pricing functionality.
+- **RiskEngine.h**: Header file for DV01 and Vega calculation functionality. **(Part 2)**
 - **Swap.h**: Header file for swap-related functionality.
 - **TenorMap.h**: Header file for tenor mapping.
 - **Trade.h**: Header file for trade functionality.
 - **Types.h**: Header file for common types.
 
+### Python Files
+- **portfolio_optimization.py**: Creating a portfolio that minimizes the DV01 and Vega, or maximizing PnL for a given risk limit **(Part 2)**
+
 ### Directories
 - **data**: contains the .txt or .csv or .json file, where market information is stored at
 - **output**: contains the log files produced by the logger feature
+- **market_data**: contains the .txt or .csv file for **(Part 2)**
+
