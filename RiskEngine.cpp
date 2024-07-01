@@ -88,28 +88,6 @@ void RiskEngine::computeRisk(string riskType, Trade *trade, Date valueDate,
             double rate;
             double pv_up;
             double pv_down;
-            // if (americanOption) {
-            //     // 1. get the underlying curve
-            //     underlying = americanOption->getUnderlying();
-            //     VolCurve theCurve =
-            //         theMarket.getVolCurve(valueDate, underlying);
-            //     // 2. shock the curve + do the PV
-            //     //      1. Copy the curve first
-            //     VolCurve upCurve = theCurve;
-            //     VolCurve downCurve = theCurve;
-            //     std::vector<Date> tenors = theCurve.getTenors();
-            //     //      2. Iter through the keys of the curve
-            //     for (auto it = tenors.begin(); it != tenors.end(); ++it) {
-            //         double currVol = theCurve.getVol(*it);
-            //         upCurve.addVol(*it, currVol + 0.01);
-            //         downCurve.addVol(*it, currVol - 0.01);
-            //         //  3. NOW PRICE THIS
-            //         // pv_up = americanOption->Payoff(upCurve);
-            //         // pv_down = americanOption->Payoff(upCurve);
-            //         // double dv01 = (pv_up - pv_down) / 2.0;
-            //     }
-            // } else if (europeanOption) {
-            // }
             if (americanOption) {
                 std::cout << "americanOption vega calc" << std::endl;
                 double dv01 =
