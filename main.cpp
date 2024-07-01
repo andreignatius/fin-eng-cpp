@@ -268,8 +268,8 @@ int main() {
     std::ofstream outputFile("portfolio_data.csv");
     outputFile << "TradeID,DV01,Vega,PV\n"; // Column headers
 
-    RiskEngine myRE = RiskEngine(mkt);
-
+    RiskEngine myRiskEngine = RiskEngine(mkt);
+    // myRiskEngine.computeRiskAsync(); // Asynchronous risk computation
     for (auto &trade : myPortfolio) {
         std::cout << "***** Start PV Pricing and Risk Test *****" << std::endl;
         double pv = treePricer->Price(
@@ -282,47 +282,20 @@ int main() {
         std::cout
             << "====================== DV01 CALCULATION ======================"
             << std::endl;
-        myRE.computeRisk("dv01", trade.get(), Date(2024, 6, 1),
+        myRiskEngine.computeRisk("dv01", trade.get(), Date(2024, 6, 1),
                          treePricer.get(), true);
         std::cout
             << "====================== VEGA CALCULATION ======================"
             << std::endl;
-        myRE.computeRisk("vega", trade.get(), Date(2024, 6, 1),
+        myRiskEngine.computeRisk("vega", trade.get(), Date(2024, 6, 1),
                          treePricer.get(), true);
         pricingResults.push_back(pv);
         std::string tradeInfo = "";
         std::cout << "***** Priced trade with PV *****: " << pv << std::endl;
         std::cout << "========================================================="
                   << std::endl;
-        // logger.info("trade: " + trade->getUUID() + " " + trade->getType() + "
-        // " + trade->getUnderlying() + " PV : " + std::to_string(pv));
-        // logger.info("trade: " + trade->toString());
-        /*
-        if (auto *bond = dynamic_cast<Bond *>(trade.get())) {
-            tradeInfo = bond->toString();
-        } else if (auto *swap = dynamic_cast<Swap *>(trade.get())) {
-            tradeInfo = swap->toString();
-        } else if (auto *amerOption =
-                       dynamic_cast<AmericanOption *>(trade.get())) {
-            tradeInfo = amerOption->toString();
-            vega = treePricer->CalculateVega(mkt, amerOption, Date(2024, 6, 1));
-        } else if (auto *euroOption =
-                       dynamic_cast<EuropeanOption *>(trade.get())) {
-            tradeInfo = euroOption->toString();
-            vega = treePricer->CalculateVega(mkt, euroOption, Date(2024, 6, 1));
-        }
-        // std::cout << "trade: " << tradeInfo << ", PV: " << pv << std::endl;
-        // logger.info("trade: " + tradeInfo + ", PV: " + std::to_string(pv));
-        std::cout << "Trade PV: " << pv << ", DV01: " << dv01
-                  << ", Vega: " << vega << std::endl;
-        logger.info("Trade PV: " + std::to_string(pv) + ", DV01: " +
-                    std::to_string(dv01) + ", Vega: " + std::to_string(vega));
-        // Assuming Trade has a method getID() that returns a unique identifier
-        outputFile << trade->getUUID() << "," << dv01 << "," << vega << "," <<
-        pv << "\n";
-        */
     }
-    // outputFile.close();
+    outputFile.close();
 
     std::cout << "===========end of Part 3============" << std::endl;
 
