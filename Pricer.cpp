@@ -5,7 +5,8 @@
 #include "Market.h"
 #include <cmath>
 
-double Pricer::Price(const Market &mkt, const Trade *trade, const Date &valueDate) {
+double Pricer::Price(const Market &mkt, const Trade *trade,
+                     const Date &valueDate) {
     double pv = 0.0;
 
     if (auto *option = dynamic_cast<const TreeProduct *>(trade)) {
@@ -103,9 +104,10 @@ double BinomialTreePricer::PriceTree(const Market &mkt,
     } else {
         stockPrice = mkt.getPriceOrRate(trade.getType(), valueDate);
     }
-    double vol = mkt.getVolCurve(Date(2024, 6, 1), trade.getType()).getVol(trade.GetExpiry());
-    double rate = mkt.getRiskFreeRate();
-
+    double vol =
+        mkt.getVolCurve(valueDate, trade.getType()).getVol(trade.GetExpiry());
+    double rate =
+        mkt.getCurve(valueDate, "usd-sofr").getRate(trade.GetExpiry());
     std::cout << "Tree pricer parameters " << std::endl;
     std::cout << "T: " << T << ", Price: " << ", Strike " << stockPrice
               << ", Vol: " << vol << ", r: " << rate << std::endl;
