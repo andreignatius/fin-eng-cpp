@@ -4,14 +4,19 @@
 #include <algorithm>
 #include <sstream>
 
-EuropeanOption::EuropeanOption()
-    : TreeProduct("EuropeanOption", Date(), "") {}
+EuropeanOption::EuropeanOption() : TreeProduct("EuropeanOption", Date(), "") {}
 
-EuropeanOption::EuropeanOption(OptionType _optType, double _strike, const Date &_expiry)
-    : TreeProduct("EuropeanOption", _expiry, ""), optType(_optType), strike(_strike), expiryDate(_expiry) {}
+EuropeanOption::EuropeanOption(OptionType _optType, double _strike,
+                               const Date &_expiry)
+    : TreeProduct("EuropeanOption", _expiry, ""), optType(_optType),
+      strike(_strike), expiryDate(_expiry) {}
 
-EuropeanOption::EuropeanOption(OptionType optType, double strike, const Date &expiry, const Date &date, const string &underlying, const string& uuid)
-    : TreeProduct("EuropeanOption", expiry, date, underlying, uuid), optType(optType), strike(strike), expiryDate(expiry), valueDate(date), underlying(underlying), uuid(uuid) {}
+EuropeanOption::EuropeanOption(OptionType optType, double strike,
+                               const Date &expiry, const Date &date,
+                               const string &underlying, const string &uuid)
+    : TreeProduct("EuropeanOption", expiry, date, underlying, uuid),
+      optType(optType), strike(strike), expiryDate(expiry), valueDate(date),
+      underlying(underlying), uuid(uuid) {}
 
 double EuropeanOption::Payoff(double S) const {
     return PAYOFF::VanillaOption(optType, strike, S);
@@ -19,58 +24,60 @@ double EuropeanOption::Payoff(double S) const {
 
 std::string EuropeanOption::toString() const {
     std::ostringstream oss;
-    oss << "Type: " << OptionTypeToString(optType) << ", Expiry Date: " << expiryDate.toString()
+    oss << "Type: " << OptionTypeToString(optType)
+        << ", Expiry Date: " << expiryDate.toString()
         << ", Underlying: " << underlying << ", UUID: " << uuid;
     return oss.str();
 }
 
-const Date& EuropeanOption::GetExpiry() const {
-    return expiryDate;
-}
+const Date &EuropeanOption::GetExpiry() const { return expiryDate; }
 
-double EuropeanOption::getStrike() const {
-    return strike;
-}
+double EuropeanOption::getStrike() const { return strike; }
 
-OptionType EuropeanOption::getOptionType() const {
-    return optType;
-}
+OptionType EuropeanOption::getOptionType() const { return optType; }
 
-double EuropeanOption::ValueAtNode(double S, double t, double continuation) const {
+double EuropeanOption::ValueAtNode(double S, double t,
+                                   double continuation) const {
     return continuation;
 }
 
-// double EuropeanOption::CalculateVega(const Market &market, const Date &valueDate, Pricer &pricer) const {
-//     double originalPV = Pricer::Price(market, this, valueDate);
+double EuropeanOption::CalculateDV01(const Market &market,
+                                     const Date &valueDate,
+                                     Pricer *pricer) const {
+    std::cout << "***EuropeanOption CalculateDV01 START" << std::endl;
+    // double originalPV = pricer->Price(market, this, valueDate);
+    RateCurve theCurve = market.getCurve(valueDate, "usd-sofr");
+    RateCurve upCurve = theCurve;
+    RateCurve downCurve = theCurve;
+    std::vector<Date> tenors = theCurve.getTenors();
+    //      2. Shock the whole curve?
+    for (auto it = tenors.begin(); it != tenors.end(); ++it) {
+        double currRate = theCurve.getRate(*it);
+        upCurve.addRate(*it, currRate + 0.0001);
+        downCurve.addRate(*it, currRate - 0.0001);
+    }
+    // Clone the original market to create perturbed markets
+    Market upMarket = market;
+    Market downMarket = market;
+    // assume usd-sofr curve
+    upMarket.updateRateCurve("usd-sofr", upCurve, valueDate);
+    downMarket.updateRateCurve("usd-sofr", downCurve, valueDate);
 
-//     // Perturb the volatility curve
-//     VolCurve volCurve = market.getVolCurve(valueDate, underlying);
-//     VolCurve upCurve = volCurve;
-//     VolCurve downCurve = volCurve;
-//     std::vector<Date> tenors = volCurve.getTenors();
+    // Price the option with perturbed markets
+    double pv_up = pricer->Price(upMarket, this, valueDate);
+    double pv_down = pricer->Price(downMarket, this, valueDate);
 
-//     for (const Date &tenor : tenors) {
-//         double currVol = volCurve.getVol(tenor);
-//         upCurve.addVol(tenor, currVol + 0.01);
-//         downCurve.addVol(tenor, currVol - 0.01);
-//     }
+    // Calculate Vega as the difference in PV divided by the change in
+    // volatility
+    double dv01 = (pv_up - pv_down) / 2.0;
 
-//     // Update the market with perturbed curves
-//     Market upMarket = market;
-//     Market downMarket = market;
-//     upMarket.updateVolCurve(underlying, upCurve, valueDate);
-//     downMarket.updateVolCurve(underlying, downCurve, valueDate);
+    std::cout << "***EuropeanOption CalculateDV01 END" << std::endl;
+    return dv01;
+}
 
-//     // Price the option with perturbed curves
-//     double pv_up = Pricer::Price(upMarket, this, valueDate);
-//     double pv_down = Pricer::Price(downMarket, this, valueDate);
-
-//     // Calculate Vega
-//     double vega = (pv_up - pv_down) / 2.0;
-//     return vega;
-// }
-
-double EuropeanOption::CalculateVega(const Market &market, const Date &valueDate, Pricer *pricer) const {
+double EuropeanOption::CalculateVega(const Market &market,
+                                     const Date &valueDate,
+                                     Pricer *pricer) const {
     double originalPV = pricer->Price(market, this, valueDate);
 
     // Clone the original market to create perturbed markets
@@ -85,9 +92,15 @@ double EuropeanOption::CalculateVega(const Market &market, const Date &valueDate
     std::vector<Date> tenors = originalVolCurve.getTenors();
     for (const Date &tenor : tenors) {
         double currVol = originalVolCurve.getVol(tenor);
-        upVolCurve.addVol(tenor, currVol + 0.01);  // increase vol by 1%
-        downVolCurve.addVol(tenor, currVol - 0.01);  // decrease vol by 1%
+        upVolCurve.addVol(tenor, currVol + 0.01);   // increase vol by 1%
+        downVolCurve.addVol(tenor, currVol - 0.01); // decrease vol by 1%
     }
+    std::cout << "ORIGVOLCURVE" << std::endl;
+    originalVolCurve.display();
+    std::cout << "UPVOLCURVE" << std::endl;
+    upVolCurve.display();
+    std::cout << "DOWNVOLCURVE" << std::endl;
+    downVolCurve.display();
 
     // Update the perturbed markets with new vol curves
     upMarket.updateVolCurve(this->underlying, upVolCurve, valueDate);
@@ -97,14 +110,18 @@ double EuropeanOption::CalculateVega(const Market &market, const Date &valueDate
     double pv_up = pricer->Price(upMarket, this, valueDate);
     double pv_down = pricer->Price(downMarket, this, valueDate);
 
-    // Calculate Vega as the difference in PV divided by the change in volatility
-    double vega = (pv_up - pv_down) / 0.02;  // Divided by total change in volatility (0.01 + 0.01)
+    // Calculate Vega as the difference in PV divided by the change in
+    // volatility
+    double vega = (pv_up - pv_down) /
+                  0.02; // Divided by total change in volatility (0.01 + 0.01)
 
     return vega;
 }
 
-EuroCallSpread::EuroCallSpread(double _k1, double _k2, const Date &_expiry, const Date &_date, const string& _uuid)
-    : EuropeanOption(Call, _k1, _expiry, _date, "", _uuid), strike1(_k1), strike2(_k2) {
+EuroCallSpread::EuroCallSpread(double _k1, double _k2, const Date &_expiry,
+                               const Date &_date, const string &_uuid)
+    : EuropeanOption(Call, _k1, _expiry, _date, "", _uuid), strike1(_k1),
+      strike2(_k2) {
     assert(_k1 < _k2);
 }
 

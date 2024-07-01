@@ -1,26 +1,33 @@
 #ifndef _AMERICAN_TRADE
 #define _AMERICAN_TRADE
 
-#include <cassert>
+#include "Market.h"
+#include "Payoff.h" // Assuming necessary for PAYOFF namespace functions
+#include "Pricer.h"
 #include "TreeProduct.h"
 #include "Types.h"
 #include "Utils.h"
-#include "Payoff.h" // Assuming necessary for PAYOFF namespace functions
-#include "Market.h"
-#include "Pricer.h"
+#include <cassert>
 
 class AmericanOption : public TreeProduct {
-public:
-    AmericanOption(OptionType optType, double strike, const Date& expiry, const Date& date, const string& underlying, const string& uuid);
+  public:
+    AmericanOption(OptionType optType, double strike, const Date &expiry,
+                   const Date &date, const string &underlying,
+                   const string &uuid);
     virtual double Payoff(double S) const override;
-    virtual const Date& GetExpiry() const override;
+    virtual const Date &GetExpiry() const override;
     double getStrike() const;
     OptionType getOptionType() const;
-    virtual double ValueAtNode(double S, double t, double continuation) const override;
-    double CalculateVega(const Market &market, const Date &valueDate, Pricer *pricer) const;
+    virtual double ValueAtNode(double S, double t,
+                               double continuation) const override;
+    double CalculateDV01(const Market &market, const Date &valueDate,
+                         Pricer *pricer) const;
+
+    double CalculateVega(const Market &market, const Date &valueDate,
+                         Pricer *pricer) const;
     std::string toString() const;
 
-private:
+  private:
     OptionType optType;
     double strike;
     Date expiryDate;
@@ -30,12 +37,13 @@ private:
 };
 
 class AmerCallSpread : public TreeProduct {
-public:
-    AmerCallSpread(double k1, double k2, const Date& expiry, const Date& date, const string& uuid);
+  public:
+    AmerCallSpread(double k1, double k2, const Date &expiry, const Date &date,
+                   const string &uuid);
     virtual double Payoff(double S) const override;
-    virtual const Date& GetExpiry() const override;
+    virtual const Date &GetExpiry() const override;
 
-private:
+  private:
     double strike1;
     double strike2;
     Date expiryDate;
