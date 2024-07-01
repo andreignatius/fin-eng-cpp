@@ -255,9 +255,17 @@ void Market::addVolCurve(const std::string &curveName, const VolCurve &curve) {
 
 void Market::updateVolCurve(const std::string &curveName, const VolCurve &curve,
                             const Date &date) {
+    // 1. show before
+    // std::cout << "BEFORE VOL curve name : " << curveName
+    //          << " daily curve for valdate " << date << std::endl;
+    // dailyVolCurves[date][curveName].display();
+    // 2. update curve
     volCurves[curveName] = curve;
-    // Additionally, if you are using daily curves, update them accordingly
     dailyVolCurves[date][curveName] = curve;
+    // 3. show after
+    // std::cout << "AFTER VOL curve name : " << curveName
+    //          << " daily curve for valdate " << date << std::endl;
+    // dailyVolCurves[date][curveName].display();
 }
 void Market::updateRateCurve(const std::string &curveName,
                              const RateCurve &curve, const Date &date) {
