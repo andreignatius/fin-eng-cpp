@@ -104,8 +104,10 @@ double BinomialTreePricer::PriceTree(const Market &mkt,
     } else {
         stockPrice = mkt.getPriceOrRate(trade.getType(), valueDate);
     }
-    double vol =
-        mkt.getVolCurve(valueDate, trade.getType()).getVol(trade.GetExpiry());
+    double vol = mkt.getVolCurve(valueDate, trade.getUnderlying())
+                     .getVol(trade.GetExpiry());
+    // std::cout << "I WANT TO SEE THE VOL CURVE" << std::endl;
+    // mkt.getVolCurve(valueDate, trade.getUnderlying()).display();
     double rate =
         mkt.getCurve(valueDate, "usd-sofr").getRate(trade.GetExpiry());
     std::cout << "Tree pricer parameters " << std::endl;
