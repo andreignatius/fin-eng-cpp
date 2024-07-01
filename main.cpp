@@ -17,6 +17,7 @@
 #include <iostream>
 #include <mutex>
 #include <string>
+#include <future>
 /*
 Comments: when using new, pls remember to use delete for ptr
 */
@@ -265,37 +266,66 @@ int main() {
         std::make_unique<CRRBinomialTreePricer>(700);
 
     std::vector<double> pricingResults;
-    std::ofstream outputFile("portfolio_data.csv");
-    outputFile << "TradeID,DV01,Vega,PV\n"; // Column headers
 
     RiskEngine myRiskEngine = RiskEngine(mkt);
-    // myRiskEngine.computeRiskAsync(); // Asynchronous risk computation
+    // for (auto &trade : myPortfolio) {
+    //     std::cout << "***** Start PV Pricing and Risk Test *****" << std::endl;
+    //     double pv = treePricer->Price(
+    //         mkt, trade.get(),
+    //         Date(2024, 6, 1)); // Assuming Price() accepts a raw pointer
+    //     std::cout<<"+++" << std::endl;
+    //     double dv01 = 0; //     treePricer->CalculateDV01(mkt, trade.get(),
+    //                      //     Date(2024, 6, 1));
+    //     double vega = 0;
+    //     std::cout
+    //         << "====================== DV01 CALCULATION ======================"
+    //         << std::endl;
+    //     myRiskEngine.computeRisk("dv01", trade.get(), Date(2024, 6, 1),
+    //                      treePricer.get(), true);
+    //     std::cout
+    //         << "====================== VEGA CALCULATION ======================"
+    //         << std::endl;
+    //     myRiskEngine.computeRisk("vega", trade.get(), Date(2024, 6, 1),
+    //                      treePricer.get(), true);
+    //     pricingResults.push_back(pv);
+    //     std::string tradeInfo = "";
+    //     std::cout << "***** Priced trade with PV *****: " << pv << std::endl;
+    //     std::cout << "========================================================="
+    //               << std::endl;
+    // }
+    std::vector<std::future<void>> futures; // To store futures of asynchronous tasks
+
     for (auto &trade : myPortfolio) {
+        // Launch asynchronous tasks for each trade
         std::cout << "***** Start PV Pricing and Risk Test *****" << std::endl;
-        double pv = treePricer->Price(
-            mkt, trade.get(),
-            Date(2024, 6, 1)); // Assuming Price() accepts a raw pointer
-        std::cout<<"+++" << std::endl;
-        double dv01 = 0; //     treePricer->CalculateDV01(mkt, trade.get(),
-                         //     Date(2024, 6, 1));
-        double vega = 0;
-        std::cout
-            << "====================== DV01 CALCULATION ======================"
-            << std::endl;
-        myRiskEngine.computeRisk("dv01", trade.get(), Date(2024, 6, 1),
-                         treePricer.get(), true);
-        std::cout
-            << "====================== VEGA CALCULATION ======================"
-            << std::endl;
-        myRiskEngine.computeRisk("vega", trade.get(), Date(2024, 6, 1),
-                         treePricer.get(), true);
-        pricingResults.push_back(pv);
-        std::string tradeInfo = "";
+        double pv = treePricer->Price(mkt, trade.get(), Date(2024, 6, 1));
+        std::cout << "+++" << std::endl;
         std::cout << "***** Priced trade with PV *****: " << pv << std::endl;
-        std::cout << "========================================================="
-                  << std::endl;
+
+        // Async DV01 calculation
+        auto dv01Future = std::async(std::launch::async, [&myRiskEngine, &trade, &mkt, &treePricer]() {
+            std::cout << "====================== DV01 CALCULATION ======================" << std::endl;
+            myRiskEngine.computeRisk("dv01", trade.get(), Date(2024, 6, 1), treePricer.get(), true);
+        });
+
+        // Async VEGA calculation
+        auto vegaFuture = std::async(std::launch::async, [&myRiskEngine, &trade, &mkt, &treePricer]() {
+            std::cout << "====================== VEGA CALCULATION ======================" << std::endl;
+            myRiskEngine.computeRisk("vega", trade.get(), Date(2024, 6, 1), treePricer.get(), true);
+        });
+
+        futures.push_back(std::move(dv01Future));
+        futures.push_back(std::move(vegaFuture));
+        pricingResults.push_back(pv); // Assuming pricingResults is defined elsewhere
     }
-    outputFile.close();
+
+    // Wait for all futures to complete
+    for (auto &future : futures) {
+        future.get(); // This blocks until the task completes
+    }
+
+    std::cout << "=========================================================" << std::endl;
+
 
     std::cout << "===========end of Part 3============" << std::endl;
 

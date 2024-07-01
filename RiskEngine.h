@@ -24,8 +24,6 @@ class RiskEngine {
     // virtual double Price(const Market& mkt, std::unique_ptr<Trade>& trade);
     void computeRisk(string riskType, Trade *trade, Date valueDate, Pricer* pricer,
                      bool singleThread);
-    void computeRiskParallel();
-    void computeRiskAsync();
 
   private:
     Market theMarket;

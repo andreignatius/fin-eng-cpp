@@ -111,29 +111,5 @@ void RiskEngine::computeRisk(string riskType, Trade *trade, Date valueDate,
     }
 }
 
-// void RiskEngine::computeRiskParallel() {
-//     std::vector<std::thread> threads;
-//     for (Trade* trade : trades) { // Assuming `trades` is a container of Trade*
-//         threads.emplace_back([this, trade]() {
-//             computeRisk("dv01", trade, today, &pricer, false);
-//         });
-//     }
 
-//     for (auto& thread : threads) {
-//         thread.join();
-//     }
-// }
 
-// void RiskEngine::computeRiskAsync() {
-//     std::vector<std::future<void>> futures;
-//     for (Trade* trade : trades) {
-//         auto fut = std::async(std::launch::async, [this, trade]() {
-//             computeRisk("dv01", trade, today, &pricer, false);
-//         });
-//         futures.push_back(std::move(fut));
-//     }
-
-//     for (auto& fut : futures) {
-//         fut.get(); // Waits for the task to finish and retrieves the result
-//     }
-// }
