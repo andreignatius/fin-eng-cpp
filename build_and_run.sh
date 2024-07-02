@@ -24,4 +24,4 @@ python -m pip install -r requirements.txt
 # Navigate to the output directory and run Python script with the latest file
 cd output
 LATEST_FILE=$(ls -t | head -n1)
-python ../QF633project_part_2_question_4_v5.py "$LATEST_FILE"
+python ../portfolio_optimization.py "$LATEST_FILE"

@@ -1,77 +1,115 @@
+import argparse
 import numpy as np
-import pandas as pd
 from scipy.optimize import minimize
-
-def parse_data(file_path):
-    """Load data from CSV."""
-    return pd.read_csv(file_path)
-
-def minimize_risks(coefficients, lambda_reg=0.01):
-    """Minimize the sum of squared risks using Tikhonov regularization."""
-    A = coefficients.T  # Transpose to get risks as rows and assets as columns
-    U, s, Vt = np.linalg.svd(A, full_matrices=False)
-    s_reg = s / (s**2 + lambda_reg**2)  # Regularize singular values
-    pinv_reg = Vt.T @ np.diag(s_reg) @ U.T
-    b = np.zeros(A.shape[0])  # Target zero risks, minimal risk instead of neutral
-    weights = pinv_reg @ b
-
-    # Minimize sum of squared risks
-    def objective(w):
-        return np.sum((A @ w)**2) + lambda_reg * np.sum(w**2)
-
-    constraints = {'type': 'eq', 'fun': lambda w: np.sum(w) - 1}  # Sum of weights must be 1
-    bounds = [(0, None) for _ in range(A.shape[1])]  # No short selling
-    result = minimize(objective, weights, method='SLSQP', bounds=bounds, constraints=[constraints])
-
-    if result.success:
-        return result.x
-    else:
-        print("Optimization Diagnostic Info:", result)
-        raise Exception("Optimization failed: " + result.message)
+import json
 
 
-def maximize_pnL(coefficients, PnL, target_DV01=0, target_Vega=0, lambda_reg=0.1):
-    """Maximize PnL under fixed risk limits of DV01 and Vega, with increased regularization."""
-    num_assets = coefficients.shape[0]
+def optimize_portfolio_pnl(pnl, dv01_vectors, vega_vectors, dv01_min, dv01_max, vega_min, vega_max):
+    # Objective function to maximize the total PnL
+    def objective(x):
+        return -np.dot(x, pnl)
 
-    def objective(weights):
-        regularization = lambda_reg * np.sum(weights**2)
-        return -np.dot(PnL, weights) + regularization
+    # Constraint functions
+    def dv01_lower_bound(x):
+        return np.dot(x, dv01_vectors).sum() - dv01_min
 
+    def dv01_upper_bound(x):
+        return dv01_max - np.dot(x, dv01_vectors).sum()
+
+    def vega_lower_bound(x):
+        return np.dot(x, vega_vectors).sum() - vega_min
+
+    def vega_upper_bound(x):
+        return vega_max - np.dot(x, vega_vectors).sum()
+
+    # Initial guess
+    x0 = np.ones(len(pnl)) / len(pnl)
+
+    # Bounds for the weights
+    bounds = [(0, 10) for _ in range(len(pnl))]
+
+    # Constraints
     constraints = [
-        {'type': 'eq', 'fun': lambda weights: np.dot(coefficients[:, 0], weights) - target_DV01},
-        {'type': 'eq', 'fun': lambda weights: np.dot(coefficients[:, 1], weights) - target_Vega}
+        {'type': 'ineq', 'fun': dv01_lower_bound},
+        {'type': 'ineq', 'fun': dv01_upper_bound},
+        {'type': 'ineq', 'fun': vega_lower_bound},
+        {'type': 'ineq', 'fun': vega_upper_bound}
     ]
 
-    bounds = [(None, None) for _ in range(num_assets)]
-    initial_guess = np.zeros(num_assets)
-    options = {'maxiter': 1000}
+    # Optimization
+    result = minimize(objective, x0, bounds=bounds, constraints=constraints, method='SLSQP')
 
-    result = minimize(objective, initial_guess, method='SLSQP', bounds=bounds, constraints=constraints, options=options)
-
+    # Check if optimization was successful
     if not result.success:
-        print("Optimization Diagnostic Info:", result)
-        raise Exception("Optimization failed: " + result.message)
+        raise ValueError("Optimization failed: " + result.message)
+
     return result.x
 
-def analyze_risks(coefficients):
-    rank = np.linalg.matrix_rank(coefficients)
-    print("Rank of the coefficient matrix:", rank)
-    if rank < coefficients.shape[0]:
-        print("Dependent risk factors detected.")
+
+def calculate_portfolio_metrics(weights, pnl, dv01_vectors, vega_vectors):
+    portfolio_pnl = np.dot(weights, pnl)
+    portfolio_dv01 = np.dot(weights, dv01_vectors)
+    portfolio_vega = np.dot(weights, vega_vectors)
+
+    return portfolio_pnl, portfolio_dv01, portfolio_vega
 
 
+def main(filename):
+    # Load the JSON file
+    with open(filename, 'r') as file:
+        data = json.load(file)
 
-# Example usage
-file_path = 'portfolio_data_with_randoms.csv'
-df = parse_data(file_path)
-coefficients = df[['DV01', 'Vega']].values  # Get the coefficients for DV01 and Vega
-PnL = df['PV'].values  # Present Value from the portfolio
+    # Extract the relevant parts
+    trades = data["2024-06-02"]
+    pnl = data["PnL"]
 
-neutral_weights = minimize_risks(coefficients)
-print("Weights to minimize DV01 and Vega:", neutral_weights)
+    # Sort the trades by keys
+    sorted_trades = {k: trades[k] for k in sorted(trades, key=int)}
 
-analyze_risks(coefficients)
+    # Initialize lists to store DV01, Vega, and PnL values
+    dv01_list = []
+    vega_list = []
+    pnl_list = []
 
-optimal_weights = maximize_pnL(coefficients, PnL)
-print("Optimal weights for maximal PnL under risk limits:", optimal_weights)
+    # Iterate through sorted trades to extract DV01 and Vega values
+    for trade_id, trade_data in sorted_trades.items():
+        dv01_values = list(trade_data["DV01"].values())
+        vega_values = list(trade_data["Vega"].values()) if trade_data["Vega"] is not None else [0] * len(dv01_values)
+        
+        dv01_list.append(dv01_values)
+        vega_list.append(vega_values)
+        pnl_list.append(pnl[trade_id])
+
+    # Convert lists to numpy arrays
+    dv01_vectors = np.array(dv01_list)
+    vega_vectors = np.array(vega_list)
+    pnl = np.array(pnl_list)
+    
+
+    dv01_min = -2.0
+    dv01_max = 2.0
+    vega_min = -1.5
+    vega_max = 1.5
+
+    def scale_vectors(vectors):
+        norms = np.linalg.norm(vectors, axis=0)
+        norms[norms == 0] = 1  # Prevent division by zero
+        return vectors / norms
+
+    dv01_vectors = scale_vectors(dv01_vectors)
+    vega_vectors = scale_vectors(vega_vectors)
+
+    optimal_weights = optimize_portfolio_pnl(pnl, dv01_vectors, vega_vectors, dv01_min, dv01_max, vega_min, vega_max)
+    portfolio_pnl, portfolio_dv01, portfolio_vega = calculate_portfolio_metrics(optimal_weights, pnl, dv01_vectors,
+                                                                                vega_vectors)
+    print("Optimal Weights:", optimal_weights)
+    print("Portfolio PnL:", portfolio_pnl)
+    print("Portfolio dv01:", portfolio_dv01)
+    print("Portfolio Vega:", portfolio_vega)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Optimize portfolio based on PnL.")
+    parser.add_argument('filename', type=str, help='Filename of the input JSON data')
+    args = parser.parse_args()
+    main(args.filename)

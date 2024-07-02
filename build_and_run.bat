@@ -25,7 +25,7 @@ REM Navigate back to the output directory and run Python script with the latest 
 cd output
 FOR /F "delims=" %%i IN ('dir /b /od /a-d') DO SET LATEST_FILE=%%i
 cd ..
-python QF633project_part_2_question_4_v5.py output\%LATEST_FILE%
+python portfolio_optimization.py output\%LATEST_FILE%
 
 REM Pause the command line to view the output
 pause
