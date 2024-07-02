@@ -69,6 +69,11 @@ double Swap::Payoff(double marketPrice) const { // TODO marketPrice is redundant
     double floatLegPV;
     double DF_last;
 
+    std::cout << "curveName : " << curveName << " ; startDate : " << startDate
+              << " ; maturityDate : " << maturityDate
+              << " ; Notional : " << notional << " ; fixedRate : " << fixedRate
+              << " ; Freq : " << frequency << std::endl;
+
     fixedLegPV =
         annuity * (fixedRate * frequency); // assume fixedRate is annual rate
 
