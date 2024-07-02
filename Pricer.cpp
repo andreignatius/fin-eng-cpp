@@ -48,7 +48,7 @@ double Pricer::Price(const Market &mkt, const Trade *trade,
 double Pricer::CalculateDV01(const Market &market, Trade *trade,
                              const Date &valueDate) {
     Market perturbedMarket = market;
-    perturbedMarket.adjustInterestRates(0.0001); // Increase all rates by 1 bps
+    perturbedMarket.adjustInterestRates(Constants::YIELD_CURVE_SHOCK_SIZE_SINGLE_BP); // Increase all rates by 1 bps
     double priceOriginal = Price(market, trade, valueDate);
     double pricePerturbed = Price(perturbedMarket, trade, valueDate);
     std::cout

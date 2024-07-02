@@ -45,8 +45,8 @@ double AmericanOption::CalculateDV01(const Market &market,
     std::vector<Date> tenors = theCurve.getTenors();
     for (auto it = tenors.begin(); it != tenors.end(); ++it) {
         double currRate = theCurve.getRate(*it);
-        upCurve.addRate(*it, currRate + 0.0001);
-        downCurve.addRate(*it, currRate - 0.0001);
+        upCurve.addRate(*it, currRate + Constants::YIELD_CURVE_SHOCK_SIZE_SINGLE_BP);
+        downCurve.addRate(*it, currRate - Constants::YIELD_CURVE_SHOCK_SIZE_SINGLE_BP);
     }
     // Clone the original market to create perturbed markets
     Market upMarket = market;
@@ -58,9 +58,7 @@ double AmericanOption::CalculateDV01(const Market &market,
     // Price the option with perturbed markets
     double pv_up = pricer->Price(upMarket, this, valueDate);
     double pv_down = pricer->Price(downMarket, this, valueDate);
-
-    // Calculate Vega as the difference in PV divided by the change in
-    // volatility
+    
     double dv01 = (pv_up - pv_down) / 2.0;
 
     std::cout << "***AmericanOption CalculateDV01 END" << std::endl;
@@ -79,8 +77,8 @@ double AmericanOption::CalculateVega(const Market &market,
     std::vector<Date> tenors = originalVolCurve.getTenors();
     for (const Date &tenor : tenors) {
         double currVol = originalVolCurve.getVol(tenor);
-        upVolCurve.addVol(tenor, currVol + 0.01);   // increase vol by 1%
-        downVolCurve.addVol(tenor, currVol - 0.01); // decrease vol by 1%
+        upVolCurve.addVol(tenor, currVol + Constants::YIELD_CURVE_SHOCK_SIZE_SINGLE_PERCENT);   // increase vol by 1%
+        downVolCurve.addVol(tenor, currVol - Constants::YIELD_CURVE_SHOCK_SIZE_SINGLE_PERCENT); // decrease vol by 1%
     }
 
     // Clone the original market to create perturbed markets
@@ -97,7 +95,7 @@ double AmericanOption::CalculateVega(const Market &market,
     // Calculate Vega as the difference in PV divided by the change in
     // volatility
     double vega = (pv_up - pv_down) /
-                  0.02; // Divided by total change in volatility (0.01 + 0.01)
+                  (2.0 * Constants::YIELD_CURVE_SHOCK_SIZE_SINGLE_PERCENT); // Divided by total change in volatility (0.01 + 0.01)
 
     std::cout << "***AmericanOption CalculateVega END" << std::endl;
     return vega;

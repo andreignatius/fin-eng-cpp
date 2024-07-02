@@ -1,4 +1,5 @@
 #include "RiskEngine.h"
+#include "Constants.h"
 
 void RiskEngine::computeRisk(string riskType, Trade *trade, Date valueDate,
                              Pricer *pricer) {
@@ -8,6 +9,8 @@ void RiskEngine::computeRisk(string riskType, Trade *trade, Date valueDate,
     auto *europeanOption = dynamic_cast<EuropeanOption *>(trade);
     auto *bond = dynamic_cast<Bond *>(trade);
     auto *swap = dynamic_cast<Swap *>(trade);
+
+    double dv01 = 0;
     if (riskType == "dv01") {
         /*
             The logic is:
@@ -19,9 +22,11 @@ void RiskEngine::computeRisk(string riskType, Trade *trade, Date valueDate,
         double rate;
         double pv_up;
         double pv_down;
-        if (type == "BondTrade") {
+        if (type == "BondTrade" || type == "SwapTrade") {
             // 1. get the underlying curve
-            underlying = bond->getUnderlying();
+            // underlying = bond->getUnderlying();
+            underlying = (bond ? bond->getUnderlying() : swap->getUnderlying());
+        
             RateCurve theCurve = theMarket.getCurve(valueDate, underlying);
             std::vector<Date> tenors = theCurve.getTenors();
             // 2. shock the curve + do the PV
@@ -29,47 +34,38 @@ void RiskEngine::computeRisk(string riskType, Trade *trade, Date valueDate,
             RateCurve upCurve = theCurve;
             RateCurve downCurve = theCurve;
             //      2. Iter through the keys of the curve
-            for (auto it = tenors.begin(); it != tenors.end(); ++it) {
-                double currRate = theCurve.getRate(*it);
-                upCurve.addRate(*it, currRate + 0.0001);
-                downCurve.addRate(*it, currRate - 0.0001);
-                //  3. NOW PRICE THIS
-                pv_up = bond->PayoffCurve(upCurve);
-                pv_down = bond->PayoffCurve(downCurve);
-                double dv01 = (pv_up - pv_down) / 2.0;
-                std::cout << "BOND DV01 " << *it << " = " << dv01 << std::endl;
+            // Apply a uniform shock to the entire yield curve
+            double shockSize = Constants::YIELD_CURVE_SHOCK_SIZE_SINGLE_BP; // 1 basis point
+            for (auto &tenor : theCurve.getTenors()) {
+                double currRate = theCurve.getRate(tenor);
+                upCurve.addRate(tenor, currRate + shockSize);
+                downCurve.addRate(tenor, currRate - shockSize);
             }
-        } else if (type == "SwapTrade") {
-            // 1. get the underlying curve
-            underlying = swap->getUnderlying();
-            RateCurve theCurve = theMarket.getCurve(valueDate, underlying);
-            // 2. shock the curve + do the PV
-            //      1. Copy the curve first
-            RateCurve upCurve = theCurve;
-            RateCurve downCurve = theCurve;
-            std::vector<Date> tenors = theCurve.getTenors();
-            //      2. Iter through the keys of the curve
-            for (auto it = tenors.begin(); it != tenors.end(); ++it) {
-                double currRate = theCurve.getRate(*it);
-                upCurve.addRate(*it, currRate + 0.0001);
-                downCurve.addRate(*it, currRate - 0.0001);
-                //  3. NOW PRICE THIS
-                pv_up = swap->PayoffCurve(upCurve);
-                pv_down = swap->PayoffCurve(downCurve);
-                double dv01 = (pv_up - pv_down) / 2.0;
-                std::cout << "SWAP DV01 " << *it << " = " << dv01 << std::endl;
+            //  3. NOW PRICE THIS
+            // pv_up = bond->PayoffCurve(upCurve);
+            // pv_down = bond->PayoffCurve(downCurve);
+
+            pv_up = (bond ? bond->PayoffCurve(upCurve) : swap->PayoffCurve(upCurve));
+            pv_down = (bond ? bond->PayoffCurve(downCurve) : swap->PayoffCurve(downCurve));
+
+            dv01 = (pv_up - pv_down) / 2.0;
+
+            if (bond) {
+                std::cout << "FINAL BOND DV01: " << dv01 << std::endl;
+            } else {
+                std::cout << "FINAL SWAP DV01: " << dv01 << std::endl;
             }
-        } else if (americanOption) {
-            std::cout << "americanOption dv01 calc" << std::endl;
-            double dv01 =
-                americanOption->CalculateDV01(theMarket, valueDate, pricer);
-            std::cout << "americanOption dv01  = " << dv01 << std::endl;
-        } else if (europeanOption) {
-            std::cout << "europeanOption dv01 calc" << std::endl;
-            double dv01 =
-                europeanOption->CalculateDV01(theMarket, valueDate, pricer);
-            std::cout << "europeanOption dv01  = " << dv01 << std::endl;
-        } else {
+        } 
+        else if (americanOption || europeanOption) {
+            dv01 = (americanOption ? americanOption->CalculateDV01(theMarket, valueDate, pricer)
+                                        : europeanOption->CalculateDV01(theMarket, valueDate, pricer));
+            if (americanOption) {
+                std::cout << "americanOption dv01  =  " << dv01 << std::endl;
+            } else {
+                std::cout << "europeanOption dv01  =  " << dv01 << std::endl;
+            }
+        }
+        else {
             std::cout << "UNRECOGNIZED INSTRUMENT" << std::endl;
         }
     }
@@ -85,17 +81,17 @@ void RiskEngine::computeRisk(string riskType, Trade *trade, Date valueDate,
         double rate;
         double pv_up;
         double pv_down;
-        if (americanOption) {
-            std::cout << "americanOption vega calc" << std::endl;
-            double dv01 =
-                americanOption->CalculateVega(theMarket, valueDate, pricer);
-            std::cout << "americanOption vega  = " << dv01 << std::endl;
-        } else if (europeanOption) {
-            std::cout << "europeanOption vega calc" << std::endl;
-            double dv01 =
-                europeanOption->CalculateVega(theMarket, valueDate, pricer);
-            std::cout << "europeanOption vega  = " << dv01 << std::endl;
-        } else {
+        double vega = 0;
+        if (americanOption || europeanOption) {
+            vega = (americanOption ? americanOption->CalculateVega(theMarket, valueDate, pricer)
+                                   : europeanOption->CalculateVega(theMarket, valueDate, pricer));
+            if (americanOption) {
+                std::cout << "americanOption vega  =  " << vega << std::endl;
+            } else {
+                std::cout << "europeanOption vega  =  " << vega << std::endl;
+            }
+        }
+        else {
             std::cout << "NO NEED VEGA CHECK" << std::endl;
         }
     }
