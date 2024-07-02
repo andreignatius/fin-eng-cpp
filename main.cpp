@@ -21,7 +21,7 @@
 #include <string>
 using json = nlohmann::json;
 
-#define USE_MULTITHREADING 1
+#define USE_MULTITHREADING 0
 
 /*
 Comments: when using new, pls remember to use delete for ptr

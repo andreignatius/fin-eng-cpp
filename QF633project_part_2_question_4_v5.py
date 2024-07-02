@@ -1,7 +1,7 @@
+import argparse
 import numpy as np
 from scipy.optimize import minimize
 import json
-
 
 
 def optimize_portfolio_pnl(pnl, dv01_vectors, vega_vectors, dv01_min, dv01_max, vega_min, vega_max):
@@ -54,9 +54,9 @@ def calculate_portfolio_metrics(weights, pnl, dv01_vectors, vega_vectors):
     return portfolio_pnl, portfolio_dv01, portfolio_vega
 
 
-def main():
+def main(filename):
     # Load the JSON file
-    with open('./output/output_20240703_011545.json', 'r') as file:
+    with open(filename, 'r') as file:
         data = json.load(file)
 
     # Extract the relevant parts
@@ -109,4 +109,7 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description="Optimize portfolio based on PnL.")
+    parser.add_argument('filename', type=str, help='Filename of the input JSON data')
+    args = parser.parse_args()
+    main(args.filename)
