@@ -2,7 +2,8 @@
 #include "Constants.h"
 
 void RiskEngine::computeRisk(string riskType, Trade *trade, Date valueDate,
-                             Pricer *pricer) {
+                             Pricer *pricer, std::vector<double>& dv01_output,
+                             std::vector<double>& vega_output) {
     string type = trade->getType();
     std::cout << "RISK CALC FOR : " << type << std::endl;
     auto *americanOption = dynamic_cast<AmericanOption *>(trade);
@@ -22,7 +23,8 @@ void RiskEngine::computeRisk(string riskType, Trade *trade, Date valueDate,
         double rate;
         double pv_up;
         double pv_down;
-        std::vector<double> dv01_output;
+        // std::vector<double> dv01_output;
+        dv01_output.clear(); // Clear existing entries to ensure fresh start
 
         if (type == "BondTrade" || type == "SwapTrade") {
             // 1. get the underlying curve
@@ -43,7 +45,7 @@ void RiskEngine::computeRisk(string riskType, Trade *trade, Date valueDate,
                 double currRate = theCurve.getRate(tenor);
                 upCurve.addRate(tenor, currRate + shockSize);
                 downCurve.addRate(tenor, currRate - shockSize);
-                
+
                 pv_up = (bond ? bond->PayoffCurve(upCurve)
                               : swap->PayoffCurve(upCurve));
                 pv_down = (bond ? bond->PayoffCurve(downCurve)
@@ -96,7 +98,8 @@ void RiskEngine::computeRisk(string riskType, Trade *trade, Date valueDate,
         double rate;
         double pv_up;
         double pv_down;
-        std::vector<double> vega_output;
+        // std::vector<double> vega_output;
+        vega_output.clear(); // Ensure fresh start
         if (americanOption || europeanOption) {
             vega_output = (americanOption ? americanOption->CalculateVega(
                                                 theMarket, valueDate, pricer)

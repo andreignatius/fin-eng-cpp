@@ -274,6 +274,8 @@ int main() {
         std::cout << "+++" << std::endl;
         std::cout << "***** Priced trade with PV *****: " << pv << std::endl;
 
+        std::vector<double> dv01Results;
+		std::vector<double> vegaResults;
         // Async DV01 calculation
         auto dv01Future = std::async(
             std::launch::async, [&myRiskEngine, &trade, &mkt, &treePricer]() {
@@ -281,7 +283,7 @@ int main() {
                              "======================"
                           << std::endl;
                 myRiskEngine.computeRisk("dv01", trade.get(), Date(2024, 6, 1),
-                                         treePricer.get());
+                                         treePricer.get(), dv01Results, vegaResults);
             });
 
         // Async VEGA calculation
@@ -291,7 +293,7 @@ int main() {
                              "======================"
                           << std::endl;
                 myRiskEngine.computeRisk("vega", trade.get(), Date(2024, 6, 1),
-                                         treePricer.get());
+                                         treePricer.get(), dv01Results, vegaResults);
             });
 
         futures.push_back(std::move(dv01Future));
@@ -310,6 +312,8 @@ int main() {
         std::cout << "***** Start PV Pricing and Risk Test *****" << std::endl;
         std::cout << "====================== PV PRICING ======================"
                   << std::endl;
+        std::vector<double> dv01Results;
+		std::vector<double> vegaResults;
         double pv = treePricer->Price(
             mkt, trade.get(),
             valueDate); // Assuming Price() accepts a raw pointer
@@ -321,14 +325,23 @@ int main() {
             << "====================== DV01 CALCULATION ======================"
             << std::endl;
         myRiskEngine.computeRisk("dv01", trade.get(), valueDate,
-                                 treePricer.get());
+                                 treePricer.get(), dv01Results, vegaResults);
         std::cout
             << "====================== VEGA CALCULATION ======================"
             << std::endl;
         myRiskEngine.computeRisk("vega", trade.get(), valueDate,
-                                 treePricer.get());
+                                 treePricer.get(), dv01Results, vegaResults);
         pricingResults.push_back(pv);
         std::string tradeInfo = "";
+
+        std::cout << "for trade : " << trade->getUUID() << " , " << trade->getUnderlying() << std::endl;
+        for (auto& dv01 : dv01Results) {
+        	std::cout << "dv01 : " << dv01 << std::endl;
+        }
+        std::cout << "===========================" << std::endl;
+        for (auto& vega : vegaResults) {
+        	std::cout << "vega : " << vega << std::endl;
+        }
         std::cout << "~~~~~ End of PV Pricing and Risk Test ~~~~~" << std::endl;
     }
 #endif
