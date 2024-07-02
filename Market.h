@@ -23,6 +23,22 @@ class RateCurve {
     // RateCurve(const RateCurve &rhs) { /* copy construction from rhs*/ }
     RateCurve(const string &_name, const Date &_startDate)
         : name(_name), startDate(_startDate){};
+    // Deep copy constructor
+    RateCurve(const RateCurve& other)
+        : name(other.name), startDate(other.startDate), tenors(other.tenors), rates(other.rates) {
+        std::cout << "RateCurve deep copied." << std::endl;
+    }
+
+    // Deep copy assignment operator
+    RateCurve& operator=(const RateCurve& other) {
+        if (this != &other) {  // Protect against self-assignment
+            name = other.name;
+            startDate = other.startDate;
+            tenors = other.tenors;  // std::vector's assignment operator does deep copy
+            rates = other.rates;
+        }
+        return *this;
+    }
     void addRate(const Date &tenor, double rate);
     void changeRate(const Date &tenor, double rate);
     double getRate(
@@ -44,6 +60,22 @@ class VolCurve { // atm vol curve without smile
     // VolCurve(const VolCurve &rhs) { /* copy construction from rhs*/ }
     VolCurve(const string &_name, const Date &_startDate)
         : name(_name), startDate(_startDate){};
+    // Deep copy constructor
+    VolCurve(const VolCurve& other)
+        : name(other.name), startDate(other.startDate), tenors(other.tenors), vols(other.vols) {
+        std::cout << "VolCurve deep copied." << std::endl;
+    }
+
+    // Deep copy assignment operator
+    VolCurve& operator=(const VolCurve& other) {
+        if (this != &other) {  // Protect against self-assignment
+            name = other.name;
+            startDate = other.startDate;
+            tenors = other.tenors;  // std::vector's assignment operator does deep copy
+            vols = other.vols;
+        }
+        return *this;
+    }
     void addVol(Date tenor, double volInDecimal); // implement this
     double
     getVol(const Date &tenor) const; // implement using linear interpolation
@@ -64,6 +96,30 @@ class Market {
     Date asOf;
     Market() {}
     Market(const Date &now) : asOf(now) {}
+    // Deep copy constructor
+    Market(const Market& other)
+        : asOf(other.asOf), rateCurves(other.rateCurves), volCurves(other.volCurves),
+          dailyCurves(other.dailyCurves), dailyVolCurves(other.dailyVolCurves),
+          bondPrices(other.bondPrices), dailyStockPrices(other.dailyStockPrices),
+          riskFreeRate(other.riskFreeRate), assetTypes(other.assetTypes) {
+        // Note: The maps are copied, their content (objects like RateCurve and VolCurve) must have correct copy constructors.
+    }
+
+    // Deep copy assignment operator
+    Market& operator=(const Market& other) {
+        if (this != &other) {  // Protect against self-assignment
+            asOf = other.asOf;
+            rateCurves = other.rateCurves;
+            volCurves = other.volCurves;
+            dailyCurves = other.dailyCurves;
+            dailyVolCurves = other.dailyVolCurves;
+            bondPrices = other.bondPrices;
+            dailyStockPrices = other.dailyStockPrices;
+            riskFreeRate = other.riskFreeRate;
+            assetTypes = other.assetTypes;
+        }
+        return *this;
+    }
     void Print() const;
     void addCurve(const std::string &curveName,
                   const RateCurve &curve); // implement this
