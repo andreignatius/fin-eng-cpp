@@ -17,8 +17,8 @@
 #include <future>
 #include <iostream>
 #include <mutex>
-#include <string>
 #include <nlohmann/json.hpp>
+#include <string>
 using json = nlohmann::json;
 
 #define USE_MULTITHREADING 0
@@ -47,17 +47,20 @@ std::string generateDateTimeFilename(bool isTxt = true) {
     // Format the time string to 'YYYYMMDD_HHMMSS'
     std::ostringstream oss;
     if (isTxt) {
-    	oss << std::put_time(&bt, "output_%Y%m%d_%H%M%S.txt");
+        oss << std::put_time(&bt, "output_%Y%m%d_%H%M%S.txt");
     } else {
-    	oss << std::put_time(&bt, "output_%Y%m%d_%H%M%S.json");
+        oss << std::put_time(&bt, "output_%Y%m%d_%H%M%S.json");
     }
-    
+
     return oss.str();
 }
 
-void saveJsonToFile(const nlohmann::json& resultJson, const std::filesystem::path& outputPath) {
+void saveJsonToFile(const nlohmann::json &resultJson,
+                    const std::filesystem::path &outputPath) {
     // Generate the full path for the new file
-    std::string filename = generateDateTimeFilename(false); // Assuming this function returns something like "output_YYYYMMDD_HHMMSS.txt"
+    std::string filename = generateDateTimeFilename(
+        false); // Assuming this function returns something like
+                // "output_YYYYMMDD_HHMMSS.txt"
     std::filesystem::path full_path = outputPath / filename;
 
     // Create an ofstream to write to the file
@@ -70,7 +73,8 @@ void saveJsonToFile(const nlohmann::json& resultJson, const std::filesystem::pat
         file.close(); // Close the file after writing
         std::cout << "JSON data has been saved to " << full_path << std::endl;
     } else {
-        std::cerr << "Failed to open file for writing: " << full_path << std::endl;
+        std::cerr << "Failed to open file for writing: " << full_path
+                  << std::endl;
     }
 }
 
@@ -261,30 +265,34 @@ int main() {
     for (auto &trade : myPortfolio) {
         // Launch asynchronous tasks for each trade
         std::cout << "***** Start PV Pricing and Risk Test *****" << std::endl;
-        double pv = treePricer->Price(mkt, trade.get(), Date(2024, 6, 1));
+        double pv = treePricer->Price(mkt, trade.get(), valueDate);
         std::cout << "+++" << std::endl;
         std::cout << "***** Priced trade with PV *****: " << pv << std::endl;
 
         std::vector<double> dv01Results;
-		std::vector<double> vegaResults;
+        std::vector<double> vegaResults;
         // Async DV01 calculation
         auto dv01Future = std::async(
-            std::launch::async, [&myRiskEngine, &trade, &mkt, &treePricer]() {
+            std::launch::async, [&myRiskEngine, &trade, &mkt, &treePricer,
+                                 &valueDate, &dv01Results, &vegaResults]() {
                 std::cout << "====================== DV01 CALCULATION "
                              "======================"
                           << std::endl;
-                myRiskEngine.computeRisk("dv01", trade.get(), Date(2024, 6, 1),
-                                         treePricer.get(), dv01Results, vegaResults);
+                myRiskEngine.computeRisk("dv01", trade.get(), valueDate,
+                                         treePricer.get(), dv01Results,
+                                         vegaResults);
             });
 
         // Async VEGA calculation
         auto vegaFuture = std::async(
-            std::launch::async, [&myRiskEngine, &trade, &mkt, &treePricer]() {
+            std::launch::async, [&myRiskEngine, &trade, &mkt, &treePricer,
+                                 &valueDate, &dv01Results, &vegaResults]() {
                 std::cout << "====================== VEGA CALCULATION "
                              "======================"
                           << std::endl;
-                myRiskEngine.computeRisk("vega", trade.get(), Date(2024, 6, 1),
-                                         treePricer.get(), dv01Results, vegaResults);
+                myRiskEngine.computeRisk("vega", trade.get(), valueDate,
+                                         treePricer.get(), dv01Results,
+                                         vegaResults);
             });
 
         futures.push_back(std::move(dv01Future));
@@ -377,7 +385,6 @@ int main() {
 	        std::cout << "~~~~~ End of PV Pricing and Risk Test ~~~~~ Date :" << valueDate.toString() << std::endl;
 	    }
     }
-
     saveJsonToFile(mainJson, OUTPUT_PATH);
     
 #endif
