@@ -14,10 +14,10 @@
 #include <ctime>
 #include <filesystem>
 #include <fstream>
+#include <future>
 #include <iostream>
 #include <mutex>
 #include <string>
-#include <future>
 
 #define USE_MULTITHREADING 0
 
@@ -261,7 +261,8 @@ int main() {
     RiskEngine myRiskEngine = RiskEngine(mkt);
 
 #if USE_MULTITHREADING
-    std::vector<std::future<void>> futures; // To store futures of asynchronous tasks
+    std::vector<std::future<void>>
+        futures; // To store futures of asynchronous tasks
 
     for (auto &trade : myPortfolio) {
         // Launch asynchronous tasks for each trade
@@ -271,20 +272,29 @@ int main() {
         std::cout << "***** Priced trade with PV *****: " << pv << std::endl;
 
         // Async DV01 calculation
-        auto dv01Future = std::async(std::launch::async, [&myRiskEngine, &trade, &mkt, &treePricer]() {
-            std::cout << "====================== DV01 CALCULATION ======================" << std::endl;
-            myRiskEngine.computeRisk("dv01", trade.get(), Date(2024, 6, 1), treePricer.get());
-        });
+        auto dv01Future = std::async(
+            std::launch::async, [&myRiskEngine, &trade, &mkt, &treePricer]() {
+                std::cout << "====================== DV01 CALCULATION "
+                             "======================"
+                          << std::endl;
+                myRiskEngine.computeRisk("dv01", trade.get(), Date(2024, 6, 1),
+                                         treePricer.get());
+            });
 
         // Async VEGA calculation
-        auto vegaFuture = std::async(std::launch::async, [&myRiskEngine, &trade, &mkt, &treePricer]() {
-            std::cout << "====================== VEGA CALCULATION ======================" << std::endl;
-            myRiskEngine.computeRisk("vega", trade.get(), Date(2024, 6, 1), treePricer.get());
-        });
+        auto vegaFuture = std::async(
+            std::launch::async, [&myRiskEngine, &trade, &mkt, &treePricer]() {
+                std::cout << "====================== VEGA CALCULATION "
+                             "======================"
+                          << std::endl;
+                myRiskEngine.computeRisk("vega", trade.get(), Date(2024, 6, 1),
+                                         treePricer.get());
+            });
 
         futures.push_back(std::move(dv01Future));
         futures.push_back(std::move(vegaFuture));
-        pricingResults.push_back(pv); // Assuming pricingResults is defined elsewhere
+        pricingResults.push_back(
+            pv); // Assuming pricingResults is defined elsewhere
     }
 
     // Wait for all futures to complete
@@ -292,38 +302,39 @@ int main() {
         future.get(); // This blocks until the task completes
     }
 #else
+    std::cout << "RE-CHECK VALUEDATE : " << valueDate << std::endl;
     for (auto &trade : myPortfolio) {
         std::cout << "***** Start PV Pricing and Risk Test *****" << std::endl;
+        std::cout << "====================== PV PRICING ======================"
+                  << std::endl;
         double pv = treePricer->Price(
             mkt, trade.get(),
-            Date(2024, 6, 1)); // Assuming Price() accepts a raw pointer
-        std::cout<<"+++" << std::endl;
+            valueDate); // Assuming Price() accepts a raw pointer
+        std::cout << "Priced trade with PV : " << pv << std::endl;
         double dv01 = 0; //     treePricer->CalculateDV01(mkt, trade.get(),
                          //     Date(2024, 6, 1));
         double vega = 0;
         std::cout
             << "====================== DV01 CALCULATION ======================"
             << std::endl;
-        myRiskEngine.computeRisk("dv01", trade.get(), Date(2024, 6, 1),
-                         treePricer.get());
+        myRiskEngine.computeRisk("dv01", trade.get(), valueDate,
+                                 treePricer.get());
         std::cout
             << "====================== VEGA CALCULATION ======================"
             << std::endl;
-        myRiskEngine.computeRisk("vega", trade.get(), Date(2024, 6, 1),
-                         treePricer.get());
+        myRiskEngine.computeRisk("vega", trade.get(), valueDate,
+                                 treePricer.get());
         pricingResults.push_back(pv);
         std::string tradeInfo = "";
-        std::cout << "***** Priced trade with PV *****: " << pv << std::endl;
-        std::cout << "========================================================="
-                  << std::endl;
+        std::cout << "~~~~~ End of PV Pricing and Risk Test ~~~~~" << std::endl;
     }
 #endif
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double, std::milli> elapsed = end - start;
-    
-    std::cout << "Elapsed time: " << elapsed.count() << " ms\n";
-    std::cout << "=========================================================" << std::endl;
 
+    std::cout << "Elapsed time: " << elapsed.count() << " ms\n";
+    std::cout << "========================================================="
+              << std::endl;
 
     std::cout << "===========end of Part 3============" << std::endl;
 
