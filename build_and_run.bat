@@ -17,5 +17,15 @@ cd bin
 REM Running the executable
 main.exe
 
+REM Navigate back to the project root directory to install Python requirements
+cd ..\..
+python -m pip install -r requirements.txt
+
+REM Navigate back to the output directory and run Python script with the latest file
+cd output
+FOR /F "delims=" %%i IN ('dir /b /od /a-d') DO SET LATEST_FILE=%%i
+cd ..
+python portfolio_optimization.py output\%LATEST_FILE%
+
 REM Pause the command line to view the output
 pause

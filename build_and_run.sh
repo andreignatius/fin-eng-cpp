@@ -16,3 +16,12 @@ cd bin
 
 # Running the executable
 ./main
+
+# Navigate back to the project root directory to install Python requirements
+cd ../..
+python -m pip install -r requirements.txt
+
+# Navigate to the output directory and run Python script with the latest file
+cd output
+LATEST_FILE=$(ls -t | head -n1)
+python ../portfolio_optimization.py "$LATEST_FILE"
