@@ -74,10 +74,11 @@ Portfolio Vega: [ 0.29365079  1.95238094  0.22222222 -0.96825396]
 ## Project Features
 ### Implementation aspects
 - Cross-OS collaboration using CMake
+- Building project using batch file
 - Text Data Parsing: Efficiently reads and processes input data from CSV files.
 - CSV Data Parsing: Efficiently reads and processes input data from CSV files.
 - JSON Data Parsing: Efficiently reads and processes input data from JSON files.
-- JSON output: Storing the computed DV01, Vega and PnL into JSON for easy reference. **(Part 2)**
+- JSON Output: Storing the computed DV01, Vega and PnL into JSON for easy reference. **(Part 2)**
 - Object Oriented Programming, such as classes and structures for
   - different market data (e.g. historical volatility, SOFR)
   - different financial instruments (e.g. Options, Swaps and Bonds)
@@ -109,7 +110,7 @@ Portfolio Vega: [ 0.29365079  1.95238094  0.22222222 -0.96825396]
 - Interest rate non-parallel shift sensitivity computation - DV01 vector for each instrument **(Part 2)**
 - Volatility non-parallel shift sensitivity computation - Vega vector for each instrument **(Part 2)**
 - Risk adjusted portfolio optimization **(Part 2)**
-- Instrument inter-day change in PV **(Part 2)**
+- Compute instrument inter-day change in PV **(Part 2)**
 
 ## User Instruction
 ### System Prerequisites
@@ -120,7 +121,7 @@ Portfolio Vega: [ 0.29365079  1.95238094  0.22222222 -0.96825396]
 
 ### Building and running the project
 1. Prepare market data in .csv or .txt format. Formatting should follow the provided sample files in /data directory. For **(Part 2)**, use /market_data directory.
-2. Prepare your portfolio using .json file. Formatting should follow the provided sample files in /data directory
+2. Prepare your portfolio using .json file. Formatting should follow the provided sample files in /data directory. For **(Part 2)**, use /market_data directory.
 3. Adjust filenames accordingly in main.cpp inside main() function
 4. Compile and run using either of the following scripts
   - **For windows OS, run in console: `./build_and_run.bat`**
@@ -151,6 +152,7 @@ Portfolio Vega: [ 0.29365079  1.95238094  0.22222222 -0.96825396]
 - Assumed non-parallel shift in interest rate and volatility, shocking each tenor individually **(Part 2)**
 - Assumed instrument weight between 0 and 10 (no selling) **(Part 2)**
 - DV01 and Vega constraint is considered satisfied as long as the sum of DV01 (or Vega) across tenor falls within the bound **(Part 2)**
+- Scaling can be performed before optimization to prevent ValueError: Positive directional derivative for linesearch
 
 ## Code Structure
 ### Source Code Files
