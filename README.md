@@ -77,6 +77,7 @@ Portfolio Vega: [ 0.29365079  1.95238094  0.22222222 -0.96825396]
 - Text Data Parsing: Efficiently reads and processes input data from CSV files.
 - CSV Data Parsing: Efficiently reads and processes input data from CSV files.
 - JSON Data Parsing: Efficiently reads and processes input data from JSON files.
+- JSON output: Storing the computed DV01, Vega and PnL into JSON for easy reference. **(Part 2)**
 - Object Oriented Programming, such as classes and structures for
   - different market data (e.g. historical volatility, SOFR)
   - different financial instruments (e.g. Options, Swaps and Bonds)
@@ -85,8 +86,10 @@ Portfolio Vega: [ 0.29365079  1.95238094  0.22222222 -0.96825396]
 - Logging: output runtime results and warnings in a log file for review
 - Version control: using GitHub and following industry best practice (e.g. branch out, pull request, review, merge)
 - Python integration **(Part 2)**
+  - run the python script as part of build process
   - creating and optimizing appropriate portfolio in python
-  - input and output of python in .csv
+  - Read the JSON file containing DV01 and Vega and PnL
+  - Install Numpy and SciPy package of specific versions onto user's environment
 - Various other C++ techniques, including but not limited to:
   - Polymorphism
   - Operator overload
@@ -144,10 +147,10 @@ Portfolio Vega: [ 0.29365079  1.95238094  0.22222222 -0.96825396]
 - European options in the portfolio is priced with the TreePricer
 - Risk free rate fix at 2%
 
-### Risk analysis **(Part 2)**
-- Assumed non-parallel shift in interest rate and volatility, shocking each tenor individually
-- Assumed instrument weight between 0 and 10 (no selling)
-- DV01 and Vega constraint is considered satisfied as long as the sum of DV01 (or Vega) across tenor falls within the bound
+### Risk analysis
+- Assumed non-parallel shift in interest rate and volatility, shocking each tenor individually **(Part 2)**
+- Assumed instrument weight between 0 and 10 (no selling) **(Part 2)**
+- DV01 and Vega constraint is considered satisfied as long as the sum of DV01 (or Vega) across tenor falls within the bound **(Part 2)**
 
 ## Code Structure
 ### Source Code Files
@@ -191,8 +194,9 @@ Portfolio Vega: [ 0.29365079  1.95238094  0.22222222 -0.96825396]
 - **Types.h**: Header file for common types.
 - **Utils.h**: Header file for helper functions such as converting Option type to string. **(Part 2)**
 
-### Python Files
-- **portfolio_optimization.py**: Creating a portfolio that minimizes the DV01 and Vega, or maximizing PnL for a given risk limit **(Part 2)**
+### Python related files
+- **portfolio_optimization.py**: Creating a portfolio that minimizes the DV01 and Vega, or maximizing PnL for a given risk limit. Automatically make use of the latest JSON file. **(Part 2)**
+- **requirements.txt**: specify the numpy and scipy version used in the above python script. Will be automatically installed by `./build_and_run.bat` if not present. **(Part 2)**
 
 ### Directories
 - **data**: contains the .txt or .csv or .json file, where market information is stored at
