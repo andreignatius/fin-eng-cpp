@@ -2,7 +2,7 @@
 
 ## Overview
 This is a C++ project that:
-  1. Computes and analyze the price of Bonds, Swaps, European Options and American options given relevant market information and contract details (such as SOFR curve, volatility, contract expiry date, frequency etc)
+  1. Computes and analyze the price of Bonds, Swaps, European Options and American options given relevant market information and contract details (such as SOFR curve, volatility, contract expiry date, payout frequency etc)
   2. Create either a risk minimizing investment portfolio or a PnL maximizing investment portfolio
 
 ### Part 1
@@ -13,7 +13,7 @@ This is a C++ project that:
    1. CRR binomial tree vs Black model for an European option
    2. American option vs European option for CRR binomial tree model
 
-Example:
+Illustrative example:
 ```
 // user input
 mkt.updateMarketFromVolFile((DATA_PATH / "vol_euro.csv").string(), "EuropeanOption");
@@ -28,7 +28,6 @@ CRR tree priced trade with PV: 93.3583
 [INFO] trade: EuropeanOption AAPL PV : 105.594224
 ```
 
-
 ### Part 2
 This part of the project continues from Part 1, but with additional requirements:
 1. Create a portfolio of trades using trade info given in attached portfolio.txt.
@@ -40,23 +39,36 @@ This part of the project continues from Part 1, but with additional requirements
    1. Square off the risk of portfolio
    2. Maximise portfolio PnL given a fixed risk limit of Dv01 and Vega
 
-Example:
+Illustrative example:
 ```
 //user input
-pnl = [200253, -135622, -28646.2, -275254, -297739, -214078, 18.1616, 159.34, 112.997, 0.0110558, 5.79535e-12, 15.2482, 126.244, 143.147, 0.00756741]
-dv01 = [-0.02903, -0.03290, 0.00140, -0.04719, -0.01726, 0.02154, 0.01352, -0.00362, -0.03104, -0.03160, 0.04825, 0.02215, -0.02379, -0.00126, -0.02079]
-vega = [3.82344, 4.09414, 1.98718, 2.66876, 1.70367, 2.70116, 3.23691, 4.13602, 0.74357, 1.15589, 4.64055, 3.43809, 2.02648, 0.97007, 4.85105]
-dv01_limit = 0.05
-vega_limit = 10
+pnl = np.array([100, 120, 90, 130, 110, 140])
+dv01_vectors = np.array([
+    [0.1, -0.2, 0.15, 0.1],
+    [0.2, 0.1, -0.25, 0.3],
+    [0.3, -0.2, 0.1, 0.25],
+    [-0.25, 0.35, 0.2, -0.3],
+    [0.15, -0.25, 0.3, 0.1],
+    [0.2, 0.15, -0.35, 0.25]
+])
+vega_vectors = np.array([
+    [0.05, 0.2, -0.1, 0.15],
+    [-0.15, 0.1, 0.2, -0.25],
+    [0.2, -0.15, 0.1, 0.2],
+    [0.25, 0.3, -0.2, 0.1],
+    [0.1, -0.25, 0.3, -0.2],
+    [0.2, 0.1, -0.25, 0.3]
+])
+dv01_min = -2.0
+dv01_max = 2.0
+vega_min = -1.5
+vega_max = 1.5
 
 //console output
-Optimal solution found.
-[1.         0.00100001 0.00100003 0.001      0.001      0.001
- 0.00100675 0.58168899 0.99999033 0.0010275  0.00100542 0.00100636
- 0.99997891 0.9999921  0.00100522]
-Total DV01 of the portfolio: -0.08726826602093173
-Total Vega of the portfolio: 9.999983194641016
-Total PnL of the portfolio: 199776.75946649472
+Optimal Weights: [0.         5.71428568 0.         4.60317457 0.         0.        ]
+Portfolio PnL: 1284.126976425897
+Portfolio dv01: [-0.00793651  2.18253967 -0.50793651  0.33333333]
+Portfolio Vega: [ 0.29365079  1.95238094  0.22222222 -0.96825396]
 ```
 
 ## Project Features
@@ -74,7 +86,7 @@ Total PnL of the portfolio: 199776.75946649472
 - Version control: using GitHub and following industry best practice (e.g. branch out, pull request, review, merge)
 - Python integration **(Part 2)**
   - creating and optimizing appropriate portfolio in python
-  - input and output of python are in .csv
+  - input and output of python in .csv
 - Various other C++ techniques, including but not limited to:
   - Polymorphism
   - Operator overload
@@ -84,15 +96,17 @@ Total PnL of the portfolio: 199776.75946649472
   - iterators
   - dynamic casting
   - smart pointers **(Part 2)**
+  - multi threading **(Part 2)**
  
 ### Financial aspects
 - Bond pricing
 - Swap pricing
 - Option pricing using Binomial tree model
 - Option pricing using Black model
-- Interest rate sensitivity computation - DV01 **(Part 2)**
-- Volatility sensitivity computation - Vega **(Part 2)**
+- Interest rate non-parallel shift sensitivity computation - DV01 vector for each instrument **(Part 2)**
+- Volatility non-parallel shift sensitivity computation - Vega vector for each instrument **(Part 2)**
 - Risk adjusted portfolio optimization **(Part 2)**
+- Instrument inter-day change in PV **(Part 2)**
 
 ## User Instruction
 ### System Prerequisites
@@ -110,11 +124,11 @@ Total PnL of the portfolio: 199776.75946649472
   - **For Mac OS, run in console: `./build_and_run.sh`**
 
 ## Notable Assumptions
-1. Bond Pricing
+### Bond Pricing
 - Bond value is a matter of difference between market rate and the price we entered the position. 
 - We are not pricing the bond from discounting cashflows
 
-2. Swap Pricing
+### Swap Pricing
 - Time between maturity and start date is annualized using the following formula: (Maturity Date - Start Date)/ 365.25
 - Start date refers to the start date of the swap
 - Assume no forward start
@@ -124,25 +138,28 @@ Total PnL of the portfolio: 199776.75946649472
 - FloatLegPV = notional * (1 - DF_last), where DF_last refers to the discount factor at the time of the final cashflow exchange
 - If rate data is missing, fallback rate is 0
 
-3. Option Pricing
+### Option Pricing
 - Time between maturity and start date is annualized using the following formula: (Maturity Date - Start Date)/ 365.25
 - Start date is assumed to be today's date when the program is run
 - European options in the portfolio is priced with the TreePricer
 - Risk free rate fix at 2%
 
-
+### Risk analysis **(Part 2)**
+- Assumed non-parallel shift in interest rate and volatility, shocking each tenor individually
+- Assumed instrument weight between 0 and 10 (no selling)
+- DV01 and Vega constraint is considered satisfied as long as the sum of DV01 (or Vega) across tenor falls within the bound
 
 ## Code Structure
 ### Source Code Files
 - **main.cpp**: Entry point of the application.
-- **Logger.cpp**: Implementation of the logging utility.
-- **JSONReader.cpp**: Handles reading and parsing JSON data.
-- **CSVReader.cpp**: Handles reading CSV files.
 - **AmericanTrade.cpp**: Implementation of American trade-related functionality.
-- **EuropeanTrade.cpp**: Implementation of European trade-related functionality.
 - **BlackScholesPricer.cpp**: Implementation of the Black-Scholes pricer.
 - **Bond.cpp**: Implementation of bond-related functionality.
+- **CSVReader.cpp**: Handles reading CSV files.
 - **Date.cpp**: Implementation of date handling functionality.
+- **EuropeanTrade.cpp**: Implementation of European trade-related functionality.
+- **JSONReader.cpp**: Handles reading and parsing JSON data.
+- **Logger.cpp**: Implementation of the logging utility.
 - **Market.cpp**: Implementation of market information functionality.
 - **PortfolioMaker.cpp**: Implementation of portfolio construction functionality. **(Part 2)**
 - **Pricer.cpp**: General pricing functionality.
@@ -150,17 +167,19 @@ Total PnL of the portfolio: 199776.75946649472
 - **Swap.cpp**: Implementation of swap-related functionality.
 - **TenorMap.cpp**: Implementation of tenor mapping.
 - **Trade.cpp**: General trade functionality.
-- **Types.h**: Common types used across the project.
+- **Types.cpp**: Common types used across the project.
+- **Utils.cpp**: Header file for helper functions such as converting Option type to string. **(Part 2)**
 
 ### Header Files
-- **Logger.h**: Header file for the logging utility.
-- **JSONReader.h**: Header file for JSON reader.
-- **CSVReader.h**: Header file for CSV reader.
 - **AmericanTrade.h**: Header file for American trade-related functionality.
-- **EuropeanTrade.h**: Header file for European trade-related functionality.
 - **BlackScholesPricer.h**: Header file for Black-Scholes pricer.
 - **Bond.h**: Header file for bond-related functionality.
+- **Constants.h**: Header file for otherwise magic numbers, such as yield curve shock size, number of days in year. **(Part 2)**
+- **CSVReader.h**: Header file for CSV reader.
 - **Date.h**: Header file for date handling functionality.
+- **EuropeanTrade.h**: Header file for European trade-related functionality.
+- **JSONReader.h**: Header file for JSON reader.
+- **Logger.h**: Header file for the logging utility.
 - **Market.h**: Header file for market information functionality.
 - **Payoff.h**: Header file for payoff-related functionality.
 - **PortfolioMaker.h**: Header file for creating a portfolio of trades. **(Part 2)**
@@ -170,6 +189,7 @@ Total PnL of the portfolio: 199776.75946649472
 - **TenorMap.h**: Header file for tenor mapping.
 - **Trade.h**: Header file for trade functionality.
 - **Types.h**: Header file for common types.
+- **Utils.h**: Header file for helper functions such as converting Option type to string. **(Part 2)**
 
 ### Python Files
 - **portfolio_optimization.py**: Creating a portfolio that minimizes the DV01 and Vega, or maximizing PnL for a given risk limit **(Part 2)**

@@ -43,6 +43,7 @@ void RiskEngine::computeRisk(string riskType, Trade *trade, Date valueDate,
                 double currRate = theCurve.getRate(tenor);
                 upCurve.addRate(tenor, currRate + shockSize);
                 downCurve.addRate(tenor, currRate - shockSize);
+                
                 pv_up = (bond ? bond->PayoffCurve(upCurve)
                               : swap->PayoffCurve(upCurve));
                 pv_down = (bond ? bond->PayoffCurve(downCurve)
