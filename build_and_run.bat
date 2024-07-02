@@ -17,11 +17,15 @@ cd bin
 REM Running the executable
 main.exe
 
+REM Navigate back to the project root directory to install Python requirements
+cd ..\..
+python -m pip install -r requirements.txt
+
 REM Navigate back to the output directory and run Python script with the latest file
-cd ..\..\output
+cd output
 FOR /F "delims=" %%i IN ('dir /b /od /a-d') DO SET LATEST_FILE=%%i
 cd ..
-python3 QF633project_part_2_question_4_v5.py output\%LATEST_FILE%
+python QF633project_part_2_question_4_v5.py output\%LATEST_FILE%
 
 REM Pause the command line to view the output
 pause

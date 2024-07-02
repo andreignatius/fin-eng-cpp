@@ -17,7 +17,11 @@ cd bin
 # Running the executable
 ./main
 
-# Navigate back to the output directory and run Python script with the latest file
-cd ../../output
+# Navigate back to the project root directory to install Python requirements
+cd ../..
+python -m pip install -r requirements.txt
+
+# Navigate to the output directory and run Python script with the latest file
+cd output
 LATEST_FILE=$(ls -t | head -n1)
-python3 ../QF633project_part_2_question_4_v5.py "$LATEST_FILE"
+python ../QF633project_part_2_question_4_v5.py "$LATEST_FILE"
