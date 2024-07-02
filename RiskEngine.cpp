@@ -9,9 +9,7 @@ void RiskEngine::computeRisk(string riskType, Trade *trade, Date valueDate,
     auto *bond = dynamic_cast<Bond *>(trade);
     auto *swap = dynamic_cast<Swap *>(trade);
 
-    double totalDv01 = 0, vega = 0, pv = 0;
-
-
+    double dv01 = 0;
     if (riskType == "dv01") {
         /*
             The logic is:
@@ -35,43 +33,38 @@ void RiskEngine::computeRisk(string riskType, Trade *trade, Date valueDate,
             RateCurve upCurve = theCurve;
             RateCurve downCurve = theCurve;
             //      2. Iter through the keys of the curve
-            for (auto it = tenors.begin(); it != tenors.end(); ++it) {
-                double currRate = theCurve.getRate(*it);
-                upCurve.addRate(*it, currRate + 0.0001);
-                downCurve.addRate(*it, currRate - 0.0001);
-                //  3. NOW PRICE THIS
-                // pv_up = bond->PayoffCurve(upCurve);
-                // pv_down = bond->PayoffCurve(downCurve);
-
-                pv_up = (bond ? bond->PayoffCurve(upCurve) : swap->PayoffCurve(upCurve));
-                pv_down = (bond ? bond->PayoffCurve(downCurve) : swap->PayoffCurve(downCurve));
-
-                double dv01 = (pv_up - pv_down) / 2.0;
-                totalDv01 += dv01;
-                if (bond) {
-                    std::cout << "BOND DV01 " << *it << " = " << dv01 << std::endl;
-                } else {
-                    std::cout << "SWAP DV01 " << *it << " = " << dv01 << std::endl;
-                }
-                
+            // Apply a uniform shock to the entire yield curve
+            double shockSize = 0.0001; // 1 basis point
+            for (auto &tenor : theCurve.getTenors()) {
+                double currRate = theCurve.getRate(tenor);
+                upCurve.addRate(tenor, currRate + shockSize);
+                downCurve.addRate(tenor, currRate - shockSize);
             }
+            //  3. NOW PRICE THIS
+            // pv_up = bond->PayoffCurve(upCurve);
+            // pv_down = bond->PayoffCurve(downCurve);
+
+            pv_up = (bond ? bond->PayoffCurve(upCurve) : swap->PayoffCurve(upCurve));
+            pv_down = (bond ? bond->PayoffCurve(downCurve) : swap->PayoffCurve(downCurve));
+
+            dv01 = (pv_up - pv_down) / 2.0;
+
             if (bond) {
-                std::cout << "FINAL BOND DV01: " << totalDv01 << std::endl;
+                std::cout << "FINAL BOND DV01: " << dv01 << std::endl;
             } else {
-                std::cout << "FINAL SWAP DV01: " << totalDv01 << std::endl;
+                std::cout << "FINAL SWAP DV01: " << dv01 << std::endl;
             }
         } 
-        else if (americanOption) {
-            std::cout << "americanOption dv01 calc" << std::endl;
-            double dv01 =
-                americanOption->CalculateDV01(theMarket, valueDate, pricer);
-            std::cout << "americanOption dv01  = " << dv01 << std::endl;
-        } else if (europeanOption) {
-            std::cout << "europeanOption dv01 calc" << std::endl;
-            double dv01 =
-                europeanOption->CalculateDV01(theMarket, valueDate, pricer);
-            std::cout << "europeanOption dv01  = " << dv01 << std::endl;
-        } else {
+        else if (americanOption || europeanOption) {
+            dv01 = (americanOption ? americanOption->CalculateDV01(theMarket, valueDate, pricer)
+                                        : europeanOption->CalculateDV01(theMarket, valueDate, pricer));
+            if (americanOption) {
+                std::cout << "americanOption dv01  =  " << dv01 << std::endl;
+            } else {
+                std::cout << "europeanOption dv01  =  " << dv01 << std::endl;
+            }
+        }
+        else {
             std::cout << "UNRECOGNIZED INSTRUMENT" << std::endl;
         }
     }
