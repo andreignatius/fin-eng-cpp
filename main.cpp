@@ -21,7 +21,7 @@
 #include <string>
 using json = nlohmann::json;
 
-#define USE_MULTITHREADING 0
+#define USE_MULTITHREADING 1
 
 /*
 Comments: when using new, pls remember to use delete for ptr
@@ -241,72 +241,111 @@ int main() {
     std::filesystem::path OUTPUT_PATH =
         std::filesystem::current_path() / "../../output";
     std::string output_filename = generateDateTimeFilename();
-    // Logger logger(
-    //     (OUTPUT_PATH / output_filename).string()); // Initialize the logger
-    // // Example of using the logger
-    // logger.info("Starting the application.");
-    // // Log data path
-    // logger.info("Ouput path: " + OUTPUT_PATH.string());
+
     std::cout << "\n============Start of Part 3============" << std::endl;
 
     std::unique_ptr<Pricer> treePricer =
         std::make_unique<CRRBinomialTreePricer>(700);
 
     std::vector<double> pricingResults;
+    std::vector<Date> dateVector = { Date(2024, 6, 1), Date(2024, 6, 2) } ;
 
     auto start = std::chrono::high_resolution_clock::now();
 
     RiskEngine myRiskEngine = RiskEngine(mkt);
 
 #if USE_MULTITHREADING
-    std::vector<std::future<void>>
-        futures; // To store futures of asynchronous tasks
+    struct TradeResult {
+	    std::string tradeId;
+	    double pv;
+	    std::vector<double> dv01Results;
+	    std::vector<double> vegaResults;
+	    std::vector<std::string> tenorDates;  // Store tenor dates as strings for JSON compatibility
+	    std::string underlying;
+	    std::string tradeType;
+	};
 
-    for (auto &trade : myPortfolio) {
-        // Launch asynchronous tasks for each trade
-        std::cout << "***** Start PV Pricing and Risk Test *****" << std::endl;
-        double pv = treePricer->Price(mkt, trade.get(), valueDate);
-        std::cout << "+++" << std::endl;
-        std::cout << "***** Priced trade with PV *****: " << pv << std::endl;
+	std::vector<TradeResult> tradeResults;
+	std::mutex resultsMutex;  // Mutex for adding to tradeResults
 
-        std::vector<double> dv01Results;
-        std::vector<double> vegaResults;
-        // Async DV01 calculation
-        auto dv01Future = std::async(
-            std::launch::async, [&myRiskEngine, &trade, &mkt, &treePricer,
-                                 &valueDate, &dv01Results, &vegaResults]() {
-                std::cout << "====================== DV01 CALCULATION "
-                             "======================"
-                          << std::endl;
-                myRiskEngine.computeRisk("dv01", trade.get(), valueDate,
-                                         treePricer.get(), dv01Results,
-                                         vegaResults);
-            });
+    json mainJson;
+    for (auto& valueDate : dateVector) {
+    	std::cout << "RE-CHECK VALUEDATE : " << valueDate << std::endl;
+	    std::vector<std::thread> threads;
 
-        // Async VEGA calculation
-        auto vegaFuture = std::async(
-            std::launch::async, [&myRiskEngine, &trade, &mkt, &treePricer,
-                                 &valueDate, &dv01Results, &vegaResults]() {
-                std::cout << "====================== VEGA CALCULATION "
-                             "======================"
-                          << std::endl;
-                myRiskEngine.computeRisk("vega", trade.get(), valueDate,
-                                         treePricer.get(), dv01Results,
-                                         vegaResults);
-            });
+		for (auto &trade : myPortfolio) {
+		    threads.emplace_back([&trade, &valueDate, &mkt, &treePricer, &myRiskEngine, &resultsMutex, &tradeResults]() {
+		        TradeResult result;
+		        result.tradeId = trade->getUUID();
+		        result.underlying = trade->getUnderlying();
+		        result.tradeType = trade->getType();
+		        
+		        // Pricing and Risk computation
+		        result.pv = treePricer->Price(mkt, trade.get(), valueDate);
+		        
+		        // Assuming computeRisk modifies dv01Results and vegaResults directly
+		        myRiskEngine.computeRisk("dv01", trade.get(), valueDate, treePricer.get(), result.dv01Results, result.vegaResults);
+		        myRiskEngine.computeRisk("vega", trade.get(), valueDate, treePricer.get(), result.dv01Results, result.vegaResults);
+		        
+		        // Get tenors
+		        VolCurve volCurve = mkt.getVolCurve(valueDate, trade->getUnderlying());
+		        for (const auto& tenor : volCurve.getTenors()) {
+		            result.tenorDates.push_back(tenor.toString());
+		        }
+		        
+		        // Lock and save result
+		        std::lock_guard<std::mutex> lock(resultsMutex);
+		        tradeResults.push_back(result);
+		    });
+		}
 
-        futures.push_back(std::move(dv01Future));
-        futures.push_back(std::move(vegaFuture));
-        pricingResults.push_back(
-            pv); // Assuming pricingResults is defined elsewhere
+		// Join all threads
+		for (auto& thread : threads) {
+		    thread.join();
+		}
+
+		json resultJson;
+		for (const auto& result : tradeResults) {
+		    json tradeJson;
+		    tradeJson["PV"] = result.pv;
+		    json dv01Json, vegaJson;
+		    for (size_t i = 0; i < result.tenorDates.size(); ++i) {
+		        if (i < result.dv01Results.size()) {
+		            dv01Json[result.tenorDates[i]] = result.dv01Results[i];
+		        }
+		        if (i < result.vegaResults.size()) {
+		            vegaJson[result.tenorDates[i]] = result.vegaResults[i];
+		        }
+		    }
+		    tradeJson["DV01"] = dv01Json;
+		    tradeJson["Vega"] = vegaJson;
+		    tradeJson["underlying"] = result.underlying;
+		    tradeJson["type"] = result.tradeType;
+		    resultJson[result.tradeId] = tradeJson;
+		}
+
+		// Update mainJson and perform file operations
+		mainJson[valueDate.toString()] = resultJson;
     }
 
-    // Wait for all futures to complete
-    for (auto &future : futures) {
-        future.get(); // This blocks until the task completes
+    json result;
+    // Iterate through each trade
+    for (const auto& [tradeId, _] : mainJson["2024-06-01"].items()) {
+        double pv_day1 = mainJson["2024-06-01"][tradeId]["PV"].get<double>();
+        double pv_day2 = mainJson["2024-06-02"][tradeId]["PV"].get<double>();
+        double pnl = pv_day2 - pv_day1;
+
+        // Storing results in a JSON object
+        result[tradeId] = pnl;
     }
+    mainJson["PnL"] = result;
+    std::cout << "PnL Results:\n" << result.dump(4) << std::endl;
+    
+	saveJsonToFile(mainJson, OUTPUT_PATH);
+
+    
 #else
-    std::vector<Date> dateVector = { Date(2024, 6, 1), Date(2024, 6, 2) } ;
+    
     json mainJson;
     for (auto& valueDate : dateVector) {
     	std::cout << "RE-CHECK VALUEDATE : " << valueDate << std::endl;
