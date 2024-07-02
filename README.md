@@ -2,7 +2,7 @@
 
 ## Overview
 This is a C++ project that:
-  1. Computes and analyze the price of Bonds, Swaps, European Options and American options given relevant market information and contract details (such as SOFR curve, volatility, contract expiry date, frequency etc)
+  1. Computes and analyze the price of Bonds, Swaps, European Options and American options given relevant market information and contract details (such as SOFR curve, volatility, contract expiry date, payout frequency etc)
   2. Create either a risk minimizing investment portfolio or a PnL maximizing investment portfolio
 
 ### Part 1
@@ -13,7 +13,7 @@ This is a C++ project that:
    1. CRR binomial tree vs Black model for an European option
    2. American option vs European option for CRR binomial tree model
 
-Example:
+Illustrative example:
 ```
 // user input
 mkt.updateMarketFromVolFile((DATA_PATH / "vol_euro.csv").string(), "EuropeanOption");
@@ -40,7 +40,7 @@ This part of the project continues from Part 1, but with additional requirements
    1. Square off the risk of portfolio
    2. Maximise portfolio PnL given a fixed risk limit of Dv01 and Vega
 
-Example:
+Illustrative example:
 ```
 //user input
 pnl = [200253, -135622, -28646.2, -275254, -297739, -214078, 18.1616, 159.34, 112.997, 0.0110558, 5.79535e-12, 15.2482, 126.244, 143.147, 0.00756741]
@@ -74,7 +74,7 @@ Total PnL of the portfolio: 199776.75946649472
 - Version control: using GitHub and following industry best practice (e.g. branch out, pull request, review, merge)
 - Python integration **(Part 2)**
   - creating and optimizing appropriate portfolio in python
-  - input and output of python are in .csv
+  - input and output of python in .csv
 - Various other C++ techniques, including but not limited to:
   - Polymorphism
   - Operator overload
@@ -84,14 +84,15 @@ Total PnL of the portfolio: 199776.75946649472
   - iterators
   - dynamic casting
   - smart pointers **(Part 2)**
+  - multi threading **(Part 2)**
  
 ### Financial aspects
 - Bond pricing
 - Swap pricing
 - Option pricing using Binomial tree model
 - Option pricing using Black model
-- Interest rate sensitivity computation - DV01 **(Part 2)**
-- Volatility sensitivity computation - Vega **(Part 2)**
+- Interest rate non-parallel shift sensitivity computation - DV01 vector for each instrument **(Part 2)**
+- Volatility non-parallel shift sensitivity computation - Vega vector for each instrument **(Part 2)**
 - Risk adjusted portfolio optimization **(Part 2)**
 
 ## User Instruction
