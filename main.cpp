@@ -18,6 +18,8 @@
 #include <iostream>
 #include <mutex>
 #include <string>
+#include <nlohmann/json.hpp>
+using json = nlohmann::json;
 
 #define USE_MULTITHREADING 0
 
@@ -25,7 +27,7 @@
 Comments: when using new, pls remember to use delete for ptr
 */
 
-std::string generateDateTimeFilename() {
+std::string generateDateTimeFilename(bool isTxt = true) {
     // Get current time point
     auto now = std::chrono::system_clock::now();
     auto in_time_t = std::chrono::system_clock::to_time_t(now);
@@ -44,8 +46,32 @@ std::string generateDateTimeFilename() {
 
     // Format the time string to 'YYYYMMDD_HHMMSS'
     std::ostringstream oss;
-    oss << std::put_time(&bt, "output_%Y%m%d_%H%M%S.txt");
+    if (isTxt) {
+    	oss << std::put_time(&bt, "output_%Y%m%d_%H%M%S.txt");
+    } else {
+    	oss << std::put_time(&bt, "output_%Y%m%d_%H%M%S.json");
+    }
+    
     return oss.str();
+}
+
+void saveJsonToFile(const nlohmann::json& resultJson, const std::filesystem::path& outputPath) {
+    // Generate the full path for the new file
+    std::string filename = generateDateTimeFilename(false); // Assuming this function returns something like "output_YYYYMMDD_HHMMSS.txt"
+    std::filesystem::path full_path = outputPath / filename;
+
+    // Create an ofstream to write to the file
+    std::ofstream file(full_path);
+
+    // Check if the file is open
+    if (file.is_open()) {
+        // Dump the JSON data to the file with an indentation of 4 spaces
+        file << resultJson.dump(4);
+        file.close(); // Close the file after writing
+        std::cout << "JSON data has been saved to " << full_path << std::endl;
+    } else {
+        std::cerr << "Failed to open file for writing: " << full_path << std::endl;
+    }
 }
 
 // we want to compare options between american and european options
@@ -90,7 +116,7 @@ int main() {
     /*
         USER SHOULD CHANGE THIS , EITHER 2024-06-01 OR 2024-06-02
     */
-    Date valueDate = Date(2024, 6, 2);
+    Date valueDate = Date(2024, 6, 1);
     std::cout << "WE ARE AT VALUE DATE : " << valueDate << std::endl;
     Market mkt = Market(valueDate);
     /*
@@ -144,6 +170,11 @@ int main() {
                                 "usd-sofr", Date(2024, 6, 1));
     mkt.updateMarketFromVolFile((MKT_DATA_PATH / "vol_20240602.csv").string(),
                                 "usd-sofr", Date(2024, 6, 2));
+
+    mkt.updateMarketFromVolFile((MKT_DATA_PATH / "vol_20240601.csv").string(),
+                                "usd-gov", Date(2024, 6, 1));
+    mkt.updateMarketFromVolFile((MKT_DATA_PATH / "vol_20240602.csv").string(),
+                                "usd-gov", Date(2024, 6, 2));
 
     mkt.updateMarketFromVolFile((MKT_DATA_PATH / "vol_20240601.csv").string(),
                                 "AmericanOption", Date(2024, 6, 1));
@@ -308,6 +339,7 @@ int main() {
     }
 #else
     std::cout << "RE-CHECK VALUEDATE : " << valueDate << std::endl;
+    json resultJson;
     for (auto &trade : myPortfolio) {
         std::cout << "***** Start PV Pricing and Risk Test *****" << std::endl;
         std::cout << "====================== PV PRICING ======================"
@@ -342,6 +374,42 @@ int main() {
         for (auto& vega : vegaResults) {
         	std::cout << "vega : " << vega << std::endl;
         }
+        std::cout << "get getVolCurve" << std::endl;
+        VolCurve volCurve = mkt.getVolCurve(valueDate, trade->getUnderlying());
+        std::vector<Date> tenors = volCurve.getTenors();
+        for (auto& tenor : tenors) {
+        	std::cout << "tenor: " << tenor << std::endl;
+        }
+        std::cout << "get getVolCurve1" << std::endl;
+
+
+        // Initialize sub-json object
+	    json tradeJson;
+	    tradeJson["PV"] = pv;
+
+	    json dv01Json, vegaJson;
+	    for (size_t i = 0; i < tenors.size(); ++i) {
+	        if (i < dv01Results.size()) {
+	            dv01Json[tenors[i].toString()] = dv01Results[i];
+	        }
+	        if (i < vegaResults.size()) {
+	            vegaJson[tenors[i].toString()] = vegaResults[i];
+	        }
+	    }
+	    std::string underlying = trade->getUnderlying();
+	    tradeJson["DV01"] = dv01Json;
+	    tradeJson["Vega"] = vegaJson;
+	    tradeJson["underlying"] = underlying;
+	    tradeJson["type"] = trade->getType();
+	    // Using UUID as the key for the JSON map
+	    std::string uuid = trade->getUUID();
+	    resultJson[uuid] = tradeJson;
+	    
+	    std::cout << "resultJSON" << std::endl;
+	    std::cout << resultJson.dump(4) << std::endl; // Pretty print with indent of 4 spaces
+		std::cout << "resultJSON1" << std::endl;
+
+		saveJsonToFile(resultJson, OUTPUT_PATH);
         std::cout << "~~~~~ End of PV Pricing and Risk Test ~~~~~" << std::endl;
     }
 #endif
