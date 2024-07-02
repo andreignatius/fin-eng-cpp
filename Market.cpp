@@ -230,28 +230,28 @@ void Market::updateVolCurve(const std::string &curveName, const VolCurve &curve,
     // 1. show before
     // std::cout << "BEFORE VOL curve name : " << curveName
     //          << " daily curve for valdate " << date << std::endl;
-    dailyVolCurves[date][curveName].display();
+    // dailyVolCurves[date][curveName].display();
     // 2. update curve
     volCurves[curveName] = curve;
     dailyVolCurves[date][curveName] = curve;
     // 3. show after
     // std::cout << "AFTER VOL curve name : " << curveName
     //          << " daily curve for valdate " << date << std::endl;
-    dailyVolCurves[date][curveName].display();
+    // dailyVolCurves[date][curveName].display();
 }
 void Market::updateRateCurve(const std::string &curveName,
                              const RateCurve &curve, const Date &date) {
     // 1. show before
     // std::cout << "BEFORE curve name : " << curveName
     //          << " daily curve for valdate " << date << std::endl;
-    dailyCurves[date][curveName].display();
+    // dailyCurves[date][curveName].display();
     // 2. update curve
     rateCurves[curveName] = curve;
     dailyCurves[date][curveName] = curve;
     // 3. show after
     // std::cout << "AFTER curve name : " << curveName
     //           << " daily curve for valdate " << date << std::endl;
-    dailyCurves[date][curveName].display();
+    // dailyCurves[date][curveName].display();
 }
 void Market::setRiskFreeRate(double rate) { riskFreeRate = rate; }
 
