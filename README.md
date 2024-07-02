@@ -124,11 +124,11 @@ Portfolio Vega: [ 0.29365079  1.95238094  0.22222222 -0.96825396]
   - **For Mac OS, run in console: `./build_and_run.sh`**
 
 ## Notable Assumptions
-1. Bond Pricing
+### Bond Pricing
 - Bond value is a matter of difference between market rate and the price we entered the position. 
 - We are not pricing the bond from discounting cashflows
 
-2. Swap Pricing
+### Swap Pricing
 - Time between maturity and start date is annualized using the following formula: (Maturity Date - Start Date)/ 365.25
 - Start date refers to the start date of the swap
 - Assume no forward start
@@ -138,13 +138,13 @@ Portfolio Vega: [ 0.29365079  1.95238094  0.22222222 -0.96825396]
 - FloatLegPV = notional * (1 - DF_last), where DF_last refers to the discount factor at the time of the final cashflow exchange
 - If rate data is missing, fallback rate is 0
 
-3. Option Pricing
+### Option Pricing
 - Time between maturity and start date is annualized using the following formula: (Maturity Date - Start Date)/ 365.25
 - Start date is assumed to be today's date when the program is run
 - European options in the portfolio is priced with the TreePricer
 - Risk free rate fix at 2%
 
-4. Risk analysis **(Part 2)**
+### Risk analysis **(Part 2)**
 - Assumed non-parallel shift in interest rate and volatility, shocking each tenor individually
 - Assumed instrument weight between 0 and 10 (no selling)
 - DV01 and Vega constraint is considered satisfied as long as the sum of DV01 (or Vega) across tenor falls within the bound
@@ -152,14 +152,14 @@ Portfolio Vega: [ 0.29365079  1.95238094  0.22222222 -0.96825396]
 ## Code Structure
 ### Source Code Files
 - **main.cpp**: Entry point of the application.
-- **Logger.cpp**: Implementation of the logging utility.
-- **JSONReader.cpp**: Handles reading and parsing JSON data.
-- **CSVReader.cpp**: Handles reading CSV files.
 - **AmericanTrade.cpp**: Implementation of American trade-related functionality.
-- **EuropeanTrade.cpp**: Implementation of European trade-related functionality.
 - **BlackScholesPricer.cpp**: Implementation of the Black-Scholes pricer.
 - **Bond.cpp**: Implementation of bond-related functionality.
+- **CSVReader.cpp**: Handles reading CSV files.
 - **Date.cpp**: Implementation of date handling functionality.
+- **EuropeanTrade.cpp**: Implementation of European trade-related functionality.
+- **JSONReader.cpp**: Handles reading and parsing JSON data.
+- **Logger.cpp**: Implementation of the logging utility.
 - **Market.cpp**: Implementation of market information functionality.
 - **PortfolioMaker.cpp**: Implementation of portfolio construction functionality. **(Part 2)**
 - **Pricer.cpp**: General pricing functionality.
@@ -167,17 +167,19 @@ Portfolio Vega: [ 0.29365079  1.95238094  0.22222222 -0.96825396]
 - **Swap.cpp**: Implementation of swap-related functionality.
 - **TenorMap.cpp**: Implementation of tenor mapping.
 - **Trade.cpp**: General trade functionality.
-- **Types.h**: Common types used across the project.
+- **Types.cpp**: Common types used across the project.
+- **Utils.cpp**: Header file for helper functions such as converting Option type to string. **(Part 2)**
 
 ### Header Files
-- **Logger.h**: Header file for the logging utility.
-- **JSONReader.h**: Header file for JSON reader.
-- **CSVReader.h**: Header file for CSV reader.
 - **AmericanTrade.h**: Header file for American trade-related functionality.
-- **EuropeanTrade.h**: Header file for European trade-related functionality.
 - **BlackScholesPricer.h**: Header file for Black-Scholes pricer.
 - **Bond.h**: Header file for bond-related functionality.
+- **Constants.h**: Header file for otherwise magic numbers, such as yield curve shock size, number of days in year. **(Part 2)**
+- **CSVReader.h**: Header file for CSV reader.
 - **Date.h**: Header file for date handling functionality.
+- **EuropeanTrade.h**: Header file for European trade-related functionality.
+- **JSONReader.h**: Header file for JSON reader.
+- **Logger.h**: Header file for the logging utility.
 - **Market.h**: Header file for market information functionality.
 - **Payoff.h**: Header file for payoff-related functionality.
 - **PortfolioMaker.h**: Header file for creating a portfolio of trades. **(Part 2)**
@@ -187,6 +189,7 @@ Portfolio Vega: [ 0.29365079  1.95238094  0.22222222 -0.96825396]
 - **TenorMap.h**: Header file for tenor mapping.
 - **Trade.h**: Header file for trade functionality.
 - **Types.h**: Header file for common types.
+- **Utils.h**: Header file for helper functions such as converting Option type to string. **(Part 2)**
 
 ### Python Files
 - **portfolio_optimization.py**: Creating a portfolio that minimizes the DV01 and Vega, or maximizing PnL for a given risk limit **(Part 2)**
