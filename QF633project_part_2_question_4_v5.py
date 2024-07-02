@@ -56,7 +56,7 @@ def calculate_portfolio_metrics(weights, pnl, dv01_vectors, vega_vectors):
 
 def main():
     # Load the JSON file
-    with open('../../output/output_20240703_011545.json', 'r') as file:
+    with open('./output/output_20240703_011545.json', 'r') as file:
         data = json.load(file)
 
     # Extract the relevant parts
