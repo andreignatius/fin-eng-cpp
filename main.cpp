@@ -21,7 +21,7 @@
 #include <string>
 using json = nlohmann::json;
 
-#define USE_MULTITHREADING 0
+#define USE_MULTITHREADING 1
 
 /*
 Comments: when using new, pls remember to use delete for ptr
@@ -312,9 +312,9 @@ int main() {
         std::vector<double> dv01Results;
         std::vector<double> vegaResults;
         // Async DV01 calculation
-        auto dv01Future =
-            std::async(std::launch::async, [&myRiskEngine, &trade, &mkt,
-                                            &treePricer, &valueDate]() {
+        auto dv01Future = std::async(
+            std::launch::async, [&myRiskEngine, &trade, &mkt, &treePricer,
+                                 &valueDate, &dv01Results, &vegaResults]() {
                 std::cout << "====================== DV01 CALCULATION "
                              "======================"
                           << std::endl;
@@ -324,9 +324,9 @@ int main() {
             });
 
         // Async VEGA calculation
-        auto vegaFuture =
-            std::async(std::launch::async, [&myRiskEngine, &trade, &mkt,
-                                            &treePricer, &valueDate]() {
+        auto vegaFuture = std::async(
+            std::launch::async, [&myRiskEngine, &trade, &mkt, &treePricer,
+                                 &valueDate, &dv01Results, &vegaResults]() {
                 std::cout << "====================== VEGA CALCULATION "
                              "======================"
                           << std::endl;
