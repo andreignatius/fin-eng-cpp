@@ -26,7 +26,7 @@ class RateCurve {
     // Deep copy constructor
     RateCurve(const RateCurve& other)
         : name(other.name), startDate(other.startDate), tenors(other.tenors), rates(other.rates) {
-        std::cout << "RateCurve deep copied." << std::endl;
+        // std::cout << "RateCurve deep copied." << std::endl;
     }
 
     // Deep copy assignment operator
@@ -63,7 +63,7 @@ class VolCurve { // atm vol curve without smile
     // Deep copy constructor
     VolCurve(const VolCurve& other)
         : name(other.name), startDate(other.startDate), tenors(other.tenors), vols(other.vols) {
-        std::cout << "VolCurve deep copied." << std::endl;
+        // std::cout << "VolCurve deep copied." << std::endl;
     }
 
     // Deep copy assignment operator
