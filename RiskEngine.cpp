@@ -35,7 +35,7 @@ void RiskEngine::computeRisk(string riskType, Trade *trade, Date valueDate,
             RateCurve downCurve = theCurve;
             //      2. Iter through the keys of the curve
             // Apply a uniform shock to the entire yield curve
-            double shockSize = Constants::YIELD_CURVE_SHOCK_SIZE; // 1 basis point
+            double shockSize = Constants::YIELD_CURVE_SHOCK_SIZE_SINGLE_BP; // 1 basis point
             for (auto &tenor : theCurve.getTenors()) {
                 double currRate = theCurve.getRate(tenor);
                 upCurve.addRate(tenor, currRate + shockSize);
