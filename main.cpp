@@ -241,12 +241,12 @@ int main() {
     std::filesystem::path OUTPUT_PATH =
         std::filesystem::current_path() / "../../output";
     std::string output_filename = generateDateTimeFilename();
-    Logger logger(
-        (OUTPUT_PATH / output_filename).string()); // Initialize the logger
-    // Example of using the logger
-    logger.info("Starting the application.");
-    // Log data path
-    logger.info("Ouput path: " + OUTPUT_PATH.string());
+    // Logger logger(
+    //     (OUTPUT_PATH / output_filename).string()); // Initialize the logger
+    // // Example of using the logger
+    // logger.info("Starting the application.");
+    // // Log data path
+    // logger.info("Ouput path: " + OUTPUT_PATH.string());
     std::cout << "\n============Start of Part 3============" << std::endl;
 
     std::unique_ptr<Pricer> treePricer =
