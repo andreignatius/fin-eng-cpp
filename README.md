@@ -73,12 +73,12 @@ Portfolio Vega: [ 0.29365079  1.95238094  0.22222222 -0.96825396]
 
 ## Project Features
 ### Implementation aspects
-- Cross-OS collaboration using CMake
+- Cross-OS (Windows & Mac) collaboration using CMake
 - Building project using batch file
 - Text Data Parsing: Efficiently reads and processes input data from CSV files.
 - CSV Data Parsing: Efficiently reads and processes input data from CSV files.
 - JSON Data Parsing: Efficiently reads and processes input data from JSON files.
-- JSON Output: Storing the computed DV01, Vega and PnL into JSON for easy reference. **(Part 2)**
+- JSON Output: Storing the computation results into JSON for easy reference. **(Part 2)**
 - Object Oriented Programming, such as classes and structures for
   - different market data (e.g. historical volatility, SOFR)
   - different financial instruments (e.g. Options, Swaps and Bonds)
@@ -100,7 +100,7 @@ Portfolio Vega: [ 0.29365079  1.95238094  0.22222222 -0.96825396]
   - iterators
   - dynamic casting
   - smart pointers **(Part 2)**
-  - multi threading **(Part 2)**
+  - multi threading (near-complete) **(Part 2)**
  
 ### Financial aspects
 - Bond pricing
@@ -126,6 +126,10 @@ Portfolio Vega: [ 0.29365079  1.95238094  0.22222222 -0.96825396]
 4. Compile and run using either of the following scripts
   - **For windows OS, run in console: `./build_and_run.bat`**
   - **For Mac OS, run in console: `./build_and_run.sh`**
+
+### Project Output
+- For Log files, see /output directory for .txt files
+- For Risk computations, see /output directory for .json files.
 
 ## Notable Assumptions
 ### Bond Pricing
