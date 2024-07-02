@@ -28,7 +28,6 @@ CRR tree priced trade with PV: 93.3583
 [INFO] trade: EuropeanOption AAPL PV : 105.594224
 ```
 
-
 ### Part 2
 This part of the project continues from Part 1, but with additional requirements:
 1. Create a portfolio of trades using trade info given in attached portfolio.txt.
@@ -43,20 +42,33 @@ This part of the project continues from Part 1, but with additional requirements
 Illustrative example:
 ```
 //user input
-pnl = [200253, -135622, -28646.2, -275254, -297739, -214078, 18.1616, 159.34, 112.997, 0.0110558, 5.79535e-12, 15.2482, 126.244, 143.147, 0.00756741]
-dv01 = [-0.02903, -0.03290, 0.00140, -0.04719, -0.01726, 0.02154, 0.01352, -0.00362, -0.03104, -0.03160, 0.04825, 0.02215, -0.02379, -0.00126, -0.02079]
-vega = [3.82344, 4.09414, 1.98718, 2.66876, 1.70367, 2.70116, 3.23691, 4.13602, 0.74357, 1.15589, 4.64055, 3.43809, 2.02648, 0.97007, 4.85105]
-dv01_limit = 0.05
-vega_limit = 10
+pnl = np.array([100, 120, 90, 130, 110, 140])
+dv01_vectors = np.array([
+    [0.1, -0.2, 0.15, 0.1],
+    [0.2, 0.1, -0.25, 0.3],
+    [0.3, -0.2, 0.1, 0.25],
+    [-0.25, 0.35, 0.2, -0.3],
+    [0.15, -0.25, 0.3, 0.1],
+    [0.2, 0.15, -0.35, 0.25]
+])
+vega_vectors = np.array([
+    [0.05, 0.2, -0.1, 0.15],
+    [-0.15, 0.1, 0.2, -0.25],
+    [0.2, -0.15, 0.1, 0.2],
+    [0.25, 0.3, -0.2, 0.1],
+    [0.1, -0.25, 0.3, -0.2],
+    [0.2, 0.1, -0.25, 0.3]
+])
+dv01_min = -2.0
+dv01_max = 2.0
+vega_min = -1.5
+vega_max = 1.5
 
 //console output
-Optimal solution found.
-[1.         0.00100001 0.00100003 0.001      0.001      0.001
- 0.00100675 0.58168899 0.99999033 0.0010275  0.00100542 0.00100636
- 0.99997891 0.9999921  0.00100522]
-Total DV01 of the portfolio: -0.08726826602093173
-Total Vega of the portfolio: 9.999983194641016
-Total PnL of the portfolio: 199776.75946649472
+Optimal Weights: [0.         5.71428568 0.         4.60317457 0.         0.        ]
+Portfolio PnL: 1284.126976425897
+Portfolio dv01: [-0.00793651  2.18253967 -0.50793651  0.33333333]
+Portfolio Vega: [ 0.29365079  1.95238094  0.22222222 -0.96825396]
 ```
 
 ## Project Features
@@ -94,6 +106,7 @@ Total PnL of the portfolio: 199776.75946649472
 - Interest rate non-parallel shift sensitivity computation - DV01 vector for each instrument **(Part 2)**
 - Volatility non-parallel shift sensitivity computation - Vega vector for each instrument **(Part 2)**
 - Risk adjusted portfolio optimization **(Part 2)**
+- Instrument inter-day change in PV **(Part 2)**
 
 ## User Instruction
 ### System Prerequisites
@@ -131,7 +144,10 @@ Total PnL of the portfolio: 199776.75946649472
 - European options in the portfolio is priced with the TreePricer
 - Risk free rate fix at 2%
 
-
+4. Risk analysis **(Part 2)**
+- Assumed non-parallel shift in interest rate and volatility, shocking each tenor individually
+- Assumed instrument weight between 0 and 10 (no selling)
+- DV01 and Vega constraint is considered satisfied as long as the sum of DV01 (or Vega) across tenor falls within the bound
 
 ## Code Structure
 ### Source Code Files
