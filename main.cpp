@@ -14,18 +14,20 @@
 #include <ctime>
 #include <filesystem>
 #include <fstream>
+#include <future>
 #include <iostream>
 #include <mutex>
+#include <nlohmann/json.hpp>
 #include <string>
-#include <future>
+using json = nlohmann::json;
 
-#define USE_MULTITHREADING 0
+#define USE_MULTITHREADING 1
 
 /*
 Comments: when using new, pls remember to use delete for ptr
 */
 
-std::string generateDateTimeFilename() {
+std::string generateDateTimeFilename(bool isTxt = true) {
     // Get current time point
     auto now = std::chrono::system_clock::now();
     auto in_time_t = std::chrono::system_clock::to_time_t(now);
@@ -44,8 +46,36 @@ std::string generateDateTimeFilename() {
 
     // Format the time string to 'YYYYMMDD_HHMMSS'
     std::ostringstream oss;
-    oss << std::put_time(&bt, "output_%Y%m%d_%H%M%S.txt");
+    if (isTxt) {
+        oss << std::put_time(&bt, "output_%Y%m%d_%H%M%S.txt");
+    } else {
+        oss << std::put_time(&bt, "output_%Y%m%d_%H%M%S.json");
+    }
+
     return oss.str();
+}
+
+void saveJsonToFile(const nlohmann::json &resultJson,
+                    const std::filesystem::path &outputPath) {
+    // Generate the full path for the new file
+    std::string filename = generateDateTimeFilename(
+        false); // Assuming this function returns something like
+                // "output_YYYYMMDD_HHMMSS.txt"
+    std::filesystem::path full_path = outputPath / filename;
+
+    // Create an ofstream to write to the file
+    std::ofstream file(full_path);
+
+    // Check if the file is open
+    if (file.is_open()) {
+        // Dump the JSON data to the file with an indentation of 4 spaces
+        file << resultJson.dump(4);
+        file.close(); // Close the file after writing
+        std::cout << "JSON data has been saved to " << full_path << std::endl;
+    } else {
+        std::cerr << "Failed to open file for writing: " << full_path
+                  << std::endl;
+    }
 }
 
 // we want to compare options between american and european options
@@ -87,6 +117,9 @@ int main() {
         std::filesystem::current_path() / "../../market_data";
     std::time_t t = std::time(0);
     auto now_ = std::localtime(&t);
+    /*
+        USER SHOULD CHANGE THIS , EITHER 2024-06-01 OR 2024-06-02
+    */
     Date valueDate = Date(2024, 6, 1);
     std::cout << "WE ARE AT VALUE DATE : " << valueDate << std::endl;
     Market mkt = Market(valueDate);
@@ -143,6 +176,11 @@ int main() {
                                 "usd-sofr", Date(2024, 6, 2));
 
     mkt.updateMarketFromVolFile((MKT_DATA_PATH / "vol_20240601.csv").string(),
+                                "usd-gov", Date(2024, 6, 1));
+    mkt.updateMarketFromVolFile((MKT_DATA_PATH / "vol_20240602.csv").string(),
+                                "usd-gov", Date(2024, 6, 2));
+
+    mkt.updateMarketFromVolFile((MKT_DATA_PATH / "vol_20240601.csv").string(),
                                 "AmericanOption", Date(2024, 6, 1));
     mkt.updateMarketFromVolFile((MKT_DATA_PATH / "vol_20240602.csv").string(),
                                 "AmericanOption", Date(2024, 6, 2));
@@ -166,47 +204,7 @@ int main() {
     myMap = myCSVReader.parseFile();
     vector<std::unique_ptr<Trade>> myPortfolio;
     myPortfolio = PortfolioMaker::constructPortfolio(valueDate, myMap, mkt);
-    // JSONReader myJSONReader((MKT_DATA_PATH / "portfolio.json").string(), mkt,
-    //                         myPortfolio, Date(2024, 6, 1));
-    // myJSONReader.constructPortfolio();
-    // myJSONReader.getMarketObject().Print();
 
-    // JSONReader myJSONReaderDay2((MKT_DATA_PATH / "portfolio.json").string(),
-    // mkt,
-    //                         myPortfolio, Date(2024, 6, 2));
-    // myJSONReaderDay2.constructPortfolio();
-    // myJSONReaderDay2.getMarketObject().Print();
-
-    // Create and construct portfolio for day 1
-    /*
-    JSONReader myJSONReader((MKT_DATA_PATH / "portfolio.json").string(), mkt,
-                            myPortfolio, Date(2024, 6, 1));
-    myJSONReader.constructPortfolio();
-    myJSONReader.getMarketObject().Print();
-
-    // Extend the existing portfolio with day 1 trades
-    vector<std::unique_ptr<Trade>> &tempPortfolio1 =
-        myJSONReader.getPortfolio();
-    myPortfolio.insert(myPortfolio.end(),
-                       std::make_move_iterator(tempPortfolio1.begin()),
-                       std::make_move_iterator(tempPortfolio1.end()));
-    tempPortfolio1
-        .clear(); // Clear the temporary portfolio to ensure it's empty
-
-    // Create and construct portfolio for day 2
-    JSONReader myJSONReaderDay2((MKT_DATA_PATH / "portfolio.json").string(),
-                                mkt, myPortfolio, Date(2024, 6, 2));
-    myJSONReaderDay2.constructPortfolio();
-    myJSONReaderDay2.getMarketObject().Print();
-
-    // Extend the existing portfolio with day 2 trades
-    vector<std::unique_ptr<Trade>> &tempPortfolio2 =
-        myJSONReaderDay2.getPortfolio();
-    myPortfolio.insert(myPortfolio.end(),
-                       std::make_move_iterator(tempPortfolio2.begin()),
-                       std::make_move_iterator(tempPortfolio2.end()));
-    tempPortfolio2.clear(); // Clear the temporary portfolio
-    */
     // Optionally print or validate the combined portfolio
     mkt.Print();
     std::cout << "Combined portfolio size: " << myPortfolio.size() << std::endl;
@@ -243,87 +241,212 @@ int main() {
     std::filesystem::path OUTPUT_PATH =
         std::filesystem::current_path() / "../../output";
     std::string output_filename = generateDateTimeFilename();
-    Logger logger(
-        (OUTPUT_PATH / output_filename).string()); // Initialize the logger
-    // Example of using the logger
-    logger.info("Starting the application.");
-    // Log data path
-    logger.info("Ouput path: " + OUTPUT_PATH.string());
+
     std::cout << "\n============Start of Part 3============" << std::endl;
 
     std::unique_ptr<Pricer> treePricer =
         std::make_unique<CRRBinomialTreePricer>(700);
 
     std::vector<double> pricingResults;
+    std::vector<Date> dateVector = { Date(2024, 6, 1), Date(2024, 6, 2) } ;
 
     auto start = std::chrono::high_resolution_clock::now();
 
     RiskEngine myRiskEngine = RiskEngine(mkt);
 
 #if USE_MULTITHREADING
-    std::vector<std::future<void>> futures; // To store futures of asynchronous tasks
+    struct TradeResult {
+	    std::string tradeId;
+	    double pv;
+	    std::vector<double> dv01Results;
+	    std::vector<double> vegaResults;
+	    std::vector<std::string> tenorDates;  // Store tenor dates as strings for JSON compatibility
+	    std::string underlying;
+	    std::string tradeType;
+	};
 
-    for (auto &trade : myPortfolio) {
-        // Launch asynchronous tasks for each trade
-        std::cout << "***** Start PV Pricing and Risk Test *****" << std::endl;
-        double pv = treePricer->Price(mkt, trade.get(), Date(2024, 6, 1));
-        std::cout << "+++" << std::endl;
-        std::cout << "***** Priced trade with PV *****: " << pv << std::endl;
+	std::vector<TradeResult> tradeResults;
+	std::mutex resultsMutex;  // Mutex for adding to tradeResults
 
-        // Async DV01 calculation
-        auto dv01Future = std::async(std::launch::async, [&myRiskEngine, &trade, &mkt, &treePricer]() {
-            std::cout << "====================== DV01 CALCULATION ======================" << std::endl;
-            myRiskEngine.computeRisk("dv01", trade.get(), Date(2024, 6, 1), treePricer.get());
-        });
+    json mainJson;
+    for (auto& valueDate : dateVector) {
+    	std::cout << "RE-CHECK VALUEDATE : " << valueDate << std::endl;
+	    std::vector<std::thread> threads;
 
-        // Async VEGA calculation
-        auto vegaFuture = std::async(std::launch::async, [&myRiskEngine, &trade, &mkt, &treePricer]() {
-            std::cout << "====================== VEGA CALCULATION ======================" << std::endl;
-            myRiskEngine.computeRisk("vega", trade.get(), Date(2024, 6, 1), treePricer.get());
-        });
+		for (auto &trade : myPortfolio) {
+		    threads.emplace_back([&trade, &valueDate, &mkt, &treePricer, &myRiskEngine, &resultsMutex, &tradeResults]() {
+		        TradeResult result;
+		        result.tradeId = trade->getUUID();
+		        result.underlying = trade->getUnderlying();
+		        result.tradeType = trade->getType();
+		        
+		        // Pricing and Risk computation
+		        result.pv = treePricer->Price(mkt, trade.get(), valueDate);
+		        
+		        // Assuming computeRisk modifies dv01Results and vegaResults directly
+		        myRiskEngine.computeRisk("dv01", trade.get(), valueDate, treePricer.get(), result.dv01Results, result.vegaResults);
+		        myRiskEngine.computeRisk("vega", trade.get(), valueDate, treePricer.get(), result.dv01Results, result.vegaResults);
+		        
+		        // Get tenors
+		        VolCurve volCurve = mkt.getVolCurve(valueDate, trade->getUnderlying());
+		        for (const auto& tenor : volCurve.getTenors()) {
+		            result.tenorDates.push_back(tenor.toString());
+		        }
+		        
+		        // Lock and save result
+		        std::lock_guard<std::mutex> lock(resultsMutex);
+		        tradeResults.push_back(result);
+		    });
+		}
 
-        futures.push_back(std::move(dv01Future));
-        futures.push_back(std::move(vegaFuture));
-        pricingResults.push_back(pv); // Assuming pricingResults is defined elsewhere
+		// Join all threads
+		for (auto& thread : threads) {
+		    thread.join();
+		}
+
+		json resultJson;
+		for (const auto& result : tradeResults) {
+		    json tradeJson;
+		    tradeJson["PV"] = result.pv;
+		    json dv01Json, vegaJson;
+		    for (size_t i = 0; i < result.tenorDates.size(); ++i) {
+		        if (i < result.dv01Results.size()) {
+		            dv01Json[result.tenorDates[i]] = result.dv01Results[i];
+		        }
+		        if (i < result.vegaResults.size()) {
+		            vegaJson[result.tenorDates[i]] = result.vegaResults[i];
+		        }
+		    }
+		    tradeJson["DV01"] = dv01Json;
+		    tradeJson["Vega"] = vegaJson;
+		    tradeJson["underlying"] = result.underlying;
+		    tradeJson["type"] = result.tradeType;
+		    resultJson[result.tradeId] = tradeJson;
+		}
+
+		// Update mainJson and perform file operations
+		mainJson[valueDate.toString()] = resultJson;
     }
 
-    // Wait for all futures to complete
-    for (auto &future : futures) {
-        future.get(); // This blocks until the task completes
+    json result;
+    // Iterate through each trade
+    for (const auto& [tradeId, _] : mainJson["2024-06-01"].items()) {
+        double pv_day1 = mainJson["2024-06-01"][tradeId]["PV"].get<double>();
+        double pv_day2 = mainJson["2024-06-02"][tradeId]["PV"].get<double>();
+        double pnl = pv_day2 - pv_day1;
+
+        // Storing results in a JSON object
+        result[tradeId] = pnl;
     }
+    mainJson["PnL"] = result;
+    std::cout << "PnL Results:\n" << result.dump(4) << std::endl;
+    
+	saveJsonToFile(mainJson, OUTPUT_PATH);
+
+    
 #else
-    for (auto &trade : myPortfolio) {
-        std::cout << "***** Start PV Pricing and Risk Test *****" << std::endl;
-        double pv = treePricer->Price(
-            mkt, trade.get(),
-            Date(2024, 6, 1)); // Assuming Price() accepts a raw pointer
-        std::cout<<"+++" << std::endl;
-        double dv01 = 0; //     treePricer->CalculateDV01(mkt, trade.get(),
-                         //     Date(2024, 6, 1));
-        double vega = 0;
-        std::cout
-            << "====================== DV01 CALCULATION ======================"
-            << std::endl;
-        myRiskEngine.computeRisk("dv01", trade.get(), Date(2024, 6, 1),
-                         treePricer.get());
-        std::cout
-            << "====================== VEGA CALCULATION ======================"
-            << std::endl;
-        myRiskEngine.computeRisk("vega", trade.get(), Date(2024, 6, 1),
-                         treePricer.get());
-        pricingResults.push_back(pv);
-        std::string tradeInfo = "";
-        std::cout << "***** Priced trade with PV *****: " << pv << std::endl;
-        std::cout << "========================================================="
-                  << std::endl;
+    
+    json mainJson;
+    for (auto& valueDate : dateVector) {
+    	std::cout << "RE-CHECK VALUEDATE : " << valueDate << std::endl;
+	    json resultJson;
+	    for (auto &trade : myPortfolio) {
+	        std::cout << "***** Start PV Pricing and Risk Test ***** for Date : " << valueDate.toString() << std::endl;
+	        std::cout << "====================== PV PRICING ======================"
+	                  << std::endl;
+	        std::vector<double> dv01Results;
+			std::vector<double> vegaResults;
+	        double pv = treePricer->Price(
+	            mkt, trade.get(),
+	            valueDate); // Assuming Price() accepts a raw pointer
+	        std::cout << "Priced trade with PV : " << pv << std::endl;
+	        double dv01 = 0; //     treePricer->CalculateDV01(mkt, trade.get(),
+	                         //     Date(2024, 6, 1));
+	        double vega = 0;
+	        std::cout
+	            << "====================== DV01 CALCULATION ======================"
+	            << std::endl;
+	        myRiskEngine.computeRisk("dv01", trade.get(), valueDate,
+	                                 treePricer.get(), dv01Results, vegaResults);
+	        std::cout
+	            << "====================== VEGA CALCULATION ======================"
+	            << std::endl;
+	        myRiskEngine.computeRisk("vega", trade.get(), valueDate,
+	                                 treePricer.get(), dv01Results, vegaResults);
+	        pricingResults.push_back(pv);
+	        std::string tradeInfo = "";
+
+	        std::cout << "for trade : " << trade->getUUID() << " , " << trade->getUnderlying() << std::endl;
+	        for (auto& dv01 : dv01Results) {
+	        	std::cout << "dv01 : " << dv01 << std::endl;
+	        }
+	        std::cout << "===========================" << std::endl;
+	        for (auto& vega : vegaResults) {
+	        	std::cout << "vega : " << vega << std::endl;
+	        }
+	        std::cout << "get getVolCurve" << std::endl;
+	        VolCurve volCurve = mkt.getVolCurve(valueDate, trade->getUnderlying());
+	        std::vector<Date> tenors = volCurve.getTenors();
+	        for (auto& tenor : tenors) {
+	        	std::cout << "tenor: " << tenor << std::endl;
+	        }
+	        std::cout << "get getVolCurve1" << std::endl;
+
+
+	        // Initialize sub-json object
+		    json tradeJson;
+		    tradeJson["PV"] = pv;
+
+		    json dv01Json, vegaJson;
+		    for (size_t i = 0; i < tenors.size(); ++i) {
+		        if (i < dv01Results.size()) {
+		            dv01Json[tenors[i].toString()] = dv01Results[i];
+		        }
+		        if (i < vegaResults.size()) {
+		            vegaJson[tenors[i].toString()] = vegaResults[i];
+		        }
+		    }
+		    std::string underlying = trade->getUnderlying();
+		    tradeJson["DV01"] = dv01Json;
+		    tradeJson["Vega"] = vegaJson;
+		    tradeJson["underlying"] = underlying;
+		    tradeJson["type"] = trade->getType();
+		    // Using UUID as the key for the JSON map
+		    std::string uuid = trade->getUUID();
+		    resultJson[uuid] = tradeJson;
+		    
+		    std::cout << "resultJSON" << std::endl;
+		    std::cout << resultJson.dump(4) << std::endl; // Pretty print with indent of 4 spaces
+			std::cout << "resultJSON1" << std::endl;
+			// After processing all trades for the given date
+        	mainJson[valueDate.toString()] = resultJson;  // Use date as the key
+			
+	        std::cout << "~~~~~ End of PV Pricing and Risk Test ~~~~~ Date :" << valueDate.toString() << std::endl;
+	    }
     }
+
+    json result;
+    // Iterate through each trade
+    for (const auto& [tradeId, _] : mainJson["2024-06-01"].items()) {
+        double pv_day1 = mainJson["2024-06-01"][tradeId]["PV"].get<double>();
+        double pv_day2 = mainJson["2024-06-02"][tradeId]["PV"].get<double>();
+        double pnl = pv_day2 - pv_day1;
+
+        // Storing results in a JSON object
+        result[tradeId] = pnl;
+    }
+    mainJson["PnL"] = result;
+    std::cout << "PnL Results:\n" << result.dump(4) << std::endl;
+
+    saveJsonToFile(mainJson, OUTPUT_PATH);
+    
 #endif
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double, std::milli> elapsed = end - start;
-    
-    std::cout << "Elapsed time: " << elapsed.count() << " ms\n";
-    std::cout << "=========================================================" << std::endl;
 
+    std::cout << "Elapsed time: " << elapsed.count() << " ms\n";
+    std::cout << "========================================================="
+              << std::endl;
 
     std::cout << "===========end of Part 3============" << std::endl;
 

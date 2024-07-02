@@ -23,17 +23,20 @@ class EuropeanOption : public TreeProduct {
     OptionType getOptionType() const;
     virtual double ValueAtNode(double S, double t,
                                double continuation) const override;
-    double CalculateVega(const Market &market, const Date &valueDate,
-                         Pricer *pricer) const;
-    double CalculateDV01(const Market &market, const Date &valueDate,
-                         Pricer *pricer) const;
+    std::vector<double> CalculateDV01(const Market &market,
+                                      const Date &valueDate,
+                                      Pricer *pricer) const;
+
+    std::vector<double> CalculateVega(const Market &market,
+                                      const Date &valueDate,
+                                      Pricer *pricer) const;
     std::string toString() const;
 
-  protected:
+  private:
     OptionType optType;
     double strike;
     Date expiryDate;
-    Date valueDate;
+    Date valueDate; // doubles as curve date selector
     string underlying;
     string uuid;
 };

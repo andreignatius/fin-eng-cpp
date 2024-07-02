@@ -34,9 +34,10 @@ double AmericanOption::AmericanOption::ValueAtNode(double S, double t,
     return std::max(Payoff(S), continuation);
 }
 
-double AmericanOption::CalculateDV01(const Market &market,
-                                     const Date &valueDate,
-                                     Pricer *pricer) const {
+std::vector<double> AmericanOption::CalculateDV01(const Market &market,
+                                                  const Date &valueDate,
+                                                  Pricer *pricer) const {
+    std::vector<double> dv01_output;
     std::cout << "***AmericanOption CalculateDV01 START" << std::endl;
     // double originalPV = pricer->Price(market, this, valueDate);
     RateCurve theCurve = market.getCurve(valueDate, "usd-sofr");
@@ -45,29 +46,31 @@ double AmericanOption::CalculateDV01(const Market &market,
     std::vector<Date> tenors = theCurve.getTenors();
     for (auto it = tenors.begin(); it != tenors.end(); ++it) {
         double currRate = theCurve.getRate(*it);
-        upCurve.addRate(*it, currRate + Constants::YIELD_CURVE_SHOCK_SIZE_SINGLE_BP);
-        downCurve.addRate(*it, currRate - Constants::YIELD_CURVE_SHOCK_SIZE_SINGLE_BP);
+        upCurve.addRate(*it,
+                        currRate + Constants::YIELD_CURVE_SHOCK_SIZE_SINGLE_BP);
+        downCurve.addRate(*it, currRate -
+                                   Constants::YIELD_CURVE_SHOCK_SIZE_SINGLE_BP);
+        // Clone the original market to create perturbed markets
+        Market upMarket = market;
+        Market downMarket = market;
+        // assume usd-sofr curve
+        upMarket.updateRateCurve("usd-sofr", upCurve, valueDate);
+        downMarket.updateRateCurve("usd-sofr", downCurve, valueDate);
+        // Price the option with perturbed markets
+        double pv_up = pricer->Price(upMarket, this, valueDate);
+        double pv_down = pricer->Price(downMarket, this, valueDate);
+
+        double dv01 = (pv_up - pv_down) / 2.0;
+        dv01_output.push_back(dv01);
     }
-    // Clone the original market to create perturbed markets
-    Market upMarket = market;
-    Market downMarket = market;
-    // assume usd-sofr curve
-    upMarket.updateRateCurve("usd-sofr", upCurve, valueDate);
-    downMarket.updateRateCurve("usd-sofr", downCurve, valueDate);
-
-    // Price the option with perturbed markets
-    double pv_up = pricer->Price(upMarket, this, valueDate);
-    double pv_down = pricer->Price(downMarket, this, valueDate);
-    
-    double dv01 = (pv_up - pv_down) / 2.0;
-
     std::cout << "***AmericanOption CalculateDV01 END" << std::endl;
-    return dv01;
+    return dv01_output;
 }
 
-double AmericanOption::CalculateVega(const Market &market,
-                                     const Date &valueDate,
-                                     Pricer *pricer) const {
+std::vector<double> AmericanOption::CalculateVega(const Market &market,
+                                                  const Date &valueDate,
+                                                  Pricer *pricer) const {
+    std::vector<double> vega_output;
     std::cout << "***AmericanOption CalculateVega START" << std::endl;
     // Perturb the volatility curve
     std::string underlying = this->underlying;
@@ -77,28 +80,40 @@ double AmericanOption::CalculateVega(const Market &market,
     std::vector<Date> tenors = originalVolCurve.getTenors();
     for (const Date &tenor : tenors) {
         double currVol = originalVolCurve.getVol(tenor);
-        upVolCurve.addVol(tenor, currVol + Constants::YIELD_CURVE_SHOCK_SIZE_SINGLE_PERCENT);   // increase vol by 1%
-        downVolCurve.addVol(tenor, currVol - Constants::YIELD_CURVE_SHOCK_SIZE_SINGLE_PERCENT); // decrease vol by 1%
+        upVolCurve.addVol(
+            tenor,
+            currVol +
+                Constants::YIELD_CURVE_SHOCK_SIZE_SINGLE_PERCENT); // increase
+                                                                   // vol by 1%
+        downVolCurve.addVol(
+            tenor,
+            currVol -
+                Constants::
+                    YIELD_CURVE_SHOCK_SIZE_SINGLE_PERCENT); // decrease
+                                                            // vol by 1%
+                                                            // Clone the
+                                                            // original market
+                                                            // to create
+                                                            // perturbed markets
+        Market upMarket = market;
+        Market downMarket = market;
+        // assume usd-sofr curve
+        upMarket.updateVolCurve(underlying, upVolCurve, valueDate);
+        downMarket.updateVolCurve(underlying, downVolCurve, valueDate);
+
+        // Price the option with perturbed markets
+        double pv_up = pricer->Price(upMarket, this, valueDate);
+        double pv_down = pricer->Price(downMarket, this, valueDate);
+
+        // Calculate Vega as the difference in PV divided by the change in
+        // volatility
+        double vega = (pv_up - pv_down) /
+                      (2.0 * Constants::YIELD_CURVE_SHOCK_SIZE_SINGLE_PERCENT);
+        vega_output.push_back(vega);
     }
 
-    // Clone the original market to create perturbed markets
-    Market upMarket = market;
-    Market downMarket = market;
-    // assume usd-sofr curve
-    upMarket.updateVolCurve(underlying, upVolCurve, valueDate);
-    downMarket.updateVolCurve(underlying, downVolCurve, valueDate);
-
-    // Price the option with perturbed markets
-    double pv_up = pricer->Price(upMarket, this, valueDate);
-    double pv_down = pricer->Price(downMarket, this, valueDate);
-
-    // Calculate Vega as the difference in PV divided by the change in
-    // volatility
-    double vega = (pv_up - pv_down) /
-                  (2.0 * Constants::YIELD_CURVE_SHOCK_SIZE_SINGLE_PERCENT); // Divided by total change in volatility (0.01 + 0.01)
-
     std::cout << "***AmericanOption CalculateVega END" << std::endl;
-    return vega;
+    return vega_output;
 }
 
 AmerCallSpread::AmerCallSpread(double k1, double k2, const Date &expiry,

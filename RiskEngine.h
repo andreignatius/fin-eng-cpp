@@ -22,7 +22,8 @@ class RiskEngine {
         theMarket.Print();
     };
     // virtual double Price(const Market& mkt, std::unique_ptr<Trade>& trade);
-    void computeRisk(string riskType, Trade *trade, Date valueDate, Pricer* pricer);
+    void computeRisk(string riskType, Trade *trade, Date valueDate, Pricer* pricer,
+    				std::vector<double>& dv01_output, std::vector<double>& vega_output);
 
   private:
     Market theMarket;
