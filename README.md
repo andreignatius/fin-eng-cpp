@@ -32,7 +32,7 @@ CRR tree priced trade with PV: 93.3583
 This part of the project continues from Part 1, but with additional requirements:
 1. Create a portfolio of trades using trade info given in attached portfolio.txt.
 2. Create 2 days market data using market data attached.
-3. Price the portfolio and output the PV and Risk (DV01 and Vega) for 2 dates.
+3. Price the portfolio and output the PV and Risk (DV01 and Vega) for 2 dates. (output in `output/` folder)
    1. Output the pv and risk result for each date into file.
    2. Compute the PnL of each trade using PV difference between 2 dates
 4. Analysing the Greeks of the portfolio and design a small strategy that either:
