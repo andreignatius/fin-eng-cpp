@@ -40,21 +40,23 @@ void RiskEngine::computeRisk(string riskType, Trade *trade, Date valueDate,
                 double currRate = theCurve.getRate(tenor);
                 upCurve.addRate(tenor, currRate + shockSize);
                 downCurve.addRate(tenor, currRate - shockSize);
+
+                //  3. NOW PRICE THIS
+                // pv_up = bond->PayoffCurve(upCurve);
+                // pv_down = bond->PayoffCurve(downCurve);
+
+                pv_up = (bond ? bond->PayoffCurve(upCurve) : swap->PayoffCurve(upCurve));
+                pv_down = (bond ? bond->PayoffCurve(downCurve) : swap->PayoffCurve(downCurve));
+
+                dv01 = (pv_up - pv_down) / 2.0;
+
+                if (bond) {
+                    std::cout << "BOND DV01: " << dv01 << " for tenor : " << tenor << std::endl;
+                } else {
+                    std::cout << "SWAP DV01: " << dv01 << " for tenor : " << tenor << std::endl;
+                }
             }
-            //  3. NOW PRICE THIS
-            // pv_up = bond->PayoffCurve(upCurve);
-            // pv_down = bond->PayoffCurve(downCurve);
-
-            pv_up = (bond ? bond->PayoffCurve(upCurve) : swap->PayoffCurve(upCurve));
-            pv_down = (bond ? bond->PayoffCurve(downCurve) : swap->PayoffCurve(downCurve));
-
-            dv01 = (pv_up - pv_down) / 2.0;
-
-            if (bond) {
-                std::cout << "FINAL BOND DV01: " << dv01 << std::endl;
-            } else {
-                std::cout << "FINAL SWAP DV01: " << dv01 << std::endl;
-            }
+            
         } 
         else if (americanOption || europeanOption) {
             dv01 = (americanOption ? americanOption->CalculateDV01(theMarket, valueDate, pricer)
