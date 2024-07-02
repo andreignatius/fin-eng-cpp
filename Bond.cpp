@@ -45,11 +45,13 @@ double Bond::PayoffCurve(RateCurve theCurve) const {
     double yearsBetween = static_cast<double>(daysBetween) /
                           Constants::NUM_DAYS_IN_YEAR; // Convert days to years
     int numPeriods = paymentSchedule.size();
+    /*
     std::cout << "numPeriods : " << numPeriods << " ; startDate : " << startDate
               << " ; maturityDate : " << maturityDate
               << " ; Notional : " << notional
               << " ; Coupon Amt : " << couponAmount << " ; Freq : " << frequency
               << std::endl;
+    */
     for (int i = 0; i < numPeriods; ++i) {
         if (paymentSchedule[i] <= valueDate) {
             // coupon already disbursed
@@ -70,7 +72,7 @@ double Bond::PayoffCurve(RateCurve theCurve) const {
             }
         }
     }
-    std::cout << "FINAL PV = " << pv << std::endl;
+    // std::cout << "FINAL PV = " << pv << std::endl;
     return pv;
 }
 
