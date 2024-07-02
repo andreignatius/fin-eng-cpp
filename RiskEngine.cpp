@@ -8,6 +8,10 @@ void RiskEngine::computeRisk(string riskType, Trade *trade, Date valueDate,
     auto *europeanOption = dynamic_cast<EuropeanOption *>(trade);
     auto *bond = dynamic_cast<Bond *>(trade);
     auto *swap = dynamic_cast<Swap *>(trade);
+
+    double totalDv01 = 0, vega = 0, pv = 0;
+
+
     if (riskType == "dv01") {
         /*
             The logic is:
@@ -19,9 +23,11 @@ void RiskEngine::computeRisk(string riskType, Trade *trade, Date valueDate,
         double rate;
         double pv_up;
         double pv_down;
-        if (type == "BondTrade") {
+        if (type == "BondTrade" || type == "SwapTrade") {
             // 1. get the underlying curve
-            underlying = bond->getUnderlying();
+            // underlying = bond->getUnderlying();
+            underlying = (bond ? bond->getUnderlying() : swap->getUnderlying());
+        
             RateCurve theCurve = theMarket.getCurve(valueDate, underlying);
             std::vector<Date> tenors = theCurve.getTenors();
             // 2. shock the curve + do the PV
@@ -34,32 +40,28 @@ void RiskEngine::computeRisk(string riskType, Trade *trade, Date valueDate,
                 upCurve.addRate(*it, currRate + 0.0001);
                 downCurve.addRate(*it, currRate - 0.0001);
                 //  3. NOW PRICE THIS
-                pv_up = bond->PayoffCurve(upCurve);
-                pv_down = bond->PayoffCurve(downCurve);
+                // pv_up = bond->PayoffCurve(upCurve);
+                // pv_down = bond->PayoffCurve(downCurve);
+
+                pv_up = (bond ? bond->PayoffCurve(upCurve) : swap->PayoffCurve(upCurve));
+                pv_down = (bond ? bond->PayoffCurve(downCurve) : swap->PayoffCurve(downCurve));
+
                 double dv01 = (pv_up - pv_down) / 2.0;
-                std::cout << "BOND DV01 " << *it << " = " << dv01 << std::endl;
+                totalDv01 += dv01;
+                if (bond) {
+                    std::cout << "BOND DV01 " << *it << " = " << dv01 << std::endl;
+                } else {
+                    std::cout << "SWAP DV01 " << *it << " = " << dv01 << std::endl;
+                }
+                
             }
-        } else if (type == "SwapTrade") {
-            // 1. get the underlying curve
-            underlying = swap->getUnderlying();
-            RateCurve theCurve = theMarket.getCurve(valueDate, underlying);
-            // 2. shock the curve + do the PV
-            //      1. Copy the curve first
-            RateCurve upCurve = theCurve;
-            RateCurve downCurve = theCurve;
-            std::vector<Date> tenors = theCurve.getTenors();
-            //      2. Iter through the keys of the curve
-            for (auto it = tenors.begin(); it != tenors.end(); ++it) {
-                double currRate = theCurve.getRate(*it);
-                upCurve.addRate(*it, currRate + 0.0001);
-                downCurve.addRate(*it, currRate - 0.0001);
-                //  3. NOW PRICE THIS
-                pv_up = swap->PayoffCurve(upCurve);
-                pv_down = swap->PayoffCurve(downCurve);
-                double dv01 = (pv_up - pv_down) / 2.0;
-                std::cout << "SWAP DV01 " << *it << " = " << dv01 << std::endl;
+            if (bond) {
+                std::cout << "FINAL BOND DV01: " << totalDv01 << std::endl;
+            } else {
+                std::cout << "FINAL SWAP DV01: " << totalDv01 << std::endl;
             }
-        } else if (americanOption) {
+        } 
+        else if (americanOption) {
             std::cout << "americanOption dv01 calc" << std::endl;
             double dv01 =
                 americanOption->CalculateDV01(theMarket, valueDate, pricer);
