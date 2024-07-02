@@ -8,8 +8,18 @@ project(MyProject)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-# Find nlohmann_json package (Ensure it's installed)
-find_package(nlohmann_json REQUIRED)
+# Include the FetchContent module
+include(FetchContent)
+
+# Declare nlohmann_json as a fetchable content
+FetchContent_Declare(
+  nlohmann_json
+  GIT_REPOSITORY https://github.com/nlohmann/json.git
+  GIT_TAG v3.10.5  # Specify the version you need
+)
+
+# Make nlohmann_json available
+FetchContent_MakeAvailable(nlohmann_json)
 
 # Add executable
 # add_executable(main main.cpp AmericanTrade.cpp Bond.cpp BlackScholesPricer.cpp Date.cpp EuropeanTrade.cpp Logger.cpp Market.cpp JSONReader.cpp Pricer.cpp Swap.cpp PortfolioMaker.cpp CSVReader.cpp TenorMap.cpp Trade.cpp Utils.cpp)
