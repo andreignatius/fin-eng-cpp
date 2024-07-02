@@ -87,7 +87,10 @@ int main() {
         std::filesystem::current_path() / "../../market_data";
     std::time_t t = std::time(0);
     auto now_ = std::localtime(&t);
-    Date valueDate = Date(2024, 6, 1);
+    /*
+        USER SHOULD CHANGE THIS , EITHER 2024-06-01 OR 2024-06-02
+    */
+    Date valueDate = Date(2024, 6, 2);
     std::cout << "WE ARE AT VALUE DATE : " << valueDate << std::endl;
     Market mkt = Market(valueDate);
     /*
