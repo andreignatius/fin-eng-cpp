@@ -385,6 +385,20 @@ int main() {
 	        std::cout << "~~~~~ End of PV Pricing and Risk Test ~~~~~ Date :" << valueDate.toString() << std::endl;
 	    }
     }
+
+    json result;
+    // Iterate through each trade
+    for (const auto& [tradeId, _] : mainJson["2024-06-01"].items()) {
+        double pv_day1 = mainJson["2024-06-01"][tradeId]["PV"].get<double>();
+        double pv_day2 = mainJson["2024-06-02"][tradeId]["PV"].get<double>();
+        double pnl = pv_day2 - pv_day1;
+
+        // Storing results in a JSON object
+        result[tradeId] = pnl;
+    }
+    mainJson["PnL"] = result;
+    std::cout << "PnL Results:\n" << result.dump(4) << std::endl;
+
     saveJsonToFile(mainJson, OUTPUT_PATH);
     
 #endif
