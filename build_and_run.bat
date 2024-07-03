@@ -18,6 +18,7 @@ REM Running the executable
 main.exe
 
 REM Navigate back to the project root directory to install Python requirements
+REM You may need to adjust python path depending on your environment
 cd ..\..
 python -m pip install -r requirements.txt
 

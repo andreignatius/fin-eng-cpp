@@ -18,6 +18,7 @@ cd bin
 ./main
 
 # Navigate back to the project root directory to install Python requirements
+# Adjust python path if needed
 cd ../..
 python -m pip install -r requirements.txt
 
